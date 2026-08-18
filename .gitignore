@@ -16,3 +16,7 @@ dist/
 # IDE
 .vscode/
 .idea/
+
+# Local planning files
+COMMIT_PLAN.md
+WORKPLAN.md
