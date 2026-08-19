@@ -1,176 +1,71 @@
 function ShipmentOperations() {
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#F8FAFC",
-        padding: "40px 20px",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-        }}
-      >
+    <div className="min-h-screen bg-[#18181B] px-5 py-10 font-sans">
+      <div className="mx-auto max-w-4xl">
         {/* Page Header */}
-        <div style={{ marginBottom: "30px" }}>
-          <h1
-            style={{
-              color: "#1E3A8A",
-              fontSize: "32px",
-              marginBottom: "8px",
-            }}
-          >
+        <div className="mb-8">
+          <h1 className="mb-2 text-3xl font-bold text-[#FAFAFA]">
             Shipment Operations
           </h1>
 
-          <p
-            style={{
-              color: "#64748B",
-              fontSize: "15px",
-            }}
-          >
+          <p className="text-sm text-[#A1A1AA]">
             Create and manage shipment lifecycle events.
           </p>
         </div>
 
         {/* Create Shipment Card */}
-        <div
-          style={{
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E2E8F0",
-            borderRadius: "16px",
-            padding: "30px",
-            boxShadow: "0 4px 15px rgba(0, 0, 0, 0.05)",
-          }}
-        >
-          <h2
-            style={{
-              color: "#1E293B",
-              fontSize: "22px",
-              marginBottom: "8px",
-            }}
-          >
+        <div className="rounded-2xl border border-[#3F3F46] bg-[#27272A] p-8 shadow-lg">
+          <h2 className="mb-2 text-2xl font-semibold text-[#FAFAFA]">
             Create Shipment
           </h2>
 
-          <p
-            style={{
-              color: "#64748B",
-              fontSize: "14px",
-              marginBottom: "25px",
-            }}
-          >
+          <p className="mb-7 text-sm text-[#A1A1AA]">
             Start a new shipment and create its initial event stream.
           </p>
 
           {/* Shipment ID */}
-          <div style={{ marginBottom: "20px" }}>
-            <label
-              style={{
-                display: "block",
-                color: "#334155",
-                fontSize: "14px",
-                fontWeight: "600",
-                marginBottom: "8px",
-              }}
-            >
+          <div className="mb-5">
+            <label className="mb-2 block text-sm font-semibold text-[#D4D4D8]">
               Shipment ID
             </label>
 
             <input
               type="text"
               placeholder="Enter shipment ID"
-              style={{
-                width: "100%",
-                padding: "13px 14px",
-                border: "1px solid #CBD5E1",
-                borderRadius: "8px",
-                outline: "none",
-                fontSize: "15px",
-                color: "#1E293B",
-                boxSizing: "border-box",
-              }}
+              className="w-full rounded-lg border border-[#3F3F46] bg-[#202023] px-4 py-3 text-sm text-[#FAFAFA] outline-none placeholder:text-[#71717A] focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20"
             />
           </div>
 
           {/* Origin */}
-          <div style={{ marginBottom: "20px" }}>
-            <label
-              style={{
-                display: "block",
-                color: "#334155",
-                fontSize: "14px",
-                fontWeight: "600",
-                marginBottom: "8px",
-              }}
-            >
+          <div className="mb-5">
+            <label className="mb-2 block text-sm font-semibold text-[#D4D4D8]">
               Origin
             </label>
 
             <input
               type="text"
               placeholder="Enter origin location"
-              style={{
-                width: "100%",
-                padding: "13px 14px",
-                border: "1px solid #CBD5E1",
-                borderRadius: "8px",
-                outline: "none",
-                fontSize: "15px",
-                color: "#1E293B",
-                boxSizing: "border-box",
-              }}
+              className="w-full rounded-lg border border-[#3F3F46] bg-[#202023] px-4 py-3 text-sm text-[#FAFAFA] outline-none placeholder:text-[#71717A] focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20"
             />
           </div>
 
           {/* Destination */}
-          <div style={{ marginBottom: "25px" }}>
-            <label
-              style={{
-                display: "block",
-                color: "#334155",
-                fontSize: "14px",
-                fontWeight: "600",
-                marginBottom: "8px",
-              }}
-            >
+          <div className="mb-7">
+            <label className="mb-2 block text-sm font-semibold text-[#D4D4D8]">
               Destination
             </label>
 
             <input
               type="text"
               placeholder="Enter destination location"
-              style={{
-                width: "100%",
-                padding: "13px 14px",
-                border: "1px solid #CBD5E1",
-                borderRadius: "8px",
-                outline: "none",
-                fontSize: "15px",
-                color: "#1E293B",
-                boxSizing: "border-box",
-              }}
+              className="w-full rounded-lg border border-[#3F3F46] bg-[#202023] px-4 py-3 text-sm text-[#FAFAFA] outline-none placeholder:text-[#71717A] focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20"
             />
           </div>
 
           {/* Create Button */}
           <button
             type="button"
-            style={{
-              width: "100%",
-              padding: "14px",
-              backgroundColor: "#2563EB",
-              color: "#FFFFFF",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "16px",
-              fontWeight: "600",
-              cursor: "pointer",
-              boxShadow: "0 4px 10px rgba(37, 99, 235, 0.18)",
-            }}
+            className="w-full rounded-lg bg-[#3B82F6] px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#3B82F6]/40"
           >
             Create Shipment
           </button>
