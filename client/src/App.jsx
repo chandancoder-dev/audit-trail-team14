@@ -1,9 +1,7 @@
+import HistoricalState from "./pages/HistoricalState";
+
 function App() {
-  return (
-    <div>
-      <h1>Audit Trail</h1>
-    </div>
-  );
+  return <HistoricalState />;
 }
 
 export default App;
