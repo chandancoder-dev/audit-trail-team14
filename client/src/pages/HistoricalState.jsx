@@ -6,30 +6,38 @@ function HistoricalState() {
     {
       time: "12:00",
       minutes: 0,
+      eventType: "CONTAINER_CREATED",
       status: "Created",
       location: "Warehouse",
       temperature: "22°C",
+      details: "Container was created and registered in the system.",
     },
     {
       time: "12:30",
       minutes: 30,
+      eventType: "LOADED_ON_SHIP",
       status: "In Transit",
       location: "Port A",
       temperature: "22°C",
+      details: "Container was loaded onto the ship.",
     },
     {
       time: "13:15",
       minutes: 75,
+      eventType: "TEMPERATURE_SPIKE",
       status: "Temperature Alert",
       location: "At Sea",
       temperature: "31°C",
+      details: "Temperature exceeded the expected shipment range.",
     },
     {
       time: "14:00",
       minutes: 120,
+      eventType: "ARRIVED_AT_PORT",
       status: "Arrived",
       location: "Port B",
       temperature: "23°C",
+      details: "Shipment arrived at the destination port.",
     },
   ];
 
@@ -160,7 +168,7 @@ function HistoricalState() {
                   <div className="event-top">
                     <div>
                       <h3>{event.status}</h3>
-
+                      <p className="event-type">{event.eventType}</p>
                       <p>{event.location}</p>
                     </div>
 
@@ -170,6 +178,7 @@ function HistoricalState() {
                   <p className="event-temperature">
                     Temperature: {event.temperature}
                   </p>
+                  <p className="event-details">{event.details}</p>
                 </div>
               </div>
             ))}
