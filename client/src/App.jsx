@@ -1,13 +1,27 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import HistoricalState from "./pages/HistoricalState";
-import { ShipmentDetail } from "./features/shipmentDetail";
+import ShipmentOperations from "./pages/ShipmentOperations";
+import AuditTimeline from "./components/AuditTimeline";
+import ShipmentDetail from "./features/shipmentDetail/ShipmentDetail";
 
 function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-bg-primary text-text-normal">
         <Routes>
-          <Route path="/" element={<HistoricalState />} />
+          <Route path="/" element={<ShipmentOperations />} />
+
+          <Route
+            path="/historicalstate"
+            element={<HistoricalState />}
+          />
+
+          <Route
+            path="/audittimeline"
+            element={<AuditTimeline />}
+          />
+
           <Route
             path="/shipment/:shipmentId"
             element={<ShipmentDetail />}
