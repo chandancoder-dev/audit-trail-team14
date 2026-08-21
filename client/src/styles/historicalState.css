@@ -209,3 +209,30 @@
 .active-event .event-content {
   border-color: #2563eb;
 }
+
+.event-content .event-type {
+  color: #60a5fa;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.event-details {
+  margin-top: 8px;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+.event-type {
+  color: #60a5fa;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.event-details {
+  margin-top: 8px;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
