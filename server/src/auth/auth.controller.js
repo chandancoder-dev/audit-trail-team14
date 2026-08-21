@@ -66,4 +66,26 @@ const login = async(req , res) =>{
        return res.status(500).json({message : e.message});
     }
 }
-module.exports = {register,login};
+
+const getCurrentUser = async(req , res) =>{
+       
+    try{
+        
+        const id = req.id;
+
+        const user = await User.findById(id);
+
+        if (!user) {
+           return res.status(404).json({
+           message: "User not found",
+      });
+
+      res.status(200).json(user);
+    }
+    }
+    catch(e){
+         
+        res.status(500).json({message : e.message});
+    }
+}
+module.exports = {register,login, getCurrentUser};
