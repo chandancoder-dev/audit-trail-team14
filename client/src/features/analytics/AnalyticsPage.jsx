@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import TemperatureChart from './TemperatureChart';
 
 function AnalyticsPage() {
   const { id } = useParams();
@@ -38,8 +39,7 @@ function AnalyticsPage() {
       <div className="bg-bg-card rounded-lg p-6 border border-border mb-8">
         <h2 className="text-lg font-semibold text-text-heading mb-4">Temperature Over Time</h2>
         <div className="h-72 flex items-center justify-center text-text-placeholder">
-          {/* Recharts TemperatureChart component will be placed here */}
-          <p>Temperature chart will render here</p>
+          <TemperatureChart />
         </div>
       </div>
 
