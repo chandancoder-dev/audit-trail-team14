@@ -5,6 +5,8 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Features from "./pages/Features";
 import NavBar from "./components/Navbar";
+import AnalyticsPage from "./features/analytics/AnalyticsPage"
+import AlertsPage from "./features/alerts/AlertsPage"
 import AuditTimeline from "./components/AuditTimeline";
 
 function App() {
