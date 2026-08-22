@@ -22,6 +22,16 @@ function ShipmentOperations() {
   const [moveSuccessMessage, setMoveSuccessMessage] = useState("");
 
   // -----------------------------
+  // Temperature Event State
+  // -----------------------------
+  const [temperatureShipmentId, setTemperatureShipmentId] = useState("");
+  const [temperature, setTemperature] = useState("");
+
+  const [temperatureErrors, setTemperatureErrors] = useState({});
+  const [temperatureSuccessMessage, setTemperatureSuccessMessage] =
+    useState("");
+
+  // -----------------------------
   // Create Shipment
   // -----------------------------
   const handleCreateShipment = () => {
@@ -80,6 +90,35 @@ function ShipmentOperations() {
 
     setMoveSuccessMessage(
       `Shipment ${moveShipmentId} is ready to move from ${currentLocation} to ${moveDestination}.`
+    );
+  };
+
+  // -----------------------------
+  // Temperature Event
+  // -----------------------------
+  const handleTemperatureEvent = () => {
+    setTemperatureErrors({});
+    setTemperatureSuccessMessage("");
+
+    const newErrors = {};
+
+    if (temperatureShipmentId.trim() === "") {
+      newErrors.temperatureShipmentId = "Shipment ID is required";
+    }
+
+    if (temperature.trim() === "") {
+      newErrors.temperature = "Temperature is required";
+    } else if (isNaN(Number(temperature))) {
+      newErrors.temperature = "Temperature must be a valid number";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setTemperatureErrors(newErrors);
+      return;
+    }
+
+    setTemperatureSuccessMessage(
+      `Temperature event for ${temperatureShipmentId} is ready to be recorded at ${temperature}°C.`
     );
   };
 
@@ -233,7 +272,7 @@ function ShipmentOperations() {
         {/* =====================================================
             MOVE SHIPMENT
         ====================================================== */}
-        <div className="rounded-2xl border border-[#3F3F46] bg-[#27272A] p-8 shadow-lg">
+        <div className="mb-8 rounded-2xl border border-[#3F3F46] bg-[#27272A] p-8 shadow-lg">
 
           <h2 className="mb-2 text-2xl font-semibold text-[#FAFAFA]">
             Move Shipment
@@ -359,6 +398,105 @@ function ShipmentOperations() {
             className="w-full rounded-lg bg-[#3B82F6] px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#3B82F6]/40"
           >
             Move Shipment
+          </button>
+        </div>
+
+        {/* =====================================================
+            TEMPERATURE EVENT
+        ====================================================== */}
+        <div className="rounded-2xl border border-[#3F3F46] bg-[#27272A] p-8 shadow-lg">
+
+          <h2 className="mb-2 text-2xl font-semibold text-[#FAFAFA]">
+            Temperature Event
+          </h2>
+
+          <p className="mb-7 text-sm text-[#A1A1AA]">
+            Record a temperature event for an existing shipment.
+          </p>
+
+          {/* Success Message */}
+          {temperatureSuccessMessage && (
+            <div className="mb-6 rounded-lg border border-[#22C55E]/40 bg-[#22C55E]/10 px-4 py-3 text-sm text-[#22C55E]">
+              {temperatureSuccessMessage}
+            </div>
+          )}
+
+          {/* Shipment ID */}
+          <div className="mb-5">
+            <label className="mb-2 block text-sm font-semibold text-[#D4D4D8]">
+              Shipment ID
+            </label>
+
+            <input
+              type="text"
+              placeholder="Enter shipment ID"
+              value={temperatureShipmentId}
+              onChange={(e) => {
+                setTemperatureShipmentId(e.target.value);
+
+                if (temperatureErrors.temperatureShipmentId) {
+                  setTemperatureErrors((previous) => ({
+                    ...previous,
+                    temperatureShipmentId: "",
+                  }));
+                }
+              }}
+              className={`w-full rounded-lg border bg-[#202023] px-4 py-3 text-sm text-[#FAFAFA] outline-none placeholder:text-[#71717A] focus:ring-2 focus:ring-[#3B82F6]/20 ${
+                temperatureErrors.temperatureShipmentId
+                  ? "border-[#EF4444] focus:border-[#EF4444]"
+                  : "border-[#3F3F46] focus:border-[#3B82F6]"
+              }`}
+            />
+
+            {temperatureErrors.temperatureShipmentId && (
+              <p className="mt-2 text-sm text-[#EF4444]">
+                {temperatureErrors.temperatureShipmentId}
+              </p>
+            )}
+          </div>
+
+          {/* Temperature */}
+          <div className="mb-7">
+            <label className="mb-2 block text-sm font-semibold text-[#D4D4D8]">
+              Temperature (°C)
+            </label>
+
+            <input
+              type="number"
+              step="0.1"
+              placeholder="Enter temperature"
+              value={temperature}
+              onChange={(e) => {
+                setTemperature(e.target.value);
+
+                if (temperatureErrors.temperature) {
+                  setTemperatureErrors((previous) => ({
+                    ...previous,
+                    temperature: "",
+                  }));
+                }
+              }}
+              className={`w-full rounded-lg border bg-[#202023] px-4 py-3 text-sm text-[#FAFAFA] outline-none placeholder:text-[#71717A] focus:ring-2 focus:ring-[#3B82F6]/20 ${
+                temperatureErrors.temperature
+                  ? "border-[#EF4444] focus:border-[#EF4444]"
+                  : "border-[#3F3F46] focus:border-[#3B82F6]"
+              }`}
+            />
+
+            {temperatureErrors.temperature && (
+              <p className="mt-2 text-sm text-[#EF4444]">
+                {temperatureErrors.temperature}
+              </p>
+            )}
+          </div>
+
+          {/* Temperature Button */}
+          <button
+            type="button"
+            onClick={handleTemperatureEvent}
+            className="w-full rounded-lg bg-[#3B82F6] px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-[#2563EB] focus:outline-none focus:ring-2 focus:ring-[#3B82F6]/40"
+          >
+            Record Temperature Event
           </button>
         </div>
       </div>
