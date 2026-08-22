@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HistoricalState from "./pages/HistoricalState";
 import ShipmentOperations from "./pages/ShipmentOperations";
 import AuditTimeline from './components/AuditTimeline';
