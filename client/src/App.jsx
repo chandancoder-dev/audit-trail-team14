@@ -4,8 +4,8 @@ import ShipmentOperations from "./pages/ShipmentOperations";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Features from "./pages/Features";
-import AuditTimeline from "./components/AuditTimeline";
 import NavBar from "./components/Navbar";
+import AuditTimeline from "./components/AuditTimeline";
 
 function App() {
   return (
@@ -21,6 +21,8 @@ function App() {
           <Route path = "/features" element = {<Features/>} />
           <Route path="/historicalstate" element={<HistoricalState />} />
           <Route path="/audittimeline" element={<AuditTimeline />} />
+          <Route path="/shipment/:id/analytics" element={<AnalyticsPage />} />
+          <Route path="/alerts" element={<AlertsPage />} />
         </Routes>
       </div>
       </BrowserRouter>
