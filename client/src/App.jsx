@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import HistoricalState from "./pages/HistoricalState";
 import ShipmentOperations from "./pages/ShipmentOperations";
 import Home from "./pages/Home";
@@ -8,6 +9,7 @@ import NavBar from "./components/Navbar";
 import AnalyticsPage from "./features/analytics/AnalyticsPage"
 import AlertsPage from "./features/alerts/AlertsPage"
 import AuditTimeline from "./components/AuditTimeline";
+import ShipmentDetail from "./features/shipmentDetail/ShipmentDetail";
 
 function App() {
   return (
