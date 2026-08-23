@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "../styles/historicalState.css";
 
 function HistoricalState() {
   const events = [
@@ -53,78 +52,118 @@ function HistoricalState() {
 
     return `${String(hour).padStart(2, "0")}:${String(minute).padStart(
       2,
-      "0",
+      "0"
     )}`;
   };
 
   const selectedEventIndex = events.findIndex(
-    (event) => event.minutes === currentEvent.minutes,
+    (event) => event.minutes === currentEvent.minutes
   );
 
   return (
-    <div className="historical-page">
-      <header className="history-header">
+    <div className="min-h-screen bg-bg-primary px-4 py-6 text-text-heading font-sans sm:px-6 sm:py-8 md:px-10">
+      {/* Header */}
+      <header className="mx-auto mb-8 flex max-w-275 flex-col items-start justify-between gap-4 md:flex-row md:gap-6">
         <div>
-          <p className="page-label">AUDIT TRAIL</p>
+          <p className="mb-2 text-[13px] font-bold tracking-[1.5px] text-primary">
+            AUDIT TRAIL
+          </p>
 
-          <h1>Historical State</h1>
+          <h1 className="mb-2 text-[26px] font-bold text-text-heading sm:text-[30px] md:text-[36px]">
+            Historical State
+          </h1>
 
-          <p className="page-description">
+          <p className="text-[14px] text-text-secondary sm:text-[15px]">
             View the reconstructed shipment state at any point in time.
           </p>
         </div>
 
-        <div className="shipment-badge">
-          Shipment ID: <strong>SHIP-001</strong>
+        <div className="w-full rounded-[10px] border border-border bg-bg-card px-4 py-3 text-text-secondary md:w-auto">
+          Shipment ID:{" "}
+          <strong className="text-text-heading">SHIP-001</strong>
         </div>
       </header>
 
-      <main className="history-content">
-        <section className="state-card">
-          <div className="section-heading">
+      {/* Main content */}
+      <main className="mx-auto grid max-w-275 gap-5">
+        {/* Reconstructed State */}
+        <section className="rounded-[14px] border border-border bg-bg-card p-4.5 sm:p-6">
+          <div className="mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row sm:gap-5">
             <div>
-              <h2>Reconstructed State</h2>
+              <h2 className="mb-1.5 text-xl font-bold text-text-heading">
+                Reconstructed State
+              </h2>
 
-              <p>Shipment state at the selected point in time.</p>
+              <p className="text-[14px] text-text-secondary">
+                Shipment state at the selected point in time.
+              </p>
             </div>
 
-            <span className="status-badge">
+            <span className="rounded-full bg-success/15 px-3 py-1.5 text-xs font-bold text-success">
               {currentEvent.status.toUpperCase()}
             </span>
           </div>
 
-          <div className="state-grid">
-            <div className="state-item">
-              <span>Selected Time</span>
-              <strong>{formatTime(selectedMinute)}</strong>
+          {/* State cards */}
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-[10px] border border-border bg-bg-input p-4.5">
+              <span className="mb-2 block text-[13px] text-text-secondary">
+                Selected Time
+              </span>
+
+              <strong className="text-lg text-text-heading">
+                {formatTime(selectedMinute)}
+              </strong>
             </div>
 
-            <div className="state-item">
-              <span>Status</span>
-              <strong>{currentEvent.status}</strong>
+            <div className="rounded-[10px] border border-border bg-bg-input p-4.5">
+              <span className="mb-2 block text-[13px] text-text-secondary">
+                Status
+              </span>
+
+              <strong className="text-lg text-text-heading">
+                {currentEvent.status}
+              </strong>
             </div>
 
-            <div className="state-item">
-              <span>Location</span>
-              <strong>{currentEvent.location}</strong>
+            <div className="rounded-[10px] border border-border bg-bg-input p-4.5">
+              <span className="mb-2 block text-[13px] text-text-secondary">
+                Location
+              </span>
+
+              <strong className="text-lg text-text-heading">
+                {currentEvent.location}
+              </strong>
             </div>
 
-            <div className="state-item">
-              <span>Temperature</span>
-              <strong>{currentEvent.temperature}</strong>
+            <div className="rounded-[10px] border border-border bg-bg-input p-4.5">
+              <span className="mb-2 block text-[13px] text-text-secondary">
+                Temperature
+              </span>
+
+              <strong className="text-lg text-text-heading">
+                {currentEvent.temperature}
+              </strong>
             </div>
           </div>
         </section>
 
-        <section className="timeline-card">
-          <div className="section-heading">
+        {/* Time Travel */}
+        <section className="rounded-[14px] border border-border bg-bg-card p-4.5 sm:p-6">
+          <div className="mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row sm:gap-5">
             <div>
-              <h2>Time Travel</h2>
+              <h2 className="mb-1.5 text-xl font-bold text-text-heading">
+                Time Travel
+              </h2>
 
-              <p>Move through the shipment history.</p>
+              <p className="text-[14px] text-text-secondary">
+                Move through the shipment history.
+              </p>
             </div>
 
-            <span className="selected-time">{formatTime(selectedMinute)}</span>
+            <span className="self-start rounded-lg bg-primary px-3.5 py-2 font-semibold text-text-heading">
+              {formatTime(selectedMinute)}
+            </span>
           </div>
 
           <input
@@ -133,10 +172,10 @@ function HistoricalState() {
             max="120"
             value={selectedMinute}
             onChange={(e) => setSelectedMinute(Number(e.target.value))}
-            className="history-slider"
+            className="w-full cursor-pointer accent-primary"
           />
 
-          <div className="slider-labels">
+          <div className="mt-2 flex justify-between text-[13px] text-text-secondary">
             <span>12:00</span>
             <span>12:30</span>
             <span>13:15</span>
@@ -144,44 +183,80 @@ function HistoricalState() {
           </div>
         </section>
 
-        <section className="events-card">
-          <div className="section-heading">
-            <div>
-              <h2>Event Timeline</h2>
+        {/* Event Timeline */}
+        <section className="rounded-[14px] border border-border bg-bg-card p-4.5 sm:p-6">
+          <div className="mb-6">
+            <h2 className="mb-1.5 text-xl font-bold text-text-heading">
+              Event Timeline
+            </h2>
 
-              <p>Events recorded for this shipment.</p>
-            </div>
+            <p className="text-[14px] text-text-secondary">
+              Events recorded for this shipment.
+            </p>
           </div>
 
-          <div className="timeline">
-            {events.map((event, index) => (
-              <div
-                className={`timeline-event ${
-                  selectedEventIndex === index ? "active-event" : ""
-                }`}
-                key={event.time}
-                onClick={() => setSelectedMinute(event.minutes)}
-              >
-                <div className="timeline-marker">{index + 1}</div>
+          <div className="flex flex-col gap-3.5">
+            {events.map((event, index) => {
+              const isActive = selectedEventIndex === index;
 
-                <div className="event-content">
-                  <div className="event-top">
-                    <div>
-                      <h3>{event.status}</h3>
-                      <p className="event-type">{event.eventType}</p>
-                      <p>{event.location}</p>
-                    </div>
-
-                    <span className="event-time">{event.time}</span>
+              return (
+                <div
+                  key={event.time}
+                  className={`flex cursor-pointer gap-2.5 sm:gap-3.5 ${
+                    isActive ? "" : ""
+                  }`}
+                  onClick={() => setSelectedMinute(event.minutes)}
+                >
+                  {/* Marker */}
+                  <div
+                    className={`flex h-7 w-7 min-w-7 items-center justify-center rounded-full text-xs sm:h-8 sm:w-8 sm:min-w-8 ${
+                      isActive
+                        ? "bg-primary text-text-heading"
+                        : "bg-border text-text-secondary"
+                    }`}
+                  >
+                    {index + 1}
                   </div>
 
-                  <p className="event-temperature">
-                    Temperature: {event.temperature}
-                  </p>
-                  <p className="event-details">{event.details}</p>
+                  {/* Event content */}
+                  <div
+                    className={`flex-1 rounded-[10px] border bg-bg-card p-3.5 sm:p-4 ${
+                      isActive
+                        ? "border-primary"
+                        : "border-border"
+                    }`}
+                  >
+                    <div className="flex flex-col justify-between gap-2 sm:flex-row sm:gap-5">
+                      <div>
+                        <h3 className="mb-1 text-base font-semibold text-text-heading">
+                          {event.status}
+                        </h3>
+
+                        <p className="mt-1 text-xs font-semibold tracking-[0.5px] text-primary">
+                          {event.eventType}
+                        </p>
+
+                        <p className="mt-1 text-[13px] text-text-secondary">
+                          {event.location}
+                        </p>
+                      </div>
+
+                      <span className="font-bold text-primary">
+                        {event.time}
+                      </span>
+                    </div>
+
+                    <p className="mt-2.5 text-[13px] text-text-secondary">
+                      Temperature: {event.temperature}
+                    </p>
+
+                    <p className="mt-2 text-[13px] leading-6 text-text-secondary">
+                      {event.details}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       </main>
