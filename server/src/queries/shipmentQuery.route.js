@@ -1,9 +1,14 @@
 const express = require("express");
 
-const { getShipmentEvents } = require("./shipmentQuery.controller");
+const {
+  getShipmentEvents,
+  getShipmentHistoricalState,
+} = require("./shipmentQuery.controller");
 
 const router = express.Router();
 
 router.get("/shipment/:id/events", getShipmentEvents);
+
+router.get("/shipment/:id/state", getShipmentHistoricalState);
 
 module.exports = router;
