@@ -10,6 +10,7 @@ import AnalyticsPage from "./features/analytics/AnalyticsPage"
 import AlertsPage from "./features/alerts/AlertsPage"
 import AuditTimeline from "./components/AuditTimeline";
 import ShipmentDetail from "./features/shipmentDetail/ShipmentDetail";
+import Login from "./pages/Login";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/audittimeline" element={<AuditTimeline />} />
           <Route path="/shipment/:id/analytics" element={<AnalyticsPage />} />
           <Route path="/alerts" element={<AlertsPage />} />
+          <Route path="/login" element={<Login/>}/>
         </Routes>
       </div>
       </BrowserRouter>
