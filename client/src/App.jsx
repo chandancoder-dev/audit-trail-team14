@@ -21,6 +21,7 @@ function App() {
       <div className="min-h-screen bg-bg-primary text-text-normal">
         <Routes>
           <Route path="/" element={<ShipmentOperations />} />
+          <Route path="/shipment/:shipmentId" element={<ShipmentDetail />} />
           <Route path = "/home" element = {<Home/>} />
           <Route path = "/About" element = {<About/>} />
           <Route path = "/features" element = {<Features/>} />
