@@ -12,7 +12,7 @@ function NavBar() {
       {/* Navigation */}
       <div className="flex items-center gap-8">
         <NavLink
-          to="/home"
+          to="/"
           className={({ isActive }) =>
             `transition-colors ${
               isActive

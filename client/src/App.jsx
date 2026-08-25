@@ -11,6 +11,7 @@ import AlertsPage from "./features/alerts/AlertsPage"
 import AuditTimeline from "./components/AuditTimeline";
 import ShipmentDetail from "./features/shipmentDetail/ShipmentDetail";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
   return (
@@ -20,8 +21,7 @@ function App() {
 
       <div className="min-h-screen bg-bg-primary text-text-normal">
         <Routes>
-          <Route path="/" element={<ShipmentOperations />} />
-          <Route path = "/home" element = {<Home/>} />
+          <Route path="/" element={<Home />} />
           <Route path = "/About" element = {<About/>} />
           <Route path = "/features" element = {<Features/>} />
           <Route path="/historicalstate" element={<HistoricalState />} />
@@ -29,6 +29,7 @@ function App() {
           <Route path="/shipment/:id/analytics" element={<AnalyticsPage />} />
           <Route path="/alerts" element={<AlertsPage />} />
           <Route path="/login" element={<Login/>}/>
+          <Route path = "/register" element= {<Register/>}/>
         </Routes>
       </div>
       </BrowserRouter>
