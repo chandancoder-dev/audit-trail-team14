@@ -55,7 +55,62 @@ const createShipment = async (req, res) => {
   }
 };
 
+const moveShipment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { location, temperature } = req.body;
+
+    if (!location) {
+      return res.status(400).json({
+        status: "error",
+        message: "location is required",
+      });
+    }
+
+    const lastEvent = await Event.findOne({ shipmentId: id }).sort({
+      version: -1,
+    });
+
+    if (!lastEvent) {
+      return res.status(404).json({
+        status: "error",
+        message: "Shipment not found",
+      });
+    }
+
+    const nextVersion = lastEvent.version + 1;
+
+    const event = await Event.create({
+      shipmentId: id,
+      eventType: "LOADED_ON_SHIP",
+      version: nextVersion,
+      payload: {
+        status: "In Transit",
+        location,
+        ...(temperature !== undefined && { temperature }),
+      },
+      metadata: {
+        source: "command-api",
+      },
+    });
+
+    return res.status(201).json({
+      status: "success",
+      message: "Shipment moved successfully",
+      event,
+    });
+  } catch (error) {
+    console.error("Error moving shipment:", error);
+
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to move shipment",
+    });
+  }
+};
+
 module.exports = {
   commandHealth,
   createShipment,
+  moveShipment,
 };
