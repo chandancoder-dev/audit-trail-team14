@@ -109,8 +109,63 @@ const moveShipment = async (req, res) => {
   }
 };
 
+const recordTemperature = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { temperature, location } = req.body;
+
+    if (temperature === undefined || temperature === null) {
+      return res.status(400).json({
+        status: "error",
+        message: "temperature is required",
+      });
+    }
+
+    const lastEvent = await Event.findOne({ shipmentId: id }).sort({
+      version: -1,
+    });
+
+    if (!lastEvent) {
+      return res.status(404).json({
+        status: "error",
+        message: "Shipment not found",
+      });
+    }
+
+    const nextVersion = lastEvent.version + 1;
+
+    const event = await Event.create({
+      shipmentId: id,
+      eventType: "TEMPERATURE_SPIKE",
+      version: nextVersion,
+      payload: {
+        status: "Temperature Alert",
+        location: location || "At Sea",
+        temperature: Number(temperature),
+      },
+      metadata: {
+        source: "command-api",
+      },
+    });
+
+    return res.status(201).json({
+      status: "success",
+      message: "Temperature recorded successfully",
+      event,
+    });
+  } catch (error) {
+    console.error("Error recording temperature:", error);
+
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to record temperature",
+    });
+  }
+};
+
 module.exports = {
   commandHealth,
   createShipment,
   moveShipment,
+  recordTemperature,
 };
