@@ -12,21 +12,25 @@ const ShipmentView = require('../projections/ShipmentView');
  *   3. Calls ShipmentView.recordEvent() to increment eventCount + update tracking
  *
  * Event types handled:
- *   CONTAINER_CREATED   → creates the ShipmentView document
- *   LOADED_ON_SHIP      → updates location, vessel, status → in_transit
- *   TEMPERATURE_SPIKE   → updates temperature, flags alert, status → alert
- *   ARRIVED_AT_PORT     → updates port, clears alert flag, status → arrived
+ *   SHIPMENT_CREATED   → creates the ShipmentView document
+ *   LOADED_ON_SHIP     → updates location, vessel, status → in_transit
+ *   TEMPERATURE_SPIKE  → updates temperature, flags alert, status → alert
+ *   ARRIVED_AT_PORT    → updates port, clears alert flag, status → arrived
  */
 
 // ── Handlers ──────────────────────────────────────────────────────────────────
 
 /**
- * CONTAINER_CREATED
+ * SHIPMENT_CREATED
  * Initialises a new ShipmentView document.
  */
-async function handleContainerCreated(event) {
+async function handleShipmentCreated(event) {
   const { shipmentId, payload, recordedAt, version } = event;
-  const { origin = '', destination = '', location = '', notes = '' } = payload || {};
+  const {
+    origin = '',
+    destination = '',
+    location = '',
+  } = payload || {};
 
   await ShipmentView.upsert(shipmentId, {
     shipmentId,
@@ -42,8 +46,14 @@ async function handleContainerCreated(event) {
     lastEventType: event.eventType,
     lastEventAt: recordedAt,
     lastVersion: version,
-    eventCount: 1,
   });
+
+  await ShipmentView.recordEvent(
+    shipmentId,
+    event.eventType,
+    recordedAt,
+    version
+  );
 }
 
 /**
@@ -63,7 +73,12 @@ async function handleLoadedOnShip(event) {
     lastVersion: version,
   });
 
-  await ShipmentView.recordEvent(shipmentId, event.eventType, recordedAt, version);
+  await ShipmentView.recordEvent(
+    shipmentId,
+    event.eventType,
+    recordedAt,
+    version
+  );
 }
 
 /**
@@ -72,7 +87,11 @@ async function handleLoadedOnShip(event) {
  */
 async function handleTemperatureSpike(event) {
   const { shipmentId, payload, recordedAt, version } = event;
-  const { temperature = null, threshold = null, location = '' } = payload || {};
+  const {
+    temperature = null,
+    threshold = null,
+    location = '',
+  } = payload || {};
 
   const fields = {
     status: 'alert',
@@ -83,11 +102,22 @@ async function handleTemperatureSpike(event) {
     lastVersion: version,
   };
 
-  if (threshold !== null) fields.temperatureThreshold = threshold;
-  if (location) fields.currentLocation = location;
+  if (threshold !== null) {
+    fields.temperatureThreshold = threshold;
+  }
+
+  if (location) {
+    fields.currentLocation = location;
+  }
 
   await ShipmentView.upsert(shipmentId, fields);
-  await ShipmentView.recordEvent(shipmentId, event.eventType, recordedAt, version);
+
+  await ShipmentView.recordEvent(
+    shipmentId,
+    event.eventType,
+    recordedAt,
+    version
+  );
 }
 
 /**
@@ -108,16 +138,21 @@ async function handleArrivedAtPort(event) {
     lastVersion: version,
   });
 
-  await ShipmentView.recordEvent(shipmentId, event.eventType, recordedAt, version);
+  await ShipmentView.recordEvent(
+    shipmentId,
+    event.eventType,
+    recordedAt,
+    version
+  );
 }
 
 // ── Handler Registry ──────────────────────────────────────────────────────────
 
 const HANDLERS = {
-  CONTAINER_CREATED: handleContainerCreated,
-  LOADED_ON_SHIP:    handleLoadedOnShip,
+  SHIPMENT_CREATED: handleShipmentCreated,
+  LOADED_ON_SHIP: handleLoadedOnShip,
   TEMPERATURE_SPIKE: handleTemperatureSpike,
-  ARRIVED_AT_PORT:   handleArrivedAtPort,
+  ARRIVED_AT_PORT: handleArrivedAtPort,
 };
 
 // ── Public API ────────────────────────────────────────────────────────────────
@@ -135,14 +170,20 @@ async function project(event) {
   const handler = HANDLERS[event.eventType];
 
   if (!handler) {
-    console.warn(`[ProjectionBuilder] No handler for event type: ${event.eventType}`);
+    console.warn(
+      `[ProjectionBuilder] No handler for event type: ${event.eventType}`
+    );
     return;
   }
 
   try {
     await handler(event);
   } catch (err) {
-    console.error(`[ProjectionBuilder] Failed to process event ${event.eventType} (v${event.version}) for ${event.shipmentId}:`, err.message);
+    console.error(
+      `[ProjectionBuilder] Failed to process event ${event.eventType} ` +
+      `(v${event.version}) for ${event.shipmentId}:`,
+      err.message
+    );
     throw err;
   }
 }
@@ -151,7 +192,6 @@ async function project(event) {
  * projectMany(events)
  *
  * Process an ordered array of events sequentially.
- * Used by the projection worker during catch-up / rebuild.
  *
  * @param {Object[]} events - Array of events sorted by version ascending
  * @returns {Promise<void>}
@@ -162,4 +202,7 @@ async function projectMany(events) {
   }
 }
 
-module.exports = { project, projectMany };
+module.exports = {
+  project,
+  projectMany,
+};
