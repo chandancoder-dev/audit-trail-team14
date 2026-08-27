@@ -1,28 +1,28 @@
-
-import { useState, useMemo } from 'react';
-import EventCard from './EventCard';
-import EventPayloadViewer from './EventPayloadViewer';
-import EventMetadataViewer from './EventMetadataViewer';
-import { mockEvents } from '../data/mockEvents';
+import { useState, useMemo } from "react";
+import EventCard from "./EventCard";
+import EventPayloadViewer from "./EventPayloadViewer";
+import EventMetadataViewer from "./EventMetadataViewer";
 
 function formatEventType(eventType) {
   return eventType
     .toLowerCase()
-    .split('_')
+    .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .join(" ");
 }
 
-export default function AuditTimeline({ events = mockEvents }) {
-  const [order, setOrder] = useState('newest');
+export default function AuditTimeline({ events = [] }) {
+  const [order, setOrder] = useState("newest");
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   const sortedEvents = useMemo(() => {
     const copy = [...events];
+
     copy.sort((a, b) => {
       const diff = new Date(a.recordedAt) - new Date(b.recordedAt);
-      return order === 'newest' ? -diff : diff;
+      return order === "newest" ? -diff : diff;
     });
+
     return copy;
   }, [events, order]);
 
@@ -37,19 +37,28 @@ export default function AuditTimeline({ events = mockEvents }) {
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-900 min-h-screen">
       <h1 className="text-3xl font-bold text-white mb-1">Audit Timeline</h1>
-      <p className="text-slate-400 mb-6">View the full event history for this shipment.</p>
+
+      <p className="text-slate-400 mb-6">
+        View the full event history for this shipment.
+      </p>
 
       <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-bold text-white">Event History</h2>
-            <p className="text-sm text-slate-400">Chronological record of all shipment events.</p>
+
+            <p className="text-sm text-slate-400">
+              Chronological record of all shipment events.
+            </p>
           </div>
+
           <button
-            onClick={() => setOrder((o) => (o === 'newest' ? 'oldest' : 'newest'))}
+            onClick={() =>
+              setOrder((o) => (o === "newest" ? "oldest" : "newest"))
+            }
             className="text-sm font-medium border border-gray-600 rounded-md px-4 py-2 bg-gray-900 hover:bg-gray-700 text-white transition-colors"
           >
-            Sort: {order === 'newest' ? 'Newest first' : 'Oldest first'}
+            Sort: {order === "newest" ? "Newest first" : "Oldest first"}
           </button>
         </div>
 
@@ -78,10 +87,12 @@ export default function AuditTimeline({ events = mockEvents }) {
                 <h3 className="text-base font-semibold text-white">
                   {formatEventType(selectedEvent.eventType)}
                 </h3>
+
                 <p className="text-xs text-slate-400 mt-0.5">
                   v{selectedEvent.version} · {selectedEvent._id}
                 </p>
               </div>
+
               <button
                 onClick={() => setSelectedEvent(null)}
                 className="text-slate-400 hover:text-white text-sm"
