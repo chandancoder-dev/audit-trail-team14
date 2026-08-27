@@ -5,6 +5,7 @@ const {
   createShipment,
   moveShipment,
   recordTemperature,
+  arriveShipment,
 } = require("./command.controller");
 
 const router = express.Router();
@@ -16,5 +17,7 @@ router.post("/shipments", createShipment);
 router.post("/shipment/:id/move", moveShipment);
 
 router.post("/shipment/:id/temperature", recordTemperature);
+
+router.post("/shipment/:id/arrive", arriveShipment);
 
 module.exports = router;
