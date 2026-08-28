@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
+import axios from "axios";
 function Register(){
 
     const [name, setname] = useState("");
@@ -9,12 +9,17 @@ function Register(){
     const [password, setpassword] = useState("");
     const [showpassword, setshowpassword] = useState(false);
 
-    function submitDetails(e){
+    async function submitDetails(e){
         e.preventDefault();
-        console.log(name);
-        console.log(username);
-        console.log(email);
-        console.log(password);
+        
+        const res = await axios.post("http://localhost:8000/api/auth/register", {
+            name : name,
+            username : username,
+            email : email,
+            password : password
+        });
+
+        alert(res.data.message);
 
     }
 

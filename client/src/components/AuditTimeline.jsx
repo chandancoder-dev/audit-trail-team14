@@ -8,9 +8,9 @@ import { queryAPI } from '../services/api';
 function formatEventType(eventType) {
   return eventType
     .toLowerCase()
-    .split('_')
+    .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .join(" ");
 }
 
 export default function AuditTimeline() {
@@ -102,7 +102,7 @@ export default function AuditTimeline() {
             }
             className="text-sm font-medium border border-gray-600 rounded-md px-4 py-2 bg-gray-900 hover:bg-gray-700 text-white transition-colors"
           >
-            Sort: {order === 'newest' ? 'Newest first' : 'Oldest first'}
+            Sort: {order === "newest" ? "Newest first" : "Oldest first"}
           </button>
         </div>
 
