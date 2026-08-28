@@ -5,7 +5,7 @@ const SHIPMENT_ID = "SHIP-001";
 
 function HistoricalState() {
   const [events, setEvents] = useState([]);
-  const [selectedMinute, setSelectedMinute] = useState(0);
+  const [selectedEventIndex, setSelectedEventIndex] = useState(0);
   const [historicalState, setHistoricalState] = useState(null);
 
   const [loadingEvents, setLoadingEvents] = useState(true);
@@ -21,7 +21,16 @@ function HistoricalState() {
 
         const data = await queryAPI.getShipmentEvents(SHIPMENT_ID);
 
-        setEvents(Array.isArray(data) ? data : []);
+        const sortedEvents = Array.isArray(data)
+          ? [...data].sort(
+              (a, b) =>
+                new Date(a.recordedAt).getTime() -
+                new Date(b.recordedAt).getTime(),
+            )
+          : [];
+
+        setEvents(sortedEvents);
+        setSelectedEventIndex(0);
       } catch (err) {
         console.error("Failed to load shipment events:", err);
         setError(err.message || "Failed to load shipment events.");
@@ -33,57 +42,25 @@ function HistoricalState() {
     loadEvents();
   }, []);
 
-  // Timeline boundaries based on real events
-  const timeline = useMemo(() => {
+  // Get the currently selected event
+  const selectedEvent = useMemo(() => {
     if (!events.length) {
-      return {
-        start: null,
-        end: null,
-        duration: 1,
-      };
-    }
-
-    const timestamps = events
-      .map((event) => new Date(event.recordedAt).getTime())
-      .filter((time) => !Number.isNaN(time));
-
-    if (!timestamps.length) {
-      return {
-        start: null,
-        end: null,
-        duration: 1,
-      };
-    }
-
-    const start = Math.min(...timestamps);
-    const end = Math.max(...timestamps);
-
-    const duration = Math.max(1, Math.ceil((end - start) / (1000 * 60)));
-
-    return {
-      start,
-      end,
-      duration,
-    };
-  }, [events]);
-
-  // Set slider to the beginning when events are loaded
-  useEffect(() => {
-    if (events.length && timeline.start !== null) {
-      setSelectedMinute(0);
-    }
-  }, [events, timeline.start]);
-
-  // Convert slider position into an actual timestamp
-  const selectedDate = useMemo(() => {
-    if (timeline.start === null) {
       return null;
     }
 
-    return new Date(timeline.start + selectedMinute * 60 * 1000);
-  }, [timeline.start, selectedMinute]);
+    return events[selectedEventIndex] || events[0];
+  }, [events, selectedEventIndex]);
 
-  // Fetch reconstructed state whenever slider changes
+  // Use the exact timestamp of the selected event
+  const selectedDate = useMemo(() => {
+    if (!selectedEvent?.recordedAt) {
+      return null;
+    }
+
+    return new Date(selectedEvent.recordedAt);
+  }, [selectedEvent]);
+
+  // Fetch reconstructed state whenever selected event changes
   useEffect(() => {
     if (!selectedDate) {
       return;
@@ -135,29 +112,6 @@ function HistoricalState() {
 
     return new Date(date).toLocaleString();
   };
-
-  const selectedEventIndex = useMemo(() => {
-    if (!events.length || !selectedDate) {
-      return -1;
-    }
-
-    const selectedTimestamp = selectedDate.getTime();
-
-    let activeIndex = -1;
-
-    events.forEach((event, index) => {
-      const eventTimestamp = new Date(event.recordedAt).getTime();
-
-      if (
-        !Number.isNaN(eventTimestamp) &&
-        eventTimestamp <= selectedTimestamp
-      ) {
-        activeIndex = index;
-      }
-    });
-
-    return activeIndex;
-  }, [events, selectedDate]);
 
   const getEventStatus = (event) => {
     return event?.payload?.status || event?.eventType || "Unknown";
@@ -331,24 +285,46 @@ function HistoricalState() {
               </p>
             </div>
 
-            <span className="self-start rounded-lg bg-primary px-3.5 py-2 font-semibold text-text-heading">
-              {formatTime(selectedDate)}
-            </span>
+            <div className="text-right">
+              <span className="rounded-lg bg-primary px-3.5 py-2 font-semibold text-text-heading">
+                {formatTime(selectedDate)}
+              </span>
+
+              <p className="mt-2 text-xs text-text-secondary">
+                {formatDateTime(selectedDate)}
+              </p>
+            </div>
           </div>
 
+          {/* Event-based slider */}
           <input
             type="range"
             min="0"
-            max={timeline.duration}
-            value={selectedMinute}
-            onChange={(e) => setSelectedMinute(Number(e.target.value))}
+            max={events.length - 1}
+            step="1"
+            value={selectedEventIndex}
+            onChange={(e) => setSelectedEventIndex(Number(e.target.value))}
             className="w-full cursor-pointer accent-primary"
           />
 
-          <div className="mt-2 flex justify-between text-[13px] text-text-secondary">
-            <span>{formatTime(timeline.start)}</span>
+          {/* Slider labels */}
+          <div className="mt-3 flex justify-between gap-2 text-[12px] text-text-secondary sm:text-[13px]">
+            {events.map((event, index) => (
+              <button
+                key={event._id || event.recordedAt}
+                type="button"
+                onClick={() => setSelectedEventIndex(index)}
+                className={`text-center transition-colors ${
+                  selectedEventIndex === index
+                    ? "font-bold text-primary"
+                    : "text-text-secondary"
+                }`}
+              >
+                <span className="block">{formatTime(event.recordedAt)}</span>
 
-            <span>{formatTime(timeline.end)}</span>
+                <span className="hidden sm:block">{event.eventType}</span>
+              </button>
+            ))}
           </div>
         </section>
 
@@ -372,20 +348,7 @@ function HistoricalState() {
                 <div
                   key={event._id || event.recordedAt}
                   className="flex cursor-pointer gap-2.5 sm:gap-3.5"
-                  onClick={() => {
-                    if (timeline.start === null) {
-                      return;
-                    }
-
-                    const eventTime = new Date(event.recordedAt).getTime();
-
-                    const minutes = Math.max(
-                      0,
-                      Math.round((eventTime - timeline.start) / (1000 * 60)),
-                    );
-
-                    setSelectedMinute(minutes);
-                  }}
+                  onClick={() => setSelectedEventIndex(index)}
                 >
                   {/* Marker */}
                   <div
