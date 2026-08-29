@@ -1,4 +1,4 @@
-
+import Footer from "../components/Footer";
 function FeatureCard({ icon, title, description }) {
   return (
     <div className="rounded-2xl border border-[#3F3F46] bg-[#27272A] p-6 transition duration-300 hover:-translate-y-1 hover:border-[#3B82F6]/50 hover:shadow-lg hover:shadow-black/20">
@@ -21,7 +21,29 @@ function FeatureCard({ icon, title, description }) {
 function Features(){
      
     return <>
-       <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <section className="border-b border-[#3F3F46] bg-[#202023]">
+
+        <div className="mx-auto max-w-7xl px-6 py-24">
+
+          <div className="text-center">
+
+            <p className="text-sm font-semibold uppercase tracking-widest text-[#3B82F6]">
+              Features
+            </p>
+
+            <h2 className="mt-3 text-3xl font-bold text-[#FAFAFA] md:text-4xl">
+              Everything you need to track shipments
+            </h2>
+
+            <p className="mx-auto mt-5 max-w-2xl leading-7 text-[#A1A1AA]">
+              Powerful tools for monitoring, searching, and understanding
+              shipment activity.
+            </p>
+
+          </div>
+
+
+          <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
             <FeatureCard
               icon="📦"
@@ -60,6 +82,11 @@ function Features(){
             />
 
           </div>
+
+        </div>
+      </section>
+   
+      <Footer/>  
     </>
 }
 
