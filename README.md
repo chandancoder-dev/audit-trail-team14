@@ -180,7 +180,7 @@ npm run dev
 ```
 
 - Client runs on: http://localhost:5173
-- Server runs on: http://localhost:5000
+- Server runs on: http://localhost:8000
 
 ## Environment Variables
 

@@ -16,7 +16,7 @@ export default function EventMetadataViewer({ metadata }) {
         <dl className="space-y-1">
           {entries.map(([key, value]) => (
             <div key={key} className="flex gap-2 text-xs">
-              <dt className="min-w-[90px] text-slate-400">{key}</dt>
+              <dt className="min-w-85 text-slate-400">{key}</dt>
               <dd className="text-white">{String(value)}</dd>
             </div>
           ))}

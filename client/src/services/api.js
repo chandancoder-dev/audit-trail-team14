@@ -1,21 +1,22 @@
-import axios from 'axios';
+import axios from "axios";
 
 // Base API configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Request interceptor — attach auth token if available
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,7 +24,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor — handle common errors
@@ -36,7 +37,7 @@ api.interceptors.response.use(
       // Network error
       return Promise.reject({
         status: 0,
-        message: 'Network error. Please check your connection.',
+        message: "Network error. Please check your connection.",
       });
     }
 
@@ -45,8 +46,8 @@ api.interceptors.response.use(
     switch (status) {
       case 401:
         // Unauthenticated — clear token and redirect to login
-        localStorage.removeItem('token');
-        window.location.href = '/login';
+        localStorage.removeItem("token");
+        window.location.href = "/login";
         break;
       case 403:
         // Unauthorized
@@ -55,7 +56,9 @@ api.interceptors.response.use(
         // OCC conflict — let the caller handle this
         return Promise.reject({
           status: 409,
-          message: data.message || 'Data has been modified. Please refresh and try again.',
+          message:
+            data.message ||
+            "Data has been modified. Please refresh and try again.",
           currentVersion: data.currentVersion,
         });
       case 500:
@@ -65,41 +68,45 @@ api.interceptors.response.use(
 
     return Promise.reject({
       status,
-      message: data.message || 'Something went wrong.',
+      message: data.message || "Something went wrong.",
       errors: data.errors || null,
     });
-  }
+  },
 );
 
 // ─── API Methods ────────────────────────────────────────────────────────────────
 
 // Commands (Write Side)
 export const commandAPI = {
-  createShipment: (data) => api.post('/commands/shipment/create', data),
+  createShipment: (data) => api.post("/commands/shipments", data),
   moveShipment: (id, data) => api.post(`/commands/shipment/${id}/move`, data),
-  recordTemperature: (id, data) => api.post(`/commands/shipment/${id}/temperature`, data),
-  arriveShipment: (id, data) => api.post(`/commands/shipment/${id}/arrive`, data),
+  recordTemperature: (id, data) =>
+    api.post(`/commands/shipment/${id}/temperature`, data),
+  arriveShipment: (id, data) =>
+    api.post(`/commands/shipment/${id}/arrive`, data),
 };
 
 // Queries (Read Side)
 export const queryAPI = {
-  getShipments: (params) => api.get('/queries/shipments', { params }),
-  getDashboardSummary: () => api.get('/queries/dashboard/summary'),
+  getShipments: (params) => api.get("/queries/shipments", { params }),
+  getDashboardSummary: () => api.get("/queries/dashboard/summary"),
   getShipment: (id) => api.get(`/queries/shipment/${id}`),
-  getShipmentEvents: (id, params) => api.get(`/queries/shipment/${id}/events`, { params }),
+  getShipmentEvents: (id, params) =>
+    api.get(`/queries/shipment/${id}/events`, { params }),
   getShipmentTimeline: (id) => api.get(`/queries/shipment/${id}/timeline`),
-  getShipmentState: (id, date) => api.get(`/queries/shipment/${id}/state`, { params: { date } }),
+  getShipmentState: (id, date) =>
+    api.get(`/queries/shipment/${id}/state`, { params: { date } }),
   getShipmentAnalytics: (id) => api.get(`/queries/shipment/${id}/analytics`),
-  getAlerts: (params) => api.get('/queries/alerts', { params }),
+  getAlerts: (params) => api.get("/queries/alerts", { params }),
   getShipmentAlerts: (id) => api.get(`/queries/shipment/${id}/alerts`),
 };
 
 // Auth
 export const authAPI = {
-  register: (data) => api.post('/auth/register', data),
-  login: (data) => api.post('/auth/login', data),
-  getMe: () => api.get('/auth/me'),
-  forgotPassword: (data) => api.post('/auth/forgot-password', data),
+  register: (data) => api.post("/auth/register", data),
+  login: (data) => api.post("/auth/login", data),
+  getMe: () => api.get("/auth/me"),
+  forgotPassword: (data) => api.post("/auth/forgot-password", data),
 };
 
 export default api;
