@@ -1,4 +1,5 @@
 const ShipmentView = require('../projections/ShipmentView');
+const { generateAlertFromEvent } = require('../alerts/alertService');
 
 /**
  * Projection Builder
@@ -117,6 +118,11 @@ async function handleTemperatureSpike(event) {
     event.eventType,
     recordedAt,
     version
+  );
+
+  // Generate an alert if the temperature exceeds or approaches the threshold
+  await generateAlertFromEvent(event).catch((err) =>
+    console.error('[ProjectionBuilder] Alert generation failed:', err.message)
   );
 }
 

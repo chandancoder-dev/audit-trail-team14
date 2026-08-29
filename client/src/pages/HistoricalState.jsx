@@ -105,6 +105,17 @@ function HistoricalState() {
     });
   };
 
+  const formatTimelineDate = (date) => {
+    if (!date) {
+      return "--";
+    }
+
+    return new Date(date).toLocaleDateString([], {
+      day: "2-digit",
+      month: "short",
+    });
+  };
+
   const formatDateTime = (date) => {
     if (!date) {
       return "--";
@@ -320,7 +331,10 @@ function HistoricalState() {
                     : "text-text-secondary"
                 }`}
               >
-                <span className="block">{formatTime(event.recordedAt)}</span>
+                <span className="block">
+                  {formatTimelineDate(event.recordedAt)} •{" "}
+                  {formatTime(event.recordedAt)}
+                </span>
 
                 <span className="hidden sm:block">{event.eventType}</span>
               </button>
