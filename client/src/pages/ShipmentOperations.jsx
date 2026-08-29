@@ -1,3 +1,4 @@
+import { commandAPI } from "../services/api";
 import { useState } from "react";
 
 function ShipmentOperations() {
@@ -44,33 +45,45 @@ function ShipmentOperations() {
   // -----------------------------
   // Create Shipment
   // -----------------------------
-  const handleCreateShipment = () => {
-    setErrors({});
-    setSuccessMessage("");
+const handleCreateShipment = async () => {
+  setErrors({});
+  setSuccessMessage("");
 
-    const newErrors = {};
+  const newErrors = {};
 
-    if (shipmentId.trim() === "") {
-      newErrors.shipmentId = "Shipment ID is required";
-    }
+  if (shipmentId.trim() === "") {
+    newErrors.shipmentId = "Shipment ID is required";
+  }
 
-    if (origin.trim() === "") {
-      newErrors.origin = "Origin is required";
-    }
+  if (origin.trim() === "") {
+    newErrors.origin = "Origin is required";
+  }
 
-    if (destination.trim() === "") {
-      newErrors.destination = "Destination is required";
-    }
+  if (destination.trim() === "") {
+    newErrors.destination = "Destination is required";
+  }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
+  try {
+    const response = await commandAPI.createShipment({
+      shipmentId: shipmentId.trim(),
+      origin: origin.trim(),
+      destination: destination.trim(),
+    });
 
     setSuccessMessage(
-      `Shipment ${shipmentId} is ready to be created.`
+      response.message || "Shipment created successfully."
     );
-  };
+  } catch (error) {
+    setErrors({
+      shipmentId: error.message || "Failed to create shipment.",
+    });
+  }
+};
 
   // -----------------------------
   // Move Shipment
