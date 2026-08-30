@@ -88,33 +88,46 @@ const handleCreateShipment = async () => {
   // -----------------------------
   // Move Shipment
   // -----------------------------
-  const handleMoveShipment = () => {
-    setMoveErrors({});
-    setMoveSuccessMessage("");
+  const handleMoveShipment = async () => {
+  setMoveErrors({});
+  setMoveSuccessMessage("");
 
-    const newErrors = {};
+  const newErrors = {};
 
-    if (moveShipmentId.trim() === "") {
-      newErrors.moveShipmentId = "Shipment ID is required";
-    }
+  if (moveShipmentId.trim() === "") {
+    newErrors.moveShipmentId = "Shipment ID is required";
+  }
 
-    if (currentLocation.trim() === "") {
-      newErrors.currentLocation = "Current location is required";
-    }
+  if (currentLocation.trim() === "") {
+    newErrors.currentLocation = "Current location is required";
+  }
 
-    if (moveDestination.trim() === "") {
-      newErrors.moveDestination = "Destination is required";
-    }
+  if (moveDestination.trim() === "") {
+    newErrors.moveDestination = "Destination is required";
+  }
 
-    if (Object.keys(newErrors).length > 0) {
-      setMoveErrors(newErrors);
-      return;
-    }
+  if (Object.keys(newErrors).length > 0) {
+    setMoveErrors(newErrors);
+    return;
+  }
+
+  try {
+    const response = await commandAPI.moveShipment(
+      moveShipmentId.trim(),
+      {
+        location: moveDestination.trim(),
+      }
+    );
 
     setMoveSuccessMessage(
-      `Shipment ${moveShipmentId} is ready to move from ${currentLocation} to ${moveDestination}.`
+      response.message || "Shipment moved successfully."
     );
-  };
+  } catch (error) {
+    setMoveErrors({
+      moveShipmentId: error.message || "Failed to move shipment.",
+    });
+  }
+};
 
   // -----------------------------
   // Temperature Event

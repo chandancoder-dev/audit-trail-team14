@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { authAPI } from "../services/api";
 function Register(){
 
     const [name, setname] = useState("");
@@ -12,14 +12,14 @@ function Register(){
     async function submitDetails(e){
         e.preventDefault();
         
-        const res = await axios.post("http://localhost:8000/api/auth/register", {
+        const res = await authAPI.register({
             name : name,
             username : username,
             email : email,
             password : password
         });
 
-        alert(res.data.message);
+        alert(res.message);
 
     }
 

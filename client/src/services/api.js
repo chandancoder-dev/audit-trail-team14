@@ -1,8 +1,9 @@
 import axios from "axios";
 
 // Base API configuration
+// Base API configuration
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  import.meta.env.VITE_API_URL || "http://localhost:5001/api";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -78,7 +79,7 @@ api.interceptors.response.use(
 
 // Commands (Write Side)
 export const commandAPI = {
-  createShipment: (data) => api.post("/commands/shipments", data),
+  createShipment: (data) => api.post("/commands/shipment/create", data),
   moveShipment: (id, data) => api.post(`/commands/shipment/${id}/move`, data),
   recordTemperature: (id, data) =>
     api.post(`/commands/shipment/${id}/temperature`, data),
