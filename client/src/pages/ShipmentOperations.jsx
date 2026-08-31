@@ -175,29 +175,44 @@ const handleCreateShipment = async () => {
   // -----------------------------
   // Arrival Event
   // -----------------------------
-  const handleArrivalEvent = () => {
-    setArrivalErrors({});
-    setArrivalSuccessMessage("");
+  const handleArrivalEvent = async () => {
+  setArrivalErrors({});
+  setArrivalSuccessMessage("");
 
-    const newErrors = {};
+  const newErrors = {};
 
-    if (arrivalShipmentId.trim() === "") {
-      newErrors.arrivalShipmentId = "Shipment ID is required";
-    }
+  if (arrivalShipmentId.trim() === "") {
+    newErrors.arrivalShipmentId = "Shipment ID is required";
+  }
 
-    if (arrivalLocation.trim() === "") {
-      newErrors.arrivalLocation = "Arrival location is required";
-    }
+  if (arrivalLocation.trim() === "") {
+    newErrors.arrivalLocation = "Arrival location is required";
+  }
 
-    if (Object.keys(newErrors).length > 0) {
-      setArrivalErrors(newErrors);
-      return;
-    }
+  if (Object.keys(newErrors).length > 0) {
+    setArrivalErrors(newErrors);
+    return;
+  }
+
+  try {
+    const response = await commandAPI.arriveShipment(
+      arrivalShipmentId.trim(),
+      {
+        port: arrivalLocation.trim(),
+        location: arrivalLocation.trim(),
+      }
+    );
 
     setArrivalSuccessMessage(
-      `Shipment ${arrivalShipmentId} is ready to be marked as arrived at ${arrivalLocation}.`
+      response.message || "Shipment arrival recorded successfully."
     );
-  };
+  } catch (error) {
+    setArrivalErrors({
+      arrivalShipmentId:
+        error.message || "Failed to record arrival event.",
+    });
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#18181B] px-5 py-10 font-sans">
