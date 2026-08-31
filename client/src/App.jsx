@@ -20,31 +20,46 @@ function App() {
 
       <div className="min-h-screen bg-bg-primary text-text-normal">
         <Routes>
+          {/* Main/Home */}
           <Route path="/" element={<Home />} />
-          <Route path="/About" element={<About />} />
-          <Route path="/features" element={<Features />} />
-          <Route
-            path="/historicalstate"
-            element={<HistoricalState />}
-          />
 
-          {/* Member 2 - Shipment Operations */}
+          {/* Shipment Operations */}
           <Route
             path="/shipment-operations"
             element={<ShipmentOperations />}
           />
 
+          {/* Shipment Details */}
+          <Route
+            path="/shipment/:shipmentId"
+            element={<ShipmentDetail />}
+          />
+
+          {/* Other Pages */}
+          <Route path="/About" element={<About />} />
+          <Route path="/features" element={<Features />} />
+
+          <Route
+            path="/historicalstate"
+            element={<HistoricalState />}
+          />
+
+          {/* Audit Timeline */}
           <Route
             path="/audittimeline/:id"
             element={<AuditTimeline />}
           />
 
+          {/* Analytics */}
           <Route
             path="/shipment/:id/analytics"
             element={<AnalyticsPage />}
           />
 
+          {/* Alerts */}
           <Route path="/alerts" element={<AlertsPage />} />
+
+          {/* Authentication */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
