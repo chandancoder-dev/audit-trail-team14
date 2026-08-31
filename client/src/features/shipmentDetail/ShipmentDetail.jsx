@@ -209,14 +209,28 @@ function ShipmentDetail() {
         <section className="rounded-2xl border border-[#3F3F46] bg-[#27272A] p-6">
 
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-[#FAFAFA]">
-              Event Timeline
-            </h2>
+  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h2 className="text-xl font-semibold text-[#FAFAFA]">
+        Event Timeline
+      </h2>
 
-            <p className="mt-1 text-sm text-[#A1A1AA]">
-              Complete chronological history of shipment events.
-            </p>
-          </div>
+      <p className="mt-1 text-sm text-[#A1A1AA]">
+        Complete chronological history of shipment events.
+      </p>
+    </div>
+
+    <div className="rounded-xl border border-[#3F3F46] bg-[#202023] px-4 py-3">
+      <p className="text-xs text-[#71717A]">
+        Total Events
+      </p>
+
+      <p className="mt-1 text-lg font-semibold text-[#3B82F6]">
+        {shipmentEvents.length}
+      </p>
+    </div>
+  </div>
+</div>
 
           <div className="relative">
 
