@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+import axios from "axios";
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -8,16 +8,26 @@ function Login() {
 
     const navigate = useNavigate();
 
-    function submitDetails(e) {
+    async function submitDetails(e) {
         e.preventDefault();
+         
+        try{
+              const res = await axios.post("http://localhost:8000/api/auth/login",{
+                  email : email,
+                  password : password
+              });
 
-        console.log(email);
-        console.log(password);
+              const token = res.data.token;
 
-        // Later:
-        // call POST /api/auth/login
-        // save JWT
-        // navigate("/dashboard")
+              localStorage.setItem("token" , token);
+
+              alert(res.data.message);
+
+        }
+        catch(e){
+            alert(e?.response?.data?.message || "Login failed");
+        }
+       
     }
 
     return (
