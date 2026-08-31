@@ -11,6 +11,7 @@ import AlertsPage from "./features/alerts/AlertsPage";
 import AuditTimeline from "./components/AuditTimeline";
 import ShipmentDetail from "./features/shipmentDetail/ShipmentDetail";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 import Register from "./pages/Register";
 
 function App() {
@@ -62,6 +63,7 @@ function App() {
           {/* Authentication */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword/>}/>
         </Routes>
       </div>
     </BrowserRouter>
