@@ -1,15 +1,18 @@
 import React from "react";
+import { useParams } from "react-router-dom";
+import { mockShipment, shipmentEvents } from "./shipmentData";
 
-const mockShipment = {
-  shipmentId: "SHIP-001",
-  containerId: "CONT-001",
-  status: "In Transit",
-  location: "Arabian Sea",
-  temperature: 24,
-  version: 2,
-};
 
 function ShipmentDetail() {
+  const { shipmentId } = useParams();
+
+  // For now we use mock data.
+  // Later this will come from GET /shipment/:id
+  const shipment = {
+    ...mockShipment,
+    shipmentId: shipmentId || mockShipment.shipmentId,
+  };
+
   return (
     <div className="min-h-screen bg-[#18181B] px-4 py-8 text-[#D4D4D8] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -26,48 +29,55 @@ function ShipmentDetail() {
             </h1>
 
             <p className="mt-2 text-[#A1A1AA]">
-              View the current state and information of this shipment.
+              View the current state and event history of this shipment.
             </p>
           </div>
 
-          {/* Shipment Identifier */}
+          {/* Shipment ID */}
           <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] px-5 py-4">
-            <p className="text-sm text-[#A1A1AA]">Shipment ID</p>
+            <p className="text-sm text-[#A1A1AA]">
+              Shipment ID
+            </p>
+
             <p className="mt-1 text-lg font-semibold text-[#FAFAFA]">
-              {mockShipment.shipmentId}
+              {shipment.shipmentId}
             </p>
           </div>
         </div>
 
-        {/* Shipment Header Card */}
+        {/* Shipment Header */}
         <section className="mb-6 rounded-2xl border border-[#3F3F46] bg-[#27272A] p-6">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 
             <div>
-              <p className="text-sm text-[#A1A1AA]">Container</p>
+              <p className="text-sm text-[#A1A1AA]">
+                Container
+              </p>
 
               <h2 className="mt-1 text-2xl font-semibold text-[#FAFAFA]">
-                {mockShipment.containerId}
+                {shipment.containerId}
               </h2>
 
               <p className="mt-2 text-sm text-[#A1A1AA]">
-                Shipment {mockShipment.shipmentId}
+                Shipment {shipment.shipmentId}
               </p>
             </div>
 
-            {/* Status Badge */}
+            {/* Status */}
             <div className="flex items-center gap-2 self-start rounded-full border border-[#22C55E]/30 bg-[#22C55E]/10 px-4 py-2 sm:self-auto">
               <span className="h-2.5 w-2.5 rounded-full bg-[#22C55E]" />
 
               <span className="text-sm font-semibold text-[#22C55E]">
-                {mockShipment.status}
+                {shipment.status}
               </span>
             </div>
+
           </div>
         </section>
 
         {/* Current State */}
         <section className="mb-6 rounded-2xl border border-[#3F3F46] bg-[#27272A] p-6">
+
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-[#FAFAFA]">
               Current State
@@ -87,7 +97,7 @@ function ShipmentDetail() {
               </p>
 
               <p className="mt-3 text-xl font-semibold text-[#22C55E]">
-                {mockShipment.status}
+                {shipment.status}
               </p>
             </div>
 
@@ -98,7 +108,7 @@ function ShipmentDetail() {
               </p>
 
               <p className="mt-3 text-xl font-semibold text-[#FAFAFA]">
-                {mockShipment.location}
+                {shipment.location}
               </p>
             </div>
 
@@ -109,18 +119,18 @@ function ShipmentDetail() {
               </p>
 
               <p className="mt-3 text-xl font-semibold text-[#FAFAFA]">
-                {mockShipment.temperature}°C
+                {shipment.temperature}°C
               </p>
             </div>
 
             {/* Version */}
             <div className="rounded-xl border border-[#3F3F46] bg-[#202023] p-5">
-              <p className="text-sm font-medium text-[#A1A1AA]">
+              <p className="text-sm font-medium text-[#A78BFA]">
                 Event Version
               </p>
 
               <p className="mt-3 text-xl font-semibold text-[#3B82F6]">
-                v{mockShipment.version}
+                v{shipment.version}
               </p>
             </div>
 
@@ -128,7 +138,8 @@ function ShipmentDetail() {
         </section>
 
         {/* Shipment Information */}
-        <section className="rounded-2xl border border-[#3F3F46] bg-[#27272A] p-6">
+        <section className="mb-6 rounded-2xl border border-[#3F3F46] bg-[#27272A] p-6">
+
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-[#FAFAFA]">
               Shipment Information
@@ -147,7 +158,7 @@ function ShipmentDetail() {
               </span>
 
               <span className="font-medium text-[#FAFAFA]">
-                {mockShipment.shipmentId}
+                {shipment.shipmentId}
               </span>
             </div>
 
@@ -157,7 +168,7 @@ function ShipmentDetail() {
               </span>
 
               <span className="font-medium text-[#FAFAFA]">
-                {mockShipment.containerId}
+                {shipment.containerId}
               </span>
             </div>
 
@@ -167,7 +178,7 @@ function ShipmentDetail() {
               </span>
 
               <span className="font-medium text-[#FAFAFA]">
-                {mockShipment.location}
+                {shipment.location}
               </span>
             </div>
 
@@ -177,7 +188,7 @@ function ShipmentDetail() {
               </span>
 
               <span className="font-medium text-[#FAFAFA]">
-                {mockShipment.temperature}°C
+                {shipment.temperature}°C
               </span>
             </div>
 
@@ -187,11 +198,116 @@ function ShipmentDetail() {
               </span>
 
               <span className="font-medium text-[#3B82F6]">
-                Version {mockShipment.version}
+                Version {shipment.version}
               </span>
             </div>
 
           </div>
+        </section>
+
+        {/* Event Timeline */}
+        <section className="rounded-2xl border border-[#3F3F46] bg-[#27272A] p-6">
+
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-[#FAFAFA]">
+              Event Timeline
+            </h2>
+
+            <p className="mt-1 text-sm text-[#A1A1AA]">
+              Complete chronological history of shipment events.
+            </p>
+          </div>
+
+          <div className="relative">
+
+            {/* Timeline Line */}
+            <div className="absolute left-[7px] top-2 bottom-2 w-px bg-[#3F3F46]" />
+
+            <div className="space-y-8">
+
+              {shipmentEvents.map((event) => (
+                <div
+                  key={event.id}
+                  className="relative flex gap-5"
+                >
+
+                  {/* Timeline Dot */}
+                  <div className="relative z-10 mt-1 h-4 w-4 shrink-0 rounded-full border-4 border-[#27272A] bg-[#3B82F6]" />
+
+                  {/* Event Content */}
+                  <div className="min-w-0 flex-1">
+
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+
+                      <div>
+                        <h3 className="font-semibold text-[#FAFAFA]">
+                          {event.title}
+                        </h3>
+
+                        <p className="mt-1 text-xs font-medium tracking-wide text-[#3B82F6]">
+                          {event.eventType}
+                        </p>
+                      </div>
+
+                      <span className="text-sm text-[#A1A1AA]">
+                        {event.timestamp}
+                      </span>
+
+                    </div>
+
+                    {/* Event Details */}
+                    <div className="mt-4 rounded-xl border border-[#3F3F46] bg-[#202023] p-4">
+
+                      <p className="text-sm leading-6 text-[#A1A1AA]">
+                        {event.description}
+                      </p>
+
+                      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+
+                        <div>
+                          <p className="text-xs text-[#71717A]">
+                            Location
+                          </p>
+
+                          <p className="mt-1 text-sm font-medium text-[#FAFAFA]">
+                            {event.location}
+                          </p>
+                        </div>
+
+                        {event.temperature && (
+                          <div>
+                            <p className="text-xs text-[#71717A]">
+                              Temperature
+                            </p>
+
+                            <p className="mt-1 text-sm font-medium text-[#FAFAFA]">
+                              {event.temperature}°C
+                            </p>
+                          </div>
+                        )}
+
+                        <div>
+                          <p className="text-xs text-[#71717A]">
+                            Version
+                          </p>
+
+                          <p className="mt-1 text-sm font-medium text-[#3B82F6]">
+                            v{event.version}
+                          </p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+              ))}
+
+            </div>
+          </div>
+
         </section>
 
       </div>
