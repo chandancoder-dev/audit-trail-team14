@@ -66,7 +66,29 @@ const login = async(req , res) =>{
        return res.status(500).json({message : e.message});
     }
 }
+const resetPassword = async(req, res) =>{
+    const {email , password} = req.body;
 
+    try{
+        const user = await User.findOne({email : email});
+
+        if(!user){
+            return res.status(404).json({message : "User does not exist"});
+        }
+       
+        const passwordHash = await bcrypt.hash(password,10);
+
+        user.password = passwordHash;
+
+        await user.save();
+
+        return res.status(200).json({message : "password reset successfully"});
+
+    }
+    catch(e){
+         res.status(500).json({message : e.message});
+    }
+}
 const getCurrentUser = async(req , res) =>{
        
     try{
@@ -88,4 +110,4 @@ const getCurrentUser = async(req , res) =>{
         res.status(500).json({message : e.message});
     }
 }
-module.exports = {register,login, getCurrentUser};
+module.exports = {register,login, getCurrentUser, resetPassword};
