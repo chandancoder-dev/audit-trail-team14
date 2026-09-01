@@ -396,8 +396,11 @@ function HistoricalState() {
                         </p>
                       </div>
 
-                      <span className="font-bold text-primary">
-                        {formatTime(event.recordedAt)}
+                      <span className="text-right font-bold text-primary">
+                        <span className="block">
+                          {formatTimelineDate(event.recordedAt)} •{" "}
+                          {formatTime(event.recordedAt)}
+                        </span>
                       </span>
                     </div>
 
