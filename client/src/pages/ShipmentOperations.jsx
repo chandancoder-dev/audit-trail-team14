@@ -132,58 +132,87 @@ const handleCreateShipment = async () => {
   // -----------------------------
   // Temperature Event
   // -----------------------------
-  const handleTemperatureEvent = () => {
-    setTemperatureErrors({});
-    setTemperatureSuccessMessage("");
+  const handleTemperatureEvent = async () => {
+  setTemperatureErrors({});
+  setTemperatureSuccessMessage("");
 
-    const newErrors = {};
+  const newErrors = {};
 
-    if (temperatureShipmentId.trim() === "") {
-      newErrors.temperatureShipmentId = "Shipment ID is required";
-    }
+  if (temperatureShipmentId.trim() === "") {
+    newErrors.temperatureShipmentId = "Shipment ID is required";
+  }
 
-    if (temperature.trim() === "") {
-      newErrors.temperature = "Temperature is required";
-    } else if (isNaN(Number(temperature))) {
-      newErrors.temperature = "Temperature must be a valid number";
-    }
+  if (temperature.trim() === "") {
+    newErrors.temperature = "Temperature is required";
+  } else if (isNaN(Number(temperature))) {
+    newErrors.temperature = "Temperature must be a valid number";
+  }
 
-    if (Object.keys(newErrors).length > 0) {
-      setTemperatureErrors(newErrors);
-      return;
-    }
+  if (Object.keys(newErrors).length > 0) {
+    setTemperatureErrors(newErrors);
+    return;
+  }
+
+  try {
+    const response = await commandAPI.recordTemperature(
+      temperatureShipmentId.trim(),
+      {
+        temperature: Number(temperature),
+      }
+    );
 
     setTemperatureSuccessMessage(
-      `Temperature event for ${temperatureShipmentId} is ready to be recorded at ${temperature}°C.`
+      response.message || "Temperature recorded successfully."
     );
-  };
+  } catch (error) {
+    setTemperatureErrors({
+      temperatureShipmentId:
+        error.message || "Failed to record temperature event.",
+    });
+  }
+};
 
   // -----------------------------
   // Arrival Event
   // -----------------------------
-  const handleArrivalEvent = () => {
-    setArrivalErrors({});
-    setArrivalSuccessMessage("");
+  const handleArrivalEvent = async () => {
+  setArrivalErrors({});
+  setArrivalSuccessMessage("");
 
-    const newErrors = {};
+  const newErrors = {};
 
-    if (arrivalShipmentId.trim() === "") {
-      newErrors.arrivalShipmentId = "Shipment ID is required";
-    }
+  if (arrivalShipmentId.trim() === "") {
+    newErrors.arrivalShipmentId = "Shipment ID is required";
+  }
 
-    if (arrivalLocation.trim() === "") {
-      newErrors.arrivalLocation = "Arrival location is required";
-    }
+  if (arrivalLocation.trim() === "") {
+    newErrors.arrivalLocation = "Arrival location is required";
+  }
 
-    if (Object.keys(newErrors).length > 0) {
-      setArrivalErrors(newErrors);
-      return;
-    }
+  if (Object.keys(newErrors).length > 0) {
+    setArrivalErrors(newErrors);
+    return;
+  }
+
+  try {
+    const response = await commandAPI.arriveShipment(
+      arrivalShipmentId.trim(),
+      {
+        port: arrivalLocation.trim(),
+        location: arrivalLocation.trim(),
+      }
+    );
 
     setArrivalSuccessMessage(
-      `Shipment ${arrivalShipmentId} is ready to be marked as arrived at ${arrivalLocation}.`
+      response.message || "Shipment arrival recorded successfully."
     );
-  };
+  } catch (error) {
+    setArrivalErrors({
+      arrivalShipmentId:
+        error.message || "Failed to record arrival event.",
+    });
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#18181B] px-5 py-10 font-sans">
