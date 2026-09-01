@@ -209,3 +209,5 @@ JWT_SECRET=your_jwt_secret_here
 | Member 4 | Frontend Lead | Dashboard, layout, routing, Tailwind, search |
 | Member 5 | Timeline & Visualization | Event timeline, Recharts, time slider |
 | Member 6 (Sumit) | Integration & Testing | Analytics, alerts, projections, OCC, integration testing |
+
+Verified the complete shipment lifecycle from creation to arrival.
