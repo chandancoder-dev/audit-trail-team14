@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { mockShipment, shipmentEvents } from "./shipmentData";
 
 
@@ -33,15 +33,35 @@ function ShipmentDetail() {
             </p>
           </div>
 
-          {/* Shipment ID */}
-          <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] px-5 py-4">
-            <p className="text-sm text-[#A1A1AA]">
-              Shipment ID
-            </p>
+          {/* Shipment ID + Actions */}
+          <div className="flex flex-col gap-4 sm:items-end">
+            {/* Shipment ID */}
+            <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] px-5 py-4">
+              <p className="text-sm text-[#A1A1AA]">
+                Shipment ID
+              </p>
 
-            <p className="mt-1 text-lg font-semibold text-[#FAFAFA]">
-              {shipment.shipmentId}
-            </p>
+              <p className="mt-1 text-lg font-semibold text-[#FAFAFA]">
+                {shipment.shipmentId}
+              </p>
+            </div>
+
+            {/* Navigation Actions — go to  Analytics & Alerts pages */}
+            <div className="flex gap-3">
+              <Link
+                to={`/shipment/${shipment.shipmentId}/analytics`}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#3B82F6] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2563EB]"
+              >
+                📊 View Analytics
+              </Link>
+
+              <Link
+                to="/alerts"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#3B82F6] px-4 py-2 text-sm font-semibold text-[#3B82F6] transition-colors hover:bg-[#3B82F6] hover:text-white"
+              >
+                🔔 View Alerts
+              </Link>
+            </div>
           </div>
         </div>
 
