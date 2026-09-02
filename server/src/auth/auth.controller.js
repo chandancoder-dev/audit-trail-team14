@@ -50,12 +50,13 @@ const login = async(req , res) =>{
 
             return res.status(401).json({message : "password does not match."});
         }
-
+        
+        console.log(process.env.SECRET_KEY);
         const token = jwt.sign(
          { id: user._id },
-           process.env.SECRET_KEY,
-        {
-           expiresIn: "1d",
+           process.env.JWT_SECRET,
+         {
+          expiresIn: "1d",
         }
        );
 
@@ -68,7 +69,7 @@ const login = async(req , res) =>{
 }
 const resetPassword = async(req, res) =>{
     const {email , password} = req.body;
-
+       
     try{
         const user = await User.findOne({email : email});
 

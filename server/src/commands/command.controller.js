@@ -7,18 +7,42 @@ const commandHealth = (req, res) => {
   });
 };
 
+// Create Shipment
 const createShipment = async (req, res) => {
   try {
-    const { shipmentId, origin, destination } = req.body;
+    console.log(req.body);
+    const {id, shipmentId, origin, destination } = req.body;
 
-    if (!shipmentId || !origin || !destination) {
+    // Input validation
+    if (!shipmentId || shipmentId.trim() === "") {
       return res.status(400).json({
         status: "error",
-        message: "shipmentId, origin and destination are required",
+        message: "shipmentId is required",
       });
     }
 
-    const existingEvent = await Event.findOne({ shipmentId });
+    if (!origin || origin.trim() === "") {
+      return res.status(400).json({
+        status: "error",
+        message: "origin is required",
+      });
+    }
+
+    if (!destination || destination.trim() === "") {
+      return res.status(400).json({
+        status: "error",
+        message: "destination is required",
+      });
+    }
+
+    const cleanShipmentId = shipmentId.trim();
+    const cleanOrigin = origin.trim();
+    const cleanDestination = destination.trim();
+
+    // Business validation - prevent duplicate shipment
+    const existingEvent = await Event.findOne({
+      shipmentId: cleanShipmentId,
+    });
 
     if (existingEvent) {
       return res.status(409).json({
@@ -28,17 +52,18 @@ const createShipment = async (req, res) => {
     }
 
     const event = await Event.create({
-      shipmentId,
+      userId : req.id,
+      shipmentId: cleanShipmentId,
       eventType: "SHIPMENT_CREATED",
       version: 1,
       payload: {
-        origin,
-        destination,
+        origin: cleanOrigin,
+        destination: cleanDestination,
       },
       metadata: {
         source: "command-api",
       },
-    });
+  });
 
     return res.status(201).json({
       status: "success",
@@ -46,7 +71,7 @@ const createShipment = async (req, res) => {
       event,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error creating shipment:", error);
 
     return res.status(500).json({
       status: "error",
@@ -55,19 +80,47 @@ const createShipment = async (req, res) => {
   }
 };
 
+// Move Shipment
 const moveShipment = async (req, res) => {
   try {
     const { id } = req.params;
     const { location, temperature } = req.body;
 
-    if (!location) {
+    // Shipment ID validation
+    if (!id || id.trim() === "") {
+      return res.status(400).json({
+        status: "error",
+        message: "shipment ID is required",
+      });
+    }
+
+    // Location validation
+    if (!location || location.trim() === "") {
       return res.status(400).json({
         status: "error",
         message: "location is required",
       });
     }
 
-    const lastEvent = await Event.findOne({ shipmentId: id }).sort({
+    // Optional temperature validation
+    if (
+      temperature !== undefined &&
+      (temperature === null ||
+        temperature === "" ||
+        Number.isNaN(Number(temperature)))
+    ) {
+      return res.status(400).json({
+        status: "error",
+        message: "temperature must be a valid number",
+      });
+    }
+
+    const shipmentId = id.trim();
+    const cleanLocation = location.trim();
+
+    const lastEvent = await Event.findOne({
+      shipmentId,
+    }).sort({
       version: -1,
     });
 
@@ -81,13 +134,15 @@ const moveShipment = async (req, res) => {
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
-      shipmentId: id,
+      shipmentId,
       eventType: "LOADED_ON_SHIP",
       version: nextVersion,
       payload: {
         status: "In Transit",
-        location,
-        ...(temperature !== undefined && { temperature }),
+        location: cleanLocation,
+        ...(temperature !== undefined && {
+          temperature: Number(temperature),
+        }),
       },
       metadata: {
         source: "command-api",
@@ -109,19 +164,44 @@ const moveShipment = async (req, res) => {
   }
 };
 
+// Record Temperature Event
 const recordTemperature = async (req, res) => {
   try {
     const { id } = req.params;
     const { temperature, location } = req.body;
 
-    if (temperature === undefined || temperature === null) {
+    // Shipment ID validation
+    if (!id || id.trim() === "") {
       return res.status(400).json({
         status: "error",
+        message: "shipment ID is required",
+      });
+    }
+
+    // Temperature validation
+    if (
+      temperature === undefined ||
+      temperature === null ||
+      temperature === ""
+    ) {
+      return res.status(400).json({
+        status: "400",
         message: "temperature is required",
       });
     }
 
-    const lastEvent = await Event.findOne({ shipmentId: id }).sort({
+    if (Number.isNaN(Number(temperature))) {
+      return res.status(400).json({
+        status: "error",
+        message: "temperature must be a valid number",
+      });
+    }
+
+    const shipmentId = id.trim();
+
+    const lastEvent = await Event.findOne({
+      shipmentId,
+    }).sort({
       version: -1,
     });
 
@@ -135,12 +215,15 @@ const recordTemperature = async (req, res) => {
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
-      shipmentId: id,
+      shipmentId,
       eventType: "TEMPERATURE_SPIKE",
       version: nextVersion,
       payload: {
         status: "Temperature Alert",
-        location: location || "At Sea",
+        location:
+          location && location.trim() !== ""
+            ? location.trim()
+            : "At Sea",
         temperature: Number(temperature),
       },
       metadata: {
@@ -163,19 +246,34 @@ const recordTemperature = async (req, res) => {
   }
 };
 
+// Record Arrival Event
 const arriveShipment = async (req, res) => {
   try {
     const { id } = req.params;
     const { port, location } = req.body;
 
-    if (!port) {
+    // Shipment ID validation
+    if (!id || id.trim() === "") {
+      return res.status(400).json({
+        status: "error",
+        message: "shipment ID is required",
+      });
+    }
+
+    // Port validation
+    if (!port || port.trim() === "") {
       return res.status(400).json({
         status: "error",
         message: "port is required",
       });
     }
 
-    const lastEvent = await Event.findOne({ shipmentId: id }).sort({
+    const shipmentId = id.trim();
+    const cleanPort = port.trim();
+
+    const lastEvent = await Event.findOne({
+      shipmentId,
+    }).sort({
       version: -1,
     });
 
@@ -189,12 +287,15 @@ const arriveShipment = async (req, res) => {
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
-      shipmentId: id,
+      shipmentId,
       eventType: "ARRIVED_AT_PORT",
       version: nextVersion,
       payload: {
-        port,
-        location: location || port,
+        port: cleanPort,
+        location:
+          location && location.trim() !== ""
+            ? location.trim()
+            : cleanPort,
       },
       metadata: {
         source: "command-api",

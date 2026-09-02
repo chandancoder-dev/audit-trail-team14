@@ -12,6 +12,17 @@ function formatEventType(eventType) {
     .join(' ');
 }
 
+function formatFullDate(isoString) {
+  return new Date(isoString).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
 export default function AuditTimeline({ events = mockEvents }) {
   const [order, setOrder] = useState('newest');
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -65,33 +76,52 @@ export default function AuditTimeline({ events = mockEvents }) {
 
       {selectedEvent && (
         <div
-          className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50"
           onClick={() => setSelectedEvent(null)}
         >
           <div
-            className="bg-gray-800 border border-gray-700 rounded-xl shadow-xl max-w-lg w-full p-5 max-h-[80vh] overflow-y-auto"
+            className="bg-gray-850 bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden max-h-[85vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h3 className="text-base font-semibold text-white">
-                  {formatEventType(selectedEvent.eventType)}
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  v{selectedEvent.version} · {selectedEvent._id}
-                </p>
+            {/* Header with accent bar */}
+            <div className="relative px-6 pt-6 pb-5 border-b border-gray-700">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-indigo-500 rounded-t-2xl" />
+
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="inline-block text-[11px] font-semibold bg-indigo-950 text-indigo-300 px-2.5 py-1 rounded-full mb-2">
+                    Version {selectedEvent.version}
+                  </span>
+                  <h3 className="text-xl font-bold text-white leading-tight">
+                    {formatEventType(selectedEvent.eventType)}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {formatFullDate(selectedEvent.recordedAt)} · ID: {selectedEvent._id}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedEvent(null)}
+                  className="text-slate-400 hover:text-white hover:bg-gray-700 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0"
+                >
+                  ✕
+                </button>
               </div>
-              <button
-                onClick={() => setSelectedEvent(null)}
-                className="text-slate-400 hover:text-white text-sm"
-              >
-                ✕
-              </button>
             </div>
 
-            <div className="space-y-4">
+            {/* Body */}
+            <div className="px-6 py-5 space-y-5 overflow-y-auto">
               <EventPayloadViewer payload={selectedEvent.payload} />
               <EventMetadataViewer metadata={selectedEvent.metadata} />
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-gray-700 bg-gray-900/50">
+              <button
+                onClick={() => setSelectedEvent(null)}
+                className="w-full text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 rounded-lg py-2.5 transition-colors"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

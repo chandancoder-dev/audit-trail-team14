@@ -1,13 +1,12 @@
 const jwt = require("jsonwebtoken");
 
 const tokenVerification = (req , res , next)=>{
-
     if(req.headers.authorization 
         && req.headers.authorization.startsWith("Bearer")
     )
     {
         try{
-            const token = req.authorization.split(" ")[1];
+            const token = req.headers.authorization.split(" ")[1];
             const data = jwt.verify(token, process.env.SECRET_KEY);
             req.id = data.id;
             next();
