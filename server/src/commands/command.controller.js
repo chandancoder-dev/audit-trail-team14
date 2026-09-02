@@ -9,7 +9,8 @@ const commandHealth = (req, res) => {
 
 const createShipment = async (req, res) => {
   try {
-    const { shipmentId, origin, destination } = req.body;
+    console.log(req.body);
+    const {id, shipmentId, origin, destination } = req.body;
 
     if (!shipmentId || !origin || !destination) {
       return res.status(400).json({
@@ -28,6 +29,7 @@ const createShipment = async (req, res) => {
     }
 
     const event = await Event.create({
+      userId : req.id,
       shipmentId,
       eventType: "SHIPMENT_CREATED",
       version: 1,

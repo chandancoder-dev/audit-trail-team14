@@ -20,7 +20,7 @@ function Login() {
               const token = res.data.token;
 
               localStorage.setItem("token" , token);
-
+              console.log(localStorage.getItem("token"));
               alert(res.data.message);
 
         }
