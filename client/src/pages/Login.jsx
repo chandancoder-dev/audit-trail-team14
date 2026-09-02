@@ -12,16 +12,18 @@ function Login() {
         e.preventDefault();
          
         try{
-              const res = await axios.post("http://localhost:8000/api/auth/login",{
+              const res = await axios.post("http://localhost:5001/api/auth/login", {
                   email : email,
                   password : password
               });
 
               const token = res.data.token;
-
               localStorage.setItem("token" , token);
               console.log(localStorage.getItem("token"));
               alert(res.data.message);
+              localStorage.setItem("token", token);
+              navigate("/shipment-operations");
+
 
         }
         catch(e){
