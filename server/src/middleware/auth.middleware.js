@@ -7,8 +7,8 @@ const tokenVerification = (req , res , next)=>{
     )
     {
         try{
-            const token = req.authorization.split(" ")[1];
-            const data = jwt.verify(token, process.env.SECRET_KEY);
+            const token = req.headers.authorization.split(" ")[1];
+            const data = jwt.verify(token, process.env.JWT_SECRET);
             req.id = data.id;
             next();
         }
