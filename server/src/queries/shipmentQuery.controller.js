@@ -1,5 +1,30 @@
 const Event = require("../models/Event");
+const ShipmentView = require("../projections/ShipmentView");
 const { getHistoricalState } = require("./historicalState.service");
+
+const getShipment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const shipment = await ShipmentView.findOne({
+      shipmentId: id,
+    }).lean();
+
+    if (!shipment) {
+      return res.status(404).json({
+        message: "Shipment not found",
+      });
+    }
+
+    res.status(200).json(shipment);
+  } catch (error) {
+    console.error("Error fetching shipment:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch shipment",
+    });
+  }
+};
 
 const getShipmentEvents = async (req, res) => {
   try {
@@ -57,6 +82,7 @@ const getShipmentHistoricalState = async (req, res) => {
 };
 
 module.exports = {
+  getShipment,
   getShipmentEvents,
   getShipmentHistoricalState,
 };
