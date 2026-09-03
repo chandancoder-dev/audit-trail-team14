@@ -16,11 +16,11 @@ const getShipment = async (req, res) => {
       });
     }
 
-    res.status(200).json(shipment);
+    return res.status(200).json(shipment);
   } catch (error) {
     console.error("Error fetching shipment:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Failed to fetch shipment",
     });
   }
@@ -81,8 +81,30 @@ const getShipmentHistoricalState = async (req, res) => {
   }
 };
 
+const getShipments = async (req, res) => {
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+
+  try {
+    const skip = (page - 1) * limit;
+
+    const shipments = await Event.find({ userid: req.body.id })
+      .skip(skip)
+      .limit(limit);
+
+    return res.status(200).json({
+      shipments,
+    });
+  } catch (e) {
+    return res.status(500).json({
+      message: e.message,
+    });
+  }
+};
+
 module.exports = {
   getShipment,
   getShipmentEvents,
   getShipmentHistoricalState,
+  getShipments,
 };
