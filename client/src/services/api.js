@@ -79,7 +79,15 @@ api.interceptors.response.use(
 
 // Commands (Write Side)
 export const commandAPI = {
-  createShipment: (data) => api.post("/commands/shipment/create", data),
+  createShipment: (data) => {
+    const token = localStorage.getItem("token");
+
+    return api.post("/commands/shipment/create", data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
   moveShipment: (id, data) => api.post(`/commands/shipment/${id}/move`, data),
   recordTemperature: (id, data) =>
     api.post(`/commands/shipment/${id}/temperature`, data),

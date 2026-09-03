@@ -93,6 +93,18 @@ function HistoricalState() {
     loadHistoricalState();
   }, [selectedDate]);
 
+  const handleEventSelection = (index) => {
+    if (index < 0 || index >= events.length) {
+      return;
+    }
+
+    setSelectedEventIndex(index);
+  };
+
+  const handleSliderChange = (event) => {
+    handleEventSelection(Number(event.target.value));
+  };
+
   const formatTime = (date) => {
     if (!date) {
       return "--:--";
@@ -241,6 +253,10 @@ function HistoricalState() {
                 <strong className="text-lg text-text-heading">
                   {formatTime(selectedDate)}
                 </strong>
+
+                <span className="mt-1 block text-xs text-text-secondary">
+                  {formatTimelineDate(selectedDate)}
+                </span>
               </div>
 
               <div className="rounded-[10px] border border-border bg-bg-input p-4.5">
@@ -304,41 +320,53 @@ function HistoricalState() {
               <p className="mt-2 text-xs text-text-secondary">
                 {formatDateTime(selectedDate)}
               </p>
+
+              <p className="mt-1 text-xs font-semibold text-primary">
+                Event {selectedEventIndex + 1} of {events.length}
+              </p>
             </div>
           </div>
 
           {/* Event-based slider */}
-          <input
-            type="range"
-            min="0"
-            max={events.length - 1}
-            step="1"
-            value={selectedEventIndex}
-            onChange={(e) => setSelectedEventIndex(Number(e.target.value))}
-            className="w-full cursor-pointer accent-primary"
-          />
+          <div className="relative">
+            <input
+              type="range"
+              min="0"
+              max={events.length - 1}
+              step="1"
+              value={selectedEventIndex}
+              onChange={handleSliderChange}
+              aria-label="Select historical event"
+              className="w-full cursor-pointer accent-primary"
+            />
+          </div>
 
           {/* Slider labels */}
-          <div className="mt-3 flex justify-between gap-2 text-[12px] text-text-secondary sm:text-[13px]">
-            {events.map((event, index) => (
-              <button
-                key={event._id || event.recordedAt}
-                type="button"
-                onClick={() => setSelectedEventIndex(index)}
-                className={`text-center transition-colors ${
-                  selectedEventIndex === index
-                    ? "font-bold text-primary"
-                    : "text-text-secondary"
-                }`}
-              >
-                <span className="block">
-                  {formatTimelineDate(event.recordedAt)} •{" "}
-                  {formatTime(event.recordedAt)}
-                </span>
+          <div className="mt-4 flex justify-between gap-2 text-[12px] text-text-secondary sm:text-[13px]">
+            {events.map((event, index) => {
+              const isActive = selectedEventIndex === index;
 
-                <span className="hidden sm:block">{event.eventType}</span>
-              </button>
-            ))}
+              return (
+                <button
+                  key={event._id || event.recordedAt}
+                  type="button"
+                  onClick={() => handleEventSelection(index)}
+                  aria-current={isActive ? "step" : undefined}
+                  className={`rounded-lg px-1.5 py-1 text-center transition-all ${
+                    isActive
+                      ? "bg-primary/10 font-bold text-primary"
+                      : "text-text-secondary hover:bg-bg-input hover:text-text-heading"
+                  }`}
+                >
+                  <span className="block">
+                    {formatTimelineDate(event.recordedAt)} •{" "}
+                    {formatTime(event.recordedAt)}
+                  </span>
+
+                  <span className="hidden sm:block">{event.eventType}</span>
+                </button>
+              );
+            })}
           </div>
         </section>
 
@@ -359,16 +387,18 @@ function HistoricalState() {
               const isActive = selectedEventIndex === index;
 
               return (
-                <div
+                <button
                   key={event._id || event.recordedAt}
-                  className="flex cursor-pointer gap-2.5 sm:gap-3.5"
-                  onClick={() => setSelectedEventIndex(index)}
+                  type="button"
+                  onClick={() => handleEventSelection(index)}
+                  aria-current={isActive ? "step" : undefined}
+                  className="flex w-full cursor-pointer gap-2.5 text-left sm:gap-3.5"
                 >
                   {/* Marker */}
                   <div
-                    className={`flex h-7 w-7 min-w-7 items-center justify-center rounded-full text-xs sm:h-8 sm:w-8 sm:min-w-8 ${
+                    className={`flex h-7 w-7 min-w-7 items-center justify-center self-start rounded-full text-xs transition-all sm:h-8 sm:w-8 sm:min-w-8 ${
                       isActive
-                        ? "bg-primary text-text-heading"
+                        ? "bg-primary font-bold text-text-heading shadow-[0_0_0_4px_rgba(255,255,255,0.05)]"
                         : "bg-border text-text-secondary"
                     }`}
                   >
@@ -377,8 +407,10 @@ function HistoricalState() {
 
                   {/* Event content */}
                   <div
-                    className={`flex-1 rounded-[10px] border bg-bg-card p-3.5 sm:p-4 ${
-                      isActive ? "border-primary" : "border-border"
+                    className={`flex-1 rounded-[10px] border bg-bg-card p-3.5 transition-all sm:p-4 ${
+                      isActive
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50"
                     }`}
                   >
                     <div className="flex flex-col justify-between gap-2 sm:flex-row sm:gap-5">
@@ -401,6 +433,12 @@ function HistoricalState() {
                           {formatTimelineDate(event.recordedAt)} •{" "}
                           {formatTime(event.recordedAt)}
                         </span>
+
+                        {isActive && (
+                          <span className="mt-1 block text-[11px] font-semibold uppercase tracking-wide text-success">
+                            Selected
+                          </span>
+                        )}
                       </span>
                     </div>
 
@@ -413,7 +451,7 @@ function HistoricalState() {
                         "Event recorded in the audit trail."}
                     </p>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>

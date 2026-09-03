@@ -50,12 +50,13 @@ const login = async(req , res) =>{
 
             return res.status(401).json({message : "password does not match."});
         }
-
+        
+        console.log(process.env.SECRET_KEY);
         const token = jwt.sign(
          { id: user._id },
-           process.env.SECRET_KEY,
-        {
-           expiresIn: "1d",
+           process.env.JWT_SECRET,
+         {
+          expiresIn: "1d",
         }
        );
 
