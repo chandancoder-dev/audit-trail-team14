@@ -11,7 +11,8 @@ const commandHealth = (req, res) => {
 const createShipment = async (req, res) => {
   try {
     console.log(req.body);
-    const {id, shipmentId, origin, destination } = req.body;
+
+    const { shipmentId, origin, destination } = req.body;
 
     // Input validation
     if (!shipmentId || shipmentId.trim() === "") {
@@ -52,7 +53,7 @@ const createShipment = async (req, res) => {
     }
 
     const event = await Event.create({
-      userId : req.id,
+      userId: req.id,
       shipmentId: cleanShipmentId,
       eventType: "SHIPMENT_CREATED",
       version: 1,
@@ -63,7 +64,7 @@ const createShipment = async (req, res) => {
       metadata: {
         source: "command-api",
       },
-  });
+    });
 
     return res.status(201).json({
       status: "success",
@@ -134,6 +135,7 @@ const moveShipment = async (req, res) => {
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
+      userId: req.id,
       shipmentId,
       eventType: "LOADED_ON_SHIP",
       version: nextVersion,
@@ -185,7 +187,7 @@ const recordTemperature = async (req, res) => {
       temperature === ""
     ) {
       return res.status(400).json({
-        status: "400",
+        status: "error",
         message: "temperature is required",
       });
     }
@@ -215,6 +217,7 @@ const recordTemperature = async (req, res) => {
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
+      userId: req.id,
       shipmentId,
       eventType: "TEMPERATURE_SPIKE",
       version: nextVersion,
@@ -287,6 +290,7 @@ const arriveShipment = async (req, res) => {
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
+      userId: req.id,
       shipmentId,
       eventType: "ARRIVED_AT_PORT",
       version: nextVersion,
