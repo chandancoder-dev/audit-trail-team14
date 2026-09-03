@@ -44,9 +44,9 @@ function ShipmentOperations() {
   const [arrivalSuccessMessage, setArrivalSuccessMessage] = useState("");
   const [arrivalVersion, setArrivalVersion] = useState(null);
 
-  // -----------------------------
-  // OCC - Fetch Move Shipment Version
-  // -----------------------------
+  // ============================================================
+  // Fetch current version for Move
+  // ============================================================
   useEffect(() => {
     const fetchMoveVersion = async () => {
       const id = moveShipmentId.trim();
@@ -58,7 +58,9 @@ function ShipmentOperations() {
 
       try {
         const shipment = await queryAPI.getShipment(id);
-        setMoveVersion(shipment.version);
+
+        // ShipmentView uses lastVersion
+        setMoveVersion(shipment.lastVersion ?? null);
       } catch (error) {
         setMoveVersion(null);
       }
@@ -67,9 +69,9 @@ function ShipmentOperations() {
     fetchMoveVersion();
   }, [moveShipmentId]);
 
-  // -----------------------------
-  // OCC - Fetch Temperature Version
-  // -----------------------------
+  // ============================================================
+  // Fetch current version for Temperature
+  // ============================================================
   useEffect(() => {
     const fetchTemperatureVersion = async () => {
       const id = temperatureShipmentId.trim();
@@ -81,7 +83,9 @@ function ShipmentOperations() {
 
       try {
         const shipment = await queryAPI.getShipment(id);
-        setTemperatureVersion(shipment.version);
+
+        // ShipmentView uses lastVersion
+        setTemperatureVersion(shipment.lastVersion ?? null);
       } catch (error) {
         setTemperatureVersion(null);
       }
@@ -90,9 +94,9 @@ function ShipmentOperations() {
     fetchTemperatureVersion();
   }, [temperatureShipmentId]);
 
-  // -----------------------------
-  // OCC - Fetch Arrival Version
-  // -----------------------------
+  // ============================================================
+  // Fetch current version for Arrival
+  // ============================================================
   useEffect(() => {
     const fetchArrivalVersion = async () => {
       const id = arrivalShipmentId.trim();
@@ -104,7 +108,9 @@ function ShipmentOperations() {
 
       try {
         const shipment = await queryAPI.getShipment(id);
-        setArrivalVersion(shipment.version);
+
+        // ShipmentView uses lastVersion
+        setArrivalVersion(shipment.lastVersion ?? null);
       } catch (error) {
         setArrivalVersion(null);
       }
@@ -113,9 +119,9 @@ function ShipmentOperations() {
     fetchArrivalVersion();
   }, [arrivalShipmentId]);
 
-  // -----------------------------
+  // ============================================================
   // Create Shipment
-  // -----------------------------
+  // ============================================================
   const handleCreateShipment = async () => {
     setErrors({});
     setSuccessMessage("");
@@ -146,17 +152,25 @@ function ShipmentOperations() {
         destination: destination.trim(),
       });
 
-      setSuccessMessage(response.message || "Shipment created successfully.");
+      setSuccessMessage(
+        response.message || "Shipment created successfully."
+      );
+
+      // Clear form after successful creation
+      setShipmentId("");
+      setOrigin("");
+      setDestination("");
     } catch (error) {
       setErrors({
-        shipmentId: error.message || "Failed to create shipment.",
+        shipmentId:
+          error.message || "Failed to create shipment.",
       });
     }
   };
 
-  // -----------------------------
+  // ============================================================
   // Move Shipment
-  // -----------------------------
+  // ============================================================
   const handleMoveShipment = async () => {
     setMoveErrors({});
     setMoveSuccessMessage("");
@@ -189,16 +203,25 @@ function ShipmentOperations() {
     }
 
     try {
-      const response = await commandAPI.moveShipment(moveShipmentId.trim(), {
-        location: moveDestination.trim(),
-        expectedVersion: moveVersion,
-      });
+      const response = await commandAPI.moveShipment(
+        moveShipmentId.trim(),
+        {
+          location: moveDestination.trim(),
+          expectedVersion: moveVersion,
+        }
+      );
 
-      setMoveSuccessMessage(response.message || "Shipment moved successfully.");
+      setMoveSuccessMessage(
+        response.message || "Shipment moved successfully."
+      );
 
-      const updatedShipment = await queryAPI.getShipment(moveShipmentId.trim());
+      const updatedShipment = await queryAPI.getShipment(
+        moveShipmentId.trim()
+      );
 
-      setMoveVersion(updatedShipment.version);
+      setMoveVersion(updatedShipment.lastVersion ?? null);
+
+      setCurrentLocation(moveDestination);
     } catch (error) {
       if (error.status === 409) {
         setMoveErrors({
@@ -215,14 +238,15 @@ function ShipmentOperations() {
       }
 
       setMoveErrors({
-        moveShipmentId: error.message || "Failed to move shipment.",
+        moveShipmentId:
+          error.message || "Failed to move shipment.",
       });
     }
   };
 
-  // -----------------------------
+  // ============================================================
   // Temperature Event
-  // -----------------------------
+  // ============================================================
   const handleTemperatureEvent = async () => {
     setTemperatureErrors({});
     setTemperatureSuccessMessage("");
@@ -236,7 +260,8 @@ function ShipmentOperations() {
     if (temperature.trim() === "") {
       newErrors.temperature = "Temperature is required";
     } else if (isNaN(Number(temperature))) {
-      newErrors.temperature = "Temperature must be a valid number";
+      newErrors.temperature =
+        "Temperature must be a valid number";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -258,18 +283,23 @@ function ShipmentOperations() {
         {
           temperature: Number(temperature),
           expectedVersion: temperatureVersion,
-        },
+        }
       );
 
       setTemperatureSuccessMessage(
-        response.message || "Temperature recorded successfully.",
+        response.message ||
+          "Temperature recorded successfully."
       );
 
       const updatedShipment = await queryAPI.getShipment(
-        temperatureShipmentId.trim(),
+        temperatureShipmentId.trim()
       );
 
-      setTemperatureVersion(updatedShipment.version);
+      setTemperatureVersion(
+        updatedShipment.lastVersion ?? null
+      );
+
+      setTemperature("");
     } catch (error) {
       if (error.status === 409) {
         setTemperatureErrors({
@@ -287,14 +317,15 @@ function ShipmentOperations() {
 
       setTemperatureErrors({
         temperatureShipmentId:
-          error.message || "Failed to record temperature event.",
+          error.message ||
+          "Failed to record temperature event.",
       });
     }
   };
 
-  // -----------------------------
+  // ============================================================
   // Arrival Event
-  // -----------------------------
+  // ============================================================
   const handleArrivalEvent = async () => {
     setArrivalErrors({});
     setArrivalSuccessMessage("");
@@ -302,11 +333,13 @@ function ShipmentOperations() {
     const newErrors = {};
 
     if (arrivalShipmentId.trim() === "") {
-      newErrors.arrivalShipmentId = "Shipment ID is required";
+      newErrors.arrivalShipmentId =
+        "Shipment ID is required";
     }
 
     if (arrivalLocation.trim() === "") {
-      newErrors.arrivalLocation = "Arrival location is required";
+      newErrors.arrivalLocation =
+        "Arrival location is required";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -329,18 +362,23 @@ function ShipmentOperations() {
           port: arrivalLocation.trim(),
           location: arrivalLocation.trim(),
           expectedVersion: arrivalVersion,
-        },
+        }
       );
 
       setArrivalSuccessMessage(
-        response.message || "Shipment arrival recorded successfully.",
+        response.message ||
+          "Shipment arrival recorded successfully."
       );
 
       const updatedShipment = await queryAPI.getShipment(
-        arrivalShipmentId.trim(),
+        arrivalShipmentId.trim()
       );
 
-      setArrivalVersion(updatedShipment.version);
+      setArrivalVersion(
+        updatedShipment.lastVersion ?? null
+      );
+
+      setArrivalLocation("");
     } catch (error) {
       if (error.status === 409) {
         setArrivalErrors({
@@ -357,7 +395,9 @@ function ShipmentOperations() {
       }
 
       setArrivalErrors({
-        arrivalShipmentId: error.message || "Failed to record arrival event.",
+        arrivalShipmentId:
+          error.message ||
+          "Failed to record arrival event.",
       });
     }
   };
@@ -365,9 +405,12 @@ function ShipmentOperations() {
   return (
     <div className="min-h-screen bg-bg-primary px-5 py-10 font-sans">
       <div className="mx-auto max-w-4xl">
-        {/* Page Header */}
+
+        {/* =====================================================
+            PAGE HEADER
+        ====================================================== */}
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-text-heading]">
+          <h1 className="mb-2 text-3xl font-bold text-text-heading">
             Shipment Operations
           </h1>
 
@@ -388,7 +431,6 @@ function ShipmentOperations() {
             Start a new shipment and create its initial event stream.
           </p>
 
-          {/* Success Message */}
           {successMessage && (
             <div className="mb-6 rounded-lg border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
               {successMessage}
@@ -423,7 +465,9 @@ function ShipmentOperations() {
             />
 
             {errors.shipmentId && (
-              <p className="mt-2 text-sm text-error">{errors.shipmentId}</p>
+              <p className="mt-2 text-sm text-error">
+                {errors.shipmentId}
+              </p>
             )}
           </div>
 
@@ -455,7 +499,9 @@ function ShipmentOperations() {
             />
 
             {errors.origin && (
-              <p className="mt-2 text-sm text-error">{errors.origin}</p>
+              <p className="mt-2 text-sm text-error">
+                {errors.origin}
+              </p>
             )}
           </div>
 
@@ -487,11 +533,12 @@ function ShipmentOperations() {
             />
 
             {errors.destination && (
-              <p className="mt-2 text-sm text-error">{errors.destination}</p>
+              <p className="mt-2 text-sm text-error">
+                {errors.destination}
+              </p>
             )}
           </div>
 
-          {/* Create Button */}
           <button
             type="button"
             onClick={handleCreateShipment}
@@ -509,18 +556,16 @@ function ShipmentOperations() {
             Move Shipment
           </h2>
 
-          <p className="mb-7 text-sm text-text-heading">
+          <p className="mb-7 text-sm text-text-secondary">
             Move an existing shipment to its next lifecycle stage.
           </p>
 
-          {/* Success Message */}
           {moveSuccessMessage && (
             <div className="mb-6 rounded-lg border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
               {moveSuccessMessage}
             </div>
           )}
 
-          {/* Shipment ID */}
           <div className="mb-5">
             <label className="mb-2 block text-sm font-semibold text-text-normal">
               Shipment ID
@@ -554,7 +599,6 @@ function ShipmentOperations() {
             )}
           </div>
 
-          {/* Current Location */}
           <div className="mb-5">
             <label className="mb-2 block text-sm font-semibold text-text-normal">
               Current Location
@@ -588,7 +632,6 @@ function ShipmentOperations() {
             )}
           </div>
 
-          {/* Destination */}
           <div className="mb-7">
             <label className="mb-2 block text-sm font-semibold text-text-normal">
               Destination
@@ -622,7 +665,6 @@ function ShipmentOperations() {
             )}
           </div>
 
-          {/* Current Version */}
           {moveVersion !== null && (
             <p className="mb-5 text-sm text-text-secondary">
               Expected shipment version:{" "}
@@ -632,7 +674,6 @@ function ShipmentOperations() {
             </p>
           )}
 
-          {/* Move Button */}
           <button
             type="button"
             onClick={handleMoveShipment}
@@ -654,14 +695,12 @@ function ShipmentOperations() {
             Record a temperature event for an existing shipment.
           </p>
 
-          {/* Success Message */}
           {temperatureSuccessMessage && (
             <div className="mb-6 rounded-lg border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
               {temperatureSuccessMessage}
             </div>
           )}
 
-          {/* Shipment ID */}
           <div className="mb-5">
             <label className="mb-2 block text-sm font-semibold text-text-normal">
               Shipment ID
@@ -674,7 +713,9 @@ function ShipmentOperations() {
               onChange={(e) => {
                 setTemperatureShipmentId(e.target.value);
 
-                if (temperatureErrors.temperatureShipmentId) {
+                if (
+                  temperatureErrors.temperatureShipmentId
+                ) {
                   setTemperatureErrors((previous) => ({
                     ...previous,
                     temperatureShipmentId: "",
@@ -695,7 +736,6 @@ function ShipmentOperations() {
             )}
           </div>
 
-          {/* Temperature */}
           <div className="mb-7">
             <label className="mb-2 block text-sm font-semibold text-text-normal">
               Temperature (°C)
@@ -730,7 +770,6 @@ function ShipmentOperations() {
             )}
           </div>
 
-          {/* Current Version */}
           {temperatureVersion !== null && (
             <p className="mb-5 text-sm text-text-secondary">
               Expected shipment version:{" "}
@@ -740,11 +779,10 @@ function ShipmentOperations() {
             </p>
           )}
 
-          {/* Temperature Button */}
           <button
             type="button"
             onClick={handleTemperatureEvent}
-            className="w-full rounded-lg bg-primary px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="w-full rounded-lg bg-primary px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
             Record Temperature Event
           </button>
@@ -758,18 +796,16 @@ function ShipmentOperations() {
             Arrival Event
           </h2>
 
-          <p className="mb-7 text-sm text-text-placeholder">
+          <p className="mb-7 text-sm text-text-secondary">
             Record the arrival of an existing shipment.
           </p>
 
-          {/* Success Message */}
           {arrivalSuccessMessage && (
             <div className="mb-6 rounded-lg border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
               {arrivalSuccessMessage}
             </div>
           )}
 
-          {/* Shipment ID */}
           <div className="mb-5">
             <label className="mb-2 block text-sm font-semibold text-text-normal">
               Shipment ID
@@ -803,7 +839,6 @@ function ShipmentOperations() {
             )}
           </div>
 
-          {/* Arrival Location */}
           <div className="mb-7">
             <label className="mb-2 block text-sm font-semibold text-text-normal">
               Arrival Location
@@ -837,7 +872,6 @@ function ShipmentOperations() {
             )}
           </div>
 
-          {/* Current Version */}
           {arrivalVersion !== null && (
             <p className="mb-5 text-sm text-text-secondary">
               Expected shipment version:{" "}
@@ -847,11 +881,10 @@ function ShipmentOperations() {
             </p>
           )}
 
-          {/* Arrival Button */}
           <button
             type="button"
             onClick={handleArrivalEvent}
-            className="w-full rounded-lg bg-primary px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="w-full rounded-lg bg-primary px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
             Record Arrival
           </button>
