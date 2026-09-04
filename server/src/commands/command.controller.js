@@ -132,6 +132,14 @@ const moveShipment = async (req, res) => {
       });
     }
 
+    // Business rule - cannot move an already arrived shipment
+    if (lastEvent.eventType === "ARRIVED_AT_PORT") {
+      return res.status(409).json({
+        status: "error",
+        message: "Cannot move a shipment after it has arrived",
+      });
+    }
+
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
@@ -284,6 +292,14 @@ const arriveShipment = async (req, res) => {
       return res.status(404).json({
         status: "error",
         message: "Shipment not found",
+      });
+    }
+
+    // Business rule - prevent duplicate arrival
+    if (lastEvent.eventType === "ARRIVED_AT_PORT") {
+      return res.status(409).json({
+        status: "error",
+        message: "Shipment has already arrived",
       });
     }
 
