@@ -1,6 +1,6 @@
-function applyContainerCreated(state, payload) {
-  state.status = payload.status || "Created";
-  state.currentLocation = payload.location || "";
+function applyShipmentCreated(state, payload) {
+  state.status = payload.status || "created";
+  state.currentLocation = payload.location || payload.origin || "";
   state.origin = payload.origin || "";
   state.destination = payload.destination || "";
 
@@ -12,8 +12,9 @@ function applyContainerCreated(state, payload) {
 }
 
 function applyLoadedOnShip(state, payload) {
-  state.status = payload.status || "In Transit";
-  state.currentLocation = payload.location || state.currentLocation;
+  state.status = payload.status || "in_transit";
+  state.currentLocation =
+    payload.location || state.currentLocation;
 
   if (payload.temperature !== undefined) {
     state.temperature = payload.temperature;
@@ -23,8 +24,9 @@ function applyLoadedOnShip(state, payload) {
 }
 
 function applyTemperatureSpike(state, payload) {
-  state.status = payload.status || "Temperature Alert";
-  state.currentLocation = payload.location || state.currentLocation;
+  state.status = payload.status || "alert";
+  state.currentLocation =
+    payload.location || state.currentLocation;
 
   if (payload.temperature !== undefined) {
     state.temperature = payload.temperature;
@@ -34,8 +36,9 @@ function applyTemperatureSpike(state, payload) {
 }
 
 function applyArrivedAtPort(state, payload) {
-  state.status = payload.status || "Arrived";
-  state.currentLocation = payload.location || state.currentLocation;
+  state.status = payload.status || "arrived";
+  state.currentLocation =
+    payload.location || state.currentLocation;
 
   // Keep the previous temperature if the arrival event
   // does not contain a new temperature.
@@ -50,8 +53,8 @@ function applyEvent(state, event) {
   const payload = event.payload || {};
 
   switch (event.eventType) {
-    case "CONTAINER_CREATED":
-      return applyContainerCreated(state, payload);
+    case "SHIPMENT_CREATED":
+      return applyShipmentCreated(state, payload);
 
     case "LOADED_ON_SHIP":
       return applyLoadedOnShip(state, payload);
@@ -63,6 +66,10 @@ function applyEvent(state, event) {
       return applyArrivedAtPort(state, payload);
 
     default:
+      console.warn(
+        `[EventReducer] Unknown event type: ${event.eventType}`
+      );
+
       if (payload.status) {
         state.status = payload.status;
       }
@@ -80,7 +87,7 @@ function applyEvent(state, event) {
 }
 
 module.exports = {
-  applyContainerCreated,
+  applyShipmentCreated,
   applyLoadedOnShip,
   applyTemperatureSpike,
   applyArrivedAtPort,

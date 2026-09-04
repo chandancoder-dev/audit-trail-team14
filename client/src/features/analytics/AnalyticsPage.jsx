@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { queryAPI } from '../../services/api';
 import TemperatureChart from './TemperatureChart';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, Cell,
+} from 'recharts';
 
 // ── Skeleton for stat cards ───────────────────────────────────────────────────
 function StatSkeleton() {
@@ -260,41 +264,52 @@ function AnalyticsPage() {
         )}
       </div>
 
-      {/* Event Frequency Section */}
+      {/* Event Frequency Bar Chart */}
       <div className="bg-bg-card rounded-lg p-6 border border-border">
         <h2 className="text-lg font-semibold text-text-heading mb-4">Event Frequency</h2>
-        {loading ? (
-          <ChartSkeleton height="h-48" />
-        ) : error ? (
-          <ErrorState message={error} onRetry={fetchAnalytics} />
-        ) : frequencyData.length === 0 ? (
-          <EmptyState message="No events recorded for this shipment yet." />
-        ) : (
-          <div className="flex flex-col gap-2">
-            {frequencyData.map((day) => (
-              <div key={day.date} className="flex items-center gap-3 text-sm">
-                <span className="text-text-secondary font-mono w-24 flex-shrink-0">
-                  {day.date}
-                </span>
-                {/* Bar */}
-                <div className="flex-1 bg-border/30 rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-primary h-2 rounded-full transition-all"
-                    style={{
-                      width: `${Math.min(
-                        100,
-                        (day.count / Math.max(...frequencyData.map((d) => d.count))) * 100
-                      )}%`,
-                    }}
-                  />
-                </div>
-                <span className="text-text-placeholder text-xs w-12 text-right">
-                  {day.count} event{day.count !== 1 ? 's' : ''}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="h-56">
+          {loading ? (
+            <ChartSkeleton height="h-56" />
+          ) : error ? (
+            <ErrorState message={error} onRetry={fetchAnalytics} />
+          ) : frequencyData.length === 0 ? (
+            <EmptyState message="No events recorded for this shipment yet." />
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={frequencyData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#3F3F46" opacity={0.5} />
+                <XAxis
+                  dataKey="date"
+                  stroke="#A1A1AA"
+                  tick={{ fill: '#A1A1AA', fontSize: 11 }}
+                  axisLine={{ stroke: '#3F3F46' }}
+                  tickLine={{ stroke: '#3F3F46' }}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  stroke="#A1A1AA"
+                  tick={{ fill: '#A1A1AA', fontSize: 11 }}
+                  axisLine={{ stroke: '#3F3F46' }}
+                  tickLine={{ stroke: '#3F3F46' }}
+                />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#27272A', border: '1px solid #3F3F46', borderRadius: '8px' }}
+                  labelStyle={{ color: '#A1A1AA', fontSize: 12 }}
+                  itemStyle={{ color: '#3B82F6', fontSize: 12 }}
+                  formatter={(value) => [`${value} events`, 'Count']}
+                />
+                <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Events">
+                  {frequencyData.map((entry, idx) => (
+                    <Cell
+                      key={idx}
+                      fill={entry.count === Math.max(...frequencyData.map(d => d.count)) ? '#EF4444' : '#3B82F6'}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
       </div>
     </div>
   );
