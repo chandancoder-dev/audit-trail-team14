@@ -59,13 +59,10 @@ function ErrorState({ message, onRetry }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 function AlertsPage() {
-  const [alerts, setAlerts] = useState([]);
+  const [allAlerts, setAllAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
-
-  // Counts derived from full unfiltered data (stored separately for filter badges)
-  const [allAlerts, setAllAlerts] = useState([]);
 
   const fetchAlerts = useCallback(async () => {
     setLoading(true);
@@ -76,7 +73,6 @@ function AlertsPage() {
       const data = await queryAPI.getAlerts({ limit: 100 });
       const fetched = data.alerts || [];
       setAllAlerts(fetched);
-      setAlerts(fetched);
     } catch (err) {
       setError(err.message || 'Failed to load alerts.');
     } finally {

@@ -1,7 +1,6 @@
 import axios from "axios";
 
 // Base API configuration
-// Base API configuration
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5001/api";
 
@@ -60,6 +59,7 @@ api.interceptors.response.use(
           message:
             data.message ||
             "Data has been modified. Please refresh and try again.",
+          expectedVersion: data.expectedVersion,
           currentVersion: data.currentVersion,
         });
       case 500:
