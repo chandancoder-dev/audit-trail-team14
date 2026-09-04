@@ -65,6 +65,51 @@ function getEventDescription(event) {
   }
 }
 
+// Dynamic styles based on shipment status
+function getStatusStyles(status) {
+  switch (status) {
+    case "created":
+      return {
+        dot: "bg-[#A1A1AA]",
+        badge:
+          "border-[#A1A1AA]/30 bg-[#A1A1AA]/10 text-[#D4D4D8]",
+        text: "text-[#D4D4D8]",
+      };
+
+    case "in_transit":
+      return {
+        dot: "bg-[#3B82F6]",
+        badge:
+          "border-[#3B82F6]/30 bg-[#3B82F6]/10 text-[#60A5FA]",
+        text: "text-[#60A5FA]",
+      };
+
+    case "alert":
+      return {
+        dot: "bg-[#F59E0B]",
+        badge:
+          "border-[#F59E0B]/30 bg-[#F59E0B]/10 text-[#FBBF24]",
+        text: "text-[#FBBF24]",
+      };
+
+    case "arrived":
+      return {
+        dot: "bg-[#22C55E]",
+        badge:
+          "border-[#22C55E]/30 bg-[#22C55E]/10 text-[#4ADE80]",
+        text: "text-[#4ADE80]",
+      };
+
+    default:
+      return {
+        dot: "bg-[#71717A]",
+        badge:
+          "border-[#71717A]/30 bg-[#71717A]/10 text-[#A1A1AA]",
+        text: "text-[#A1A1AA]",
+      };
+  }
+}
+
 function ShipmentDetail() {
   const { shipmentId } = useParams();
 
@@ -97,8 +142,7 @@ function ShipmentDetail() {
         console.error("Failed to load shipment details:", err);
 
         setError(
-          err.message ||
-            "Failed to load shipment details."
+          err.message || "Failed to load shipment details."
         );
       } finally {
         setLoading(false);
@@ -154,12 +198,11 @@ function ShipmentDetail() {
   }
 
   const status = shipment.status || "unknown";
-  const location =
-    shipment.currentLocation || "—";
-  const temperature =
-    shipment.lastTemperature ?? "—";
-  const version =
-    shipment.lastVersion ?? 0;
+  const statusStyles = getStatusStyles(status);
+
+  const location = shipment.currentLocation || "—";
+  const temperature = shipment.lastTemperature ?? "—";
+  const version = shipment.lastVersion ?? 0;
 
   return (
     <div className="min-h-screen bg-[#18181B] px-4 py-8 text-[#D4D4D8] sm:px-6 lg:px-8">
@@ -236,10 +279,15 @@ function ShipmentDetail() {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 self-start rounded-full border border-[#22C55E]/30 bg-[#22C55E]/10 px-4 py-2 sm:self-auto">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#22C55E]" />
+            {/* Dynamic Status Badge */}
+            <div
+              className={`flex items-center gap-2 self-start rounded-full border px-4 py-2 sm:self-auto ${statusStyles.badge}`}
+            >
+              <span
+                className={`h-2.5 w-2.5 rounded-full ${statusStyles.dot}`}
+              />
 
-              <span className="text-sm font-semibold capitalize text-[#22C55E]">
+              <span className="text-sm font-semibold capitalize">
                 {status.replace("_", " ")}
               </span>
             </div>
@@ -270,7 +318,9 @@ function ShipmentDetail() {
                 Status
               </p>
 
-              <p className="mt-3 text-xl font-semibold capitalize text-[#22C55E]">
+              <p
+                className={`mt-3 text-xl font-semibold capitalize ${statusStyles.text}`}
+              >
                 {status.replace("_", " ")}
               </p>
             </div>
@@ -465,7 +515,10 @@ function ShipmentDetail() {
 
                   return (
                     <div
-                      key={event._id || `${event.shipmentId}-${event.version}`}
+                      key={
+                        event._id ||
+                        `${event.shipmentId}-${event.version}`
+                      }
                       className="relative flex gap-5"
                     >
 
@@ -522,8 +575,7 @@ function ShipmentDetail() {
                               </p>
 
                               <p className="mt-1 text-sm font-medium text-[#FAFAFA]">
-                                {payload.temperature !==
-                                undefined
+                                {payload.temperature !== undefined
                                   ? `${payload.temperature}°C`
                                   : "—"}
                               </p>
