@@ -51,7 +51,6 @@ const login = async(req , res) =>{
             return res.status(401).json({message : "password does not match."});
         }
         
-        console.log(process.env.SECRET_KEY);
         const token = jwt.sign(
          { id: user._id },
            process.env.JWT_SECRET,
@@ -93,21 +92,16 @@ const resetPassword = async(req, res) =>{
 const getCurrentUser = async(req , res) =>{
        
     try{
-        
         const id = req.id;
-
         const user = await User.findById(id);
-
         if (!user) {
            return res.status(404).json({
            message: "User not found",
       });
-
-      res.status(200).json(user);
     }
+      return res.status(200).json(user);
     }
     catch(e){
-         
         res.status(500).json({message : e.message});
     }
 }
