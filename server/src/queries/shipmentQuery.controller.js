@@ -1,5 +1,30 @@
 const Event = require("../models/Event");
+const ShipmentView = require("../projections/ShipmentView");
 const { getHistoricalState } = require("./historicalState.service");
+
+const getShipment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const shipment = await ShipmentView.findOne({
+      shipmentId: id,
+    }).lean();
+
+    if (!shipment) {
+      return res.status(404).json({
+        message: "Shipment not found",
+      });
+    }
+
+    return res.status(200).json(shipment);
+  } catch (error) {
+    console.error("Error fetching shipment:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch shipment",
+    });
+  }
+};
 
 const getShipmentEvents = async (req, res) => {
   try {
@@ -56,39 +81,6 @@ const getShipmentHistoricalState = async (req, res) => {
   }
 };
 
-const getShipment = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const latestEvent = await Event.findOne({
-      shipmentId: id,
-    })
-      .sort({ version: -1 })
-      .select("shipmentId version eventType recordedAt payload")
-      .lean();
-
-    if (!latestEvent) {
-      return res.status(404).json({
-        message: "Shipment not found",
-      });
-    }
-
-    return res.status(200).json({
-      shipmentId: latestEvent.shipmentId,
-      version: latestEvent.version,
-      eventType: latestEvent.eventType,
-      recordedAt: latestEvent.recordedAt,
-      payload: latestEvent.payload,
-    });
-  } catch (error) {
-    console.error("Error fetching shipment:", error);
-
-    return res.status(500).json({
-      message: "Failed to fetch shipment",
-    });
-  }
-};
-
 const getShipments = async (req, res) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
@@ -111,8 +103,8 @@ const getShipments = async (req, res) => {
 };
 
 module.exports = {
+  getShipment,
   getShipmentEvents,
   getShipmentHistoricalState,
-  getShipment,
   getShipments,
 };

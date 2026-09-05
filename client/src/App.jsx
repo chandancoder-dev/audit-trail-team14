@@ -13,7 +13,7 @@ import ShipmentDetail from "./features/shipmentDetail/ShipmentDetail";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import Register from "./pages/Register";
-
+import Dashboard from "./pages/Dashboard";
 function App() {
   return (
     <BrowserRouter>
@@ -23,7 +23,8 @@ function App() {
         <Routes>
           {/* Main/Home */}
           <Route path="/" element={<Home />} />
-
+          {/*Dashboard*/}
+          <Route path="/dashboard" element={<Dashboard/>} />
           {/* Shipment Operations */}
           <Route
             path="/shipment-operations"
