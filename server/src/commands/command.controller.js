@@ -1,5 +1,5 @@
 const Event = require("../models/Event");
-
+const User = require("../models/User");
 const commandHealth = (req, res) => {
   res.json({
     status: "ok",
@@ -51,7 +51,13 @@ const createShipment = async (req, res) => {
         message: "Shipment already exists",
       });
     }
-
+     
+    const user = await User.findById(req.id);
+    if (!user) {
+           return res.status(404).json({
+           message: "User not found",
+          });
+    }
     const event = await Event.create({
       userId: req.id,
       shipmentId: cleanShipmentId,
@@ -65,7 +71,9 @@ const createShipment = async (req, res) => {
         source: "command-api",
       },
     });
-
+    
+    user.total += 1;
+    await user.save();
     return res.status(201).json({
       status: "success",
       message: "Shipment created successfully",
@@ -139,7 +147,12 @@ const moveShipment = async (req, res) => {
         message: "Cannot move a shipment after it has arrived",
       });
     }
-
+    const user = await User.findById(req.id);
+    if (!user) {
+           return res.status(404).json({
+           message: "User not found",
+          });
+    }
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
@@ -158,7 +171,8 @@ const moveShipment = async (req, res) => {
         source: "command-api",
       },
     });
-
+    user.in_transit += 1;
+    await user.save();
     return res.status(201).json({
       status: "success",
       message: "Shipment moved successfully",
@@ -221,7 +235,12 @@ const recordTemperature = async (req, res) => {
         message: "Shipment not found",
       });
     }
-
+    const user = await User.findById(req.id);
+    if (!user) {
+           return res.status(404).json({
+           message: "User not found",
+          });
+    }
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
@@ -241,7 +260,9 @@ const recordTemperature = async (req, res) => {
         source: "command-api",
       },
     });
-
+    
+    user.alert += 1;
+    await user.save();
     return res.status(201).json({
       status: "success",
       message: "Temperature recorded successfully",
@@ -302,7 +323,12 @@ const arriveShipment = async (req, res) => {
         message: "Shipment has already arrived",
       });
     }
-
+    const user = await User.findById(req.id);
+    if (!user) {
+           return res.status(404).json({
+           message: "User not found",
+          });
+    }
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
@@ -321,7 +347,8 @@ const arriveShipment = async (req, res) => {
         source: "command-api",
       },
     });
-
+    user.arrived += 1;
+    await user.save();
     return res.status(201).json({
       status: "success",
       message: "Shipment arrival recorded successfully",
