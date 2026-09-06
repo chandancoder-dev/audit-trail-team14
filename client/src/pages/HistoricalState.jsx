@@ -195,7 +195,7 @@ function HistoricalState() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary px-4 py-6 font-sans text-text-heading sm:px-6 sm:py-8 md:px-10">
+    <div className="min-h-screen overflow-x-hidden bg-bg-primary px-4 py-6 font-sans text-text-heading sm:px-6 sm:py-8 md:px-10">
       {/* Header */}
       <header className="mx-auto mb-8 flex max-w-275 flex-col items-start justify-between gap-4 md:flex-row md:gap-6">
         <div>
@@ -218,9 +218,9 @@ function HistoricalState() {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-275 gap-5">
+      <main className="mx-auto grid min-w-0 max-w-275 gap-5">
         {/* Reconstructed State */}
-        <section className="rounded-[14px] border border-border bg-bg-card p-4.5 sm:p-6">
+        <section className="min-w-0 rounded-[14px] border border-border bg-bg-card p-4.5 sm:p-6">
           <div className="mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row sm:gap-5">
             <div>
               <h2 className="mb-1.5 text-xl font-bold text-text-heading">
@@ -300,7 +300,7 @@ function HistoricalState() {
         </section>
 
         {/* Time Travel */}
-        <section className="rounded-[14px] border border-border bg-bg-card p-4.5 sm:p-6">
+        <section className="min-w-0 rounded-[14px] border border-border bg-bg-card p-4.5 sm:p-6">
           <div className="mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row sm:gap-5">
             <div>
               <h2 className="mb-1.5 text-xl font-bold text-text-heading">
@@ -328,7 +328,7 @@ function HistoricalState() {
           </div>
 
           {/* Event-based slider */}
-          <div className="relative">
+          <div className="relative min-w-0">
             <input
               type="range"
               min="0"
@@ -342,7 +342,7 @@ function HistoricalState() {
           </div>
 
           {/* Slider labels */}
-          <div className="mt-4 flex justify-between gap-2 text-[12px] text-text-secondary sm:text-[13px]">
+          <div className="mt-4 flex min-w-0 justify-between gap-2 overflow-hidden text-[12px] text-text-secondary sm:text-[13px]">
             {events.map((event, index) => {
               const isActive = selectedEventIndex === index;
 
@@ -352,18 +352,20 @@ function HistoricalState() {
                   type="button"
                   onClick={() => handleEventSelection(index)}
                   aria-current={isActive ? "step" : undefined}
-                  className={`rounded-lg px-1.5 py-1 text-center transition-all ${
+                  className={`min-w-0 flex-1 overflow-hidden rounded-lg px-1.5 py-1 text-center transition-all ${
                     isActive
                       ? "bg-primary/10 font-bold text-primary"
                       : "text-text-secondary hover:bg-bg-input hover:text-text-heading"
                   }`}
                 >
-                  <span className="block">
+                  <span className="block truncate">
                     {formatTimelineDate(event.recordedAt)} •{" "}
                     {formatTime(event.recordedAt)}
                   </span>
 
-                  <span className="hidden sm:block">{event.eventType}</span>
+                  <span className="hidden truncate sm:block">
+                    {event.eventType}
+                  </span>
                 </button>
               );
             })}
@@ -371,7 +373,7 @@ function HistoricalState() {
         </section>
 
         {/* Event Timeline */}
-        <section className="rounded-[14px] border border-border bg-bg-card p-4.5 sm:p-6">
+        <section className="min-w-0 rounded-[14px] border border-border bg-bg-card p-4.5 sm:p-6">
           <div className="mb-6">
             <h2 className="mb-1.5 text-xl font-bold text-text-heading">
               Event Timeline
@@ -382,7 +384,7 @@ function HistoricalState() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3.5">
+          <div className="min-w-0 flex flex-col gap-3.5">
             {events.map((event, index) => {
               const isActive = selectedEventIndex === index;
 
@@ -392,7 +394,7 @@ function HistoricalState() {
                   type="button"
                   onClick={() => handleEventSelection(index)}
                   aria-current={isActive ? "step" : undefined}
-                  className="flex w-full cursor-pointer gap-2.5 text-left sm:gap-3.5"
+                  className="flex w-full min-w-0 cursor-pointer gap-2.5 text-left sm:gap-3.5"
                 >
                   {/* Marker */}
                   <div
@@ -407,28 +409,28 @@ function HistoricalState() {
 
                   {/* Event content */}
                   <div
-                    className={`flex-1 rounded-[10px] border bg-bg-card p-3.5 transition-all sm:p-4 ${
+                    className={`min-w-0 flex-1 rounded-[10px] border bg-bg-card p-3.5 transition-all sm:p-4 ${
                       isActive
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/50"
                     }`}
                   >
-                    <div className="flex flex-col justify-between gap-2 sm:flex-row sm:gap-5">
-                      <div>
-                        <h3 className="mb-1 text-base font-semibold text-text-heading">
+                    <div className="flex min-w-0 flex-col justify-between gap-2 sm:flex-row sm:gap-5">
+                      <div className="min-w-0">
+                        <h3 className="mb-1 truncate text-base font-semibold text-text-heading">
                           {getEventStatus(event)}
                         </h3>
 
-                        <p className="mt-1 text-xs font-semibold tracking-[0.5px] text-primary">
+                        <p className="mt-1 truncate text-xs font-semibold tracking-[0.5px] text-primary">
                           {event.eventType}
                         </p>
 
-                        <p className="mt-1 text-[13px] text-text-secondary">
+                        <p className="mt-1 truncate text-[13px] text-text-secondary">
                           {getEventLocation(event)}
                         </p>
                       </div>
 
-                      <span className="text-right font-bold text-primary">
+                      <span className="shrink-0 text-right font-bold text-primary">
                         <span className="block">
                           {formatTimelineDate(event.recordedAt)} •{" "}
                           {formatTime(event.recordedAt)}

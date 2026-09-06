@@ -1,4 +1,5 @@
 const Event = require("../models/Event");
+const User = require("../models/User");
 
 const commandHealth = (req, res) => {
   res.json({
@@ -10,8 +11,6 @@ const commandHealth = (req, res) => {
 // Create Shipment
 const createShipment = async (req, res) => {
   try {
-    console.log(req.body);
-
     const { shipmentId, origin, destination } = req.body;
 
     // Input validation
@@ -40,7 +39,7 @@ const createShipment = async (req, res) => {
     const cleanOrigin = origin.trim();
     const cleanDestination = destination.trim();
 
-    // Business validation - prevent duplicate shipment
+    // Prevent duplicate shipment
     const existingEvent = await Event.findOne({
       shipmentId: cleanShipmentId,
     });
@@ -49,6 +48,16 @@ const createShipment = async (req, res) => {
       return res.status(409).json({
         status: "error",
         message: "Shipment already exists",
+      });
+    }
+
+    // Verify user
+    const user = await User.findById(req.id);
+
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found",
       });
     }
 
@@ -64,6 +73,11 @@ const createShipment = async (req, res) => {
       metadata: {
         source: "command-api",
       },
+    });
+
+    // Atomic counter update
+    await User.findByIdAndUpdate(req.id, {
+      $inc: { total: 1 },
     });
 
     return res.status(201).json({
@@ -140,6 +154,16 @@ const moveShipment = async (req, res) => {
       });
     }
 
+    // Verify user
+    const user = await User.findById(req.id);
+
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
+    }
+
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
@@ -157,6 +181,11 @@ const moveShipment = async (req, res) => {
       metadata: {
         source: "command-api",
       },
+    });
+
+    // Atomic counter update
+    await User.findByIdAndUpdate(req.id, {
+      $inc: { in_transit: 1 },
     });
 
     return res.status(201).json({
@@ -222,6 +251,16 @@ const recordTemperature = async (req, res) => {
       });
     }
 
+    // Verify user
+    const user = await User.findById(req.id);
+
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
+    }
+
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
@@ -240,6 +279,11 @@ const recordTemperature = async (req, res) => {
       metadata: {
         source: "command-api",
       },
+    });
+
+    // Atomic counter update
+    await User.findByIdAndUpdate(req.id, {
+      $inc: { alert: 1 },
     });
 
     return res.status(201).json({
@@ -303,6 +347,16 @@ const arriveShipment = async (req, res) => {
       });
     }
 
+    // Verify user
+    const user = await User.findById(req.id);
+
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
+    }
+
     const nextVersion = lastEvent.version + 1;
 
     const event = await Event.create({
@@ -320,6 +374,11 @@ const arriveShipment = async (req, res) => {
       metadata: {
         source: "command-api",
       },
+    });
+
+    // Atomic counter update
+    await User.findByIdAndUpdate(req.id, {
+      $inc: { arrived: 1 },
     });
 
     return res.status(201).json({

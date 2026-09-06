@@ -114,7 +114,15 @@ export const queryAPI = {
 export const authAPI = {
   register: (data) => api.post("/auth/register", data),
   login: (data) => api.post("/auth/login", data),
-  getMe: () => api.get("/auth/me"),
+  getMe: () =>{
+        const token = localStorage.getItem("token");
+        console.log("getme");
+        return api.get("/auth/me",{
+           headers:{
+             Authorization : `Bearer ${token}`
+           }
+        });
+  }, 
   forgotPassword: (data) => api.post("/auth/forgot-password", data),
 };
 
