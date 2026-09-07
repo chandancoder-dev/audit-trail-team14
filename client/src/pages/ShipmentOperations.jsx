@@ -11,6 +11,7 @@ function ShipmentOperations() {
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
 
   // -----------------------------
   // Move Shipment State
@@ -21,6 +22,7 @@ function ShipmentOperations() {
 
   const [moveErrors, setMoveErrors] = useState({});
   const [moveSuccessMessage, setMoveSuccessMessage] = useState("");
+  const [isMoving, setIsMoving] = useState(false);
   const [moveVersion, setMoveVersion] = useState(null);
 
   // -----------------------------
@@ -32,6 +34,7 @@ function ShipmentOperations() {
   const [temperatureErrors, setTemperatureErrors] = useState({});
   const [temperatureSuccessMessage, setTemperatureSuccessMessage] =
     useState("");
+  const [isRecordingTemperature, setIsRecordingTemperature] = useState(false);
   const [temperatureVersion, setTemperatureVersion] = useState(null);
 
   // -----------------------------
@@ -42,6 +45,7 @@ function ShipmentOperations() {
 
   const [arrivalErrors, setArrivalErrors] = useState({});
   const [arrivalSuccessMessage, setArrivalSuccessMessage] = useState("");
+  const [isArriving, setIsArriving] = useState(false);
   const [arrivalVersion, setArrivalVersion] = useState(null);
 
   // ============================================================
@@ -145,6 +149,8 @@ function ShipmentOperations() {
       return;
     }
 
+    setIsCreating(true);
+
     try {
       const response = await commandAPI.createShipment({
         shipmentId: shipmentId.trim(),
@@ -165,6 +171,8 @@ function ShipmentOperations() {
         shipmentId:
           error.message || "Failed to create shipment.",
       });
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -201,6 +209,8 @@ function ShipmentOperations() {
       });
       return;
     }
+
+    setIsMoving(true);
 
     try {
       const response = await commandAPI.moveShipment(
@@ -241,6 +251,8 @@ function ShipmentOperations() {
         moveShipmentId:
           error.message || "Failed to move shipment.",
       });
+    } finally {
+      setIsMoving(false);
     }
   };
 
@@ -276,6 +288,8 @@ function ShipmentOperations() {
       });
       return;
     }
+
+    setIsRecordingTemperature(true);
 
     try {
       const response = await commandAPI.recordTemperature(
@@ -320,6 +334,8 @@ function ShipmentOperations() {
           error.message ||
           "Failed to record temperature event.",
       });
+    } finally {
+      setIsRecordingTemperature(false);
     }
   };
 
@@ -354,6 +370,8 @@ function ShipmentOperations() {
       });
       return;
     }
+
+    setIsArriving(true);
 
     try {
       const response = await commandAPI.arriveShipment(
@@ -399,6 +417,8 @@ function ShipmentOperations() {
           error.message ||
           "Failed to record arrival event.",
       });
+    } finally {
+      setIsArriving(false);
     }
   };
 
@@ -542,9 +562,10 @@ function ShipmentOperations() {
           <button
             type="button"
             onClick={handleCreateShipment}
-            className="w-full rounded-lg bg-primary px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40"
+            disabled={isCreating}
+            className="w-full rounded-lg bg-primary px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
-            Create Shipment
+            {isCreating ? "Creating..." : "Create Shipment"}
           </button>
         </div>
 
@@ -677,9 +698,10 @@ function ShipmentOperations() {
           <button
             type="button"
             onClick={handleMoveShipment}
-            className="w-full rounded-lg bg-primary px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40"
+            disabled={isMoving}
+            className="w-full rounded-lg bg-primary px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
-            Move Shipment
+            {isMoving ? "Moving..." : "Move Shipment"}
           </button>
         </div>
 
@@ -782,9 +804,10 @@ function ShipmentOperations() {
           <button
             type="button"
             onClick={handleTemperatureEvent}
-            className="w-full rounded-lg bg-primary px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40"
+            disabled={isRecordingTemperature}
+            className="w-full rounded-lg bg-primary px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
-            Record Temperature Event
+            {isRecordingTemperature ? "Recording..." : "Record Temperature Event"}
           </button>
         </div>
 
@@ -884,9 +907,10 @@ function ShipmentOperations() {
           <button
             type="button"
             onClick={handleArrivalEvent}
-            className="w-full rounded-lg bg-primary px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/40"
+            disabled={isArriving}
+            className="w-full rounded-lg bg-primary px-4 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
-            Record Arrival
+            {isArriving ? "Recording..." : "Record Arrival"}
           </button>
         </div>
       </div>
