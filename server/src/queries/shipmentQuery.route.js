@@ -10,7 +10,7 @@ const {
 const tokenVerification = require("../middleware/auth.middleware")
 const router = express.Router();
 
-router.get("/shipment/:id", getShipment);
+router.get("/shipment/:id",tokenVerification, getShipment);
 
 router.get("/shipment/:id/events", getShipmentEvents);
 
