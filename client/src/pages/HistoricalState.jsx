@@ -197,42 +197,42 @@ function HistoricalState() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-bg-primary px-4 py-6 font-sans text-text-heading sm:px-6 sm:py-8 md:px-10">
       {/* Header */}
-      <header className="mx-auto mb-8 flex max-w-275 flex-col items-start justify-between gap-4 md:flex-row md:gap-6">
-        <div>
-          <p className="mb-2 text-[13px] font-bold tracking-[1.5px] text-primary">
+      <header className="mx-auto mb-8 flex max-w-275 flex-col items-start justify-between gap-5 md:flex-row md:items-center md:gap-8">
+        <div className="min-w-0">
+          <p className="mb-2 text-[12px] font-bold tracking-[1.8px] text-primary sm:text-[13px]">
             AUDIT TRAIL
           </p>
 
-          <h1 className="mb-2 text-[26px] font-bold text-text-heading sm:text-[30px] md:text-[36px]">
+          <h1 className="mb-2 text-[26px] font-bold leading-tight text-text-heading sm:text-[30px] md:text-[36px]">
             Historical State
           </h1>
 
-          <p className="text-[14px] text-text-secondary sm:text-[15px]">
+          <p className="max-w-2xl text-[14px] leading-6 text-text-secondary sm:text-[15px]">
             View the reconstructed shipment state at any point in time.
           </p>
         </div>
 
-        <div className="w-full rounded-[10px] border border-border bg-bg-card px-4 py-3 text-text-secondary md:w-auto">
+        <div className="w-full shrink-0 rounded-[10px] border border-border bg-bg-card px-4 py-3 text-[13px] text-text-secondary shadow-sm sm:w-auto sm:px-5">
           Shipment ID:{" "}
           <strong className="text-text-heading">{SHIPMENT_ID}</strong>
         </div>
       </header>
 
-      <main className="mx-auto grid min-w-0 max-w-275 gap-5">
+      <main className="mx-auto grid min-w-0 max-w-275 gap-6">
         {/* Reconstructed State */}
-        <section className="min-w-0 rounded-[14px] border border-border bg-bg-card p-4.5 sm:p-6">
-          <div className="mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row sm:gap-5">
-            <div>
+        <section className="min-w-0 rounded-[14px] border border-border bg-bg-card p-4.5 shadow-sm sm:p-6">
+          <div className="mb-6 flex min-w-0 flex-col items-start justify-between gap-4 sm:flex-row sm:items-center sm:gap-6">
+            <div className="min-w-0">
               <h2 className="mb-1.5 text-xl font-bold text-text-heading">
                 Reconstructed State
               </h2>
 
-              <p className="text-[14px] text-text-secondary">
+              <p className="text-[14px] leading-5 text-text-secondary">
                 Shipment state at the selected point in time.
               </p>
             </div>
 
-            <span className="rounded-full bg-success/15 px-3 py-1.5 text-xs font-bold text-success">
+            <span className="shrink-0 rounded-full bg-success/15 px-3.5 py-1.5 text-xs font-bold tracking-wide text-success">
               {loadingState
                 ? "LOADING"
                 : historicalState?.status?.toUpperCase() || "NO STATE"}
@@ -240,17 +240,17 @@ function HistoricalState() {
           </div>
 
           {loadingState ? (
-            <div className="rounded-[10px] border border-border bg-bg-input p-6 text-center text-text-secondary">
+            <div className="flex min-h-28 items-center justify-center rounded-[10px] border border-border bg-bg-input p-6 text-center text-sm text-text-secondary">
               Loading reconstructed state...
             </div>
           ) : historicalState ? (
             <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-[10px] border border-border bg-bg-input p-4.5">
+              <div className="min-h-25 rounded-[10px] border border-border bg-bg-input p-4.5">
                 <span className="mb-2 block text-[13px] text-text-secondary">
                   Selected Time
                 </span>
 
-                <strong className="text-lg text-text-heading">
+                <strong className="block text-lg leading-6 text-text-heading">
                   {formatTime(selectedDate)}
                 </strong>
 
@@ -259,32 +259,32 @@ function HistoricalState() {
                 </span>
               </div>
 
-              <div className="rounded-[10px] border border-border bg-bg-input p-4.5">
+              <div className="min-h-25 rounded-[10px] border border-border bg-bg-input p-4.5">
                 <span className="mb-2 block text-[13px] text-text-secondary">
                   Status
                 </span>
 
-                <strong className="text-lg text-text-heading">
+                <strong className="block wrap-break-word text-lg leading-6 text-text-heading">
                   {historicalState.status}
                 </strong>
               </div>
 
-              <div className="rounded-[10px] border border-border bg-bg-input p-4.5">
+              <div className="min-h-25 rounded-[10px] border border-border bg-bg-input p-4.5">
                 <span className="mb-2 block text-[13px] text-text-secondary">
                   Location
                 </span>
 
-                <strong className="text-lg text-text-heading">
+                <strong className="block wrap-break-word text-lg leading-6 text-text-heading">
                   {historicalState.currentLocation || "--"}
                 </strong>
               </div>
 
-              <div className="rounded-[10px] border border-border bg-bg-input p-4.5">
+              <div className="min-h-25 rounded-[10px] border border-border bg-bg-input p-4.5">
                 <span className="mb-2 block text-[13px] text-text-secondary">
                   Temperature
                 </span>
 
-                <strong className="text-lg text-text-heading">
+                <strong className="block text-lg leading-6 text-text-heading">
                   {historicalState.temperature !== null &&
                   historicalState.temperature !== undefined
                     ? `${historicalState.temperature}°C`
@@ -293,27 +293,27 @@ function HistoricalState() {
               </div>
             </div>
           ) : (
-            <div className="rounded-[10px] border border-border bg-bg-input p-6 text-center text-text-secondary">
+            <div className="flex min-h-28 items-center justify-center rounded-[10px] border border-border bg-bg-input p-6 text-center text-sm text-text-secondary">
               No shipment state exists at the selected time.
             </div>
           )}
         </section>
 
         {/* Time Travel */}
-        <section className="min-w-0 rounded-[14px] border border-border bg-bg-card p-4.5 sm:p-6">
-          <div className="mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row sm:gap-5">
-            <div>
+        <section className="min-w-0 rounded-[14px] border border-border bg-bg-card p-4.5 shadow-sm sm:p-6">
+          <div className="mb-7 flex min-w-0 flex-col items-start justify-between gap-5 sm:flex-row sm:items-center sm:gap-8">
+            <div className="min-w-0">
               <h2 className="mb-1.5 text-xl font-bold text-text-heading">
                 Time Travel
               </h2>
 
-              <p className="text-[14px] text-text-secondary">
+              <p className="text-[14px] leading-5 text-text-secondary">
                 Move through the shipment history.
               </p>
             </div>
 
-            <div className="text-right">
-              <span className="rounded-lg bg-primary px-3.5 py-2 font-semibold text-text-heading">
+            <div className="w-full shrink-0 text-left sm:w-auto sm:text-right">
+              <span className="inline-flex rounded-lg bg-primary px-3.5 py-2 font-semibold text-text-heading shadow-sm">
                 {formatTime(selectedDate)}
               </span>
 
@@ -328,7 +328,7 @@ function HistoricalState() {
           </div>
 
           {/* Event-based slider */}
-          <div className="relative min-w-0">
+          <div className="relative min-w-0 px-1">
             <input
               type="range"
               min="0"
@@ -342,7 +342,7 @@ function HistoricalState() {
           </div>
 
           {/* Slider labels */}
-          <div className="mt-4 flex min-w-0 justify-between gap-2 overflow-hidden text-[12px] text-text-secondary sm:text-[13px]">
+          <div className="mt-4 flex min-w-0 justify-between gap-1 overflow-hidden text-[11px] text-text-secondary sm:gap-2 sm:text-[13px]">
             {events.map((event, index) => {
               const isActive = selectedEventIndex === index;
 
@@ -352,7 +352,7 @@ function HistoricalState() {
                   type="button"
                   onClick={() => handleEventSelection(index)}
                   aria-current={isActive ? "step" : undefined}
-                  className={`min-w-0 flex-1 overflow-hidden rounded-lg px-1.5 py-1 text-center transition-all ${
+                  className={`min-w-0 flex-1 overflow-hidden rounded-lg px-1.5 py-1.5 text-center transition-all ${
                     isActive
                       ? "bg-primary/10 font-bold text-primary"
                       : "text-text-secondary hover:bg-bg-input hover:text-text-heading"
@@ -363,7 +363,7 @@ function HistoricalState() {
                     {formatTime(event.recordedAt)}
                   </span>
 
-                  <span className="hidden truncate sm:block">
+                  <span className="mt-0.5 hidden truncate sm:block">
                     {event.eventType}
                   </span>
                 </button>
@@ -373,18 +373,18 @@ function HistoricalState() {
         </section>
 
         {/* Event Timeline */}
-        <section className="min-w-0 rounded-[14px] border border-border bg-bg-card p-4.5 sm:p-6">
+        <section className="min-w-0 rounded-[14px] border border-border bg-bg-card p-4.5 shadow-sm sm:p-6">
           <div className="mb-6">
             <h2 className="mb-1.5 text-xl font-bold text-text-heading">
               Event Timeline
             </h2>
 
-            <p className="text-[14px] text-text-secondary">
+            <p className="text-[14px] leading-5 text-text-secondary">
               Events recorded for this shipment.
             </p>
           </div>
 
-          <div className="min-w-0 flex flex-col gap-3.5">
+          <div className="min-w-0 flex flex-col gap-4">
             {events.map((event, index) => {
               const isActive = selectedEventIndex === index;
 
@@ -394,14 +394,14 @@ function HistoricalState() {
                   type="button"
                   onClick={() => handleEventSelection(index)}
                   aria-current={isActive ? "step" : undefined}
-                  className="flex w-full min-w-0 cursor-pointer gap-2.5 text-left sm:gap-3.5"
+                  className="group flex w-full min-w-0 cursor-pointer gap-3 text-left sm:gap-4"
                 >
                   {/* Marker */}
                   <div
                     className={`flex h-7 w-7 min-w-7 items-center justify-center self-start rounded-full text-xs transition-all sm:h-8 sm:w-8 sm:min-w-8 ${
                       isActive
                         ? "bg-primary font-bold text-text-heading shadow-[0_0_0_4px_rgba(255,255,255,0.05)]"
-                        : "bg-border text-text-secondary"
+                        : "bg-border text-text-secondary group-hover:bg-primary/30 group-hover:text-text-heading"
                     }`}
                   >
                     {index + 1}
@@ -409,13 +409,13 @@ function HistoricalState() {
 
                   {/* Event content */}
                   <div
-                    className={`min-w-0 flex-1 rounded-[10px] border bg-bg-card p-3.5 transition-all sm:p-4 ${
+                    className={`min-w-0 flex-1 rounded-[10px] border bg-bg-card p-4 transition-all sm:p-4.5 ${
                       isActive
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50"
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border hover:border-primary/50 hover:bg-bg-input/40"
                     }`}
                   >
-                    <div className="flex min-w-0 flex-col justify-between gap-2 sm:flex-row sm:gap-5">
+                    <div className="flex min-w-0 flex-col justify-between gap-3 sm:flex-row sm:gap-6">
                       <div className="min-w-0">
                         <h3 className="mb-1 truncate text-base font-semibold text-text-heading">
                           {getEventStatus(event)}
@@ -430,7 +430,7 @@ function HistoricalState() {
                         </p>
                       </div>
 
-                      <span className="shrink-0 text-right font-bold text-primary">
+                      <span className="shrink-0 text-left font-bold text-primary sm:text-right">
                         <span className="block">
                           {formatTimelineDate(event.recordedAt)} •{" "}
                           {formatTime(event.recordedAt)}
@@ -444,11 +444,13 @@ function HistoricalState() {
                       </span>
                     </div>
 
-                    <p className="mt-2.5 text-[13px] text-text-secondary">
-                      Temperature: {getEventTemperature(event)}
-                    </p>
+                    <div className="mt-3 flex items-center">
+                      <p className="text-[13px] text-text-secondary">
+                        Temperature: {getEventTemperature(event)}
+                      </p>
+                    </div>
 
-                    <p className="mt-2 text-[13px] leading-6 text-text-secondary">
+                    <p className="mt-2 leading-6 text-[13px] text-text-secondary">
                       {event.payload?.details ||
                         "Event recorded in the audit trail."}
                     </p>
