@@ -12,7 +12,7 @@ function Dashboard(){
       const [shipments, setShipments] = useState([]);
       const [shipmentId , setShipmentId] = useState("");
       const [shipment, setShipment] = useState({});
-      const [dipslay , setDisplay] = useState(false);
+      const [display , setDisplay] = useState(false);
 
       const fetchShipments = async () => {
       try {
@@ -220,7 +220,7 @@ function Dashboard(){
 
     <button
       onClick={()=>{
-          setDisplay(!dipslay);
+          setDisplay(!display);
 
           if(display){
              fetchShipment();
@@ -234,7 +234,7 @@ function Dashboard(){
 
 
   {/* Shipment Details */}
-  {shipment && (
+  {display && (
     <div className="mt-8 overflow-hidden rounded-2xl border border-[#3F3F46] bg-[#27272A]">
 
       {/* Header */}
