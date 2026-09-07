@@ -9,6 +9,20 @@ function Dashboard(){
       const [total , setTotal] = useState(0);
       const [arrived , setArrived] = useState(0);
       const [alert , setAlert] = useState(0);
+      const [shipments, setShipments] = useState([]);
+
+      const fetchShipments = async () => {
+      try {
+        const res = await queryAPI.getShipments({
+          page: 1,
+          limit: 10,
+        });
+
+      setShipments(res.shipments);
+    } catch (error) {
+      console.log(error);
+    }
+  };
     useEffect(() => {
     async function fetchUserDetails() {
       try {
@@ -26,52 +40,157 @@ function Dashboard(){
     }
 
     fetchUserDetails();
+    fetchShipments();
   }, []);
     return(
-        <div className="min-h-screen bg-[#18181B] px-6 py-10">
-            {/* greeting*/}
-           <div className="mx-auto max-w-6xl">
-                <div className="rounded-2xl border border-[#3F3F46] bg-[#27272A] p-8 md:p-10">
-                    <p className="text-2xl font-semibold tracking-tight text-[#FAFAFA] md:text-3xl">
-                         Hello, {name} 👋 
-                        
-                    </p>
+       <div className="min-h-screen bg-[#18181B] px-6 py-10">
+         <div className="mx-auto max-w-6xl">
 
-                    <p className="mt-3 text-base leading-7 text-[#A1A1AA] md:text-lg">
-                         Here's what's happening with your shipments.
-                    </p>
+           {/* Greeting */}
+         <div className="rounded-2xl border border-[#3F3F46] bg-[#27272A] p-8 md:p-10">
+           <p className="text-2xl font-semibold tracking-tight text-[#FAFAFA] md:text-3xl">
+            Hello, {name} 👋
+           </p>
 
-                    
-                </div>
-              </div>
-              
-              {/* Summary*/}
-              <div className="mx-auto max-w-6xl py-6">
+         <p className="mt-3 text-base leading-7 text-[#A1A1AA] md:text-lg">
+            Here's what's happening with your shipments.
+        </p>
+      </div>
 
-                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                      <Summary
-                       text = {"Total Shipments"}
-                       value = {total}
-                      />
 
-                      <Summary
-                       text = {"In Transit"}
-                       value = {inTransit}
-                      />
+    {/* Summary */}
+    <div className="py-6">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <Summary
+          text={"Total Shipments"}
+          value={total}
+        />
 
-                      <Summary
-                       text = {"Arrived"}
-                       value = {arrived}
-                      />
+        <Summary
+          text={"In Transit"}
+          value={inTransit}
+        />
 
-                      <Summary
-                       text = {"Alert"}
-                       value = {alert}
-                      />
-                  </div>
-              </div>
+        <Summary
+          text={"Arrived"}
+          value={arrived}
+        />
+
+        <Summary
+          text={"Alert"}
+          value={alert}
+        />
+      </div>
+    </div>
+
+
+    {/* Recent Shipments */}
+    <div className="mt-2">
+
+      <div className="mb-4 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold tracking-tight text-[#FAFAFA]">
+          Recent Shipments
+        </h1>
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border border-[#3F3F46] bg-[#27272A]">
+
+        {/* Table Header */}
+        <div className="hidden grid-cols-4 border-b border-[#3F3F46] px-5 py-4 md:grid">
+          <p className="text-xs font-medium uppercase tracking-wider text-[#71717A]">
+            Shipment
+          </p>
+
+          <p className="text-xs font-medium uppercase tracking-wider text-[#71717A]">
+            Origin
+          </p>
+
+          <p className="text-xs font-medium uppercase tracking-wider text-[#71717A]">
+            Destination
+          </p>
+
+          <p className="text-xs font-medium uppercase tracking-wider text-[#71717A]">
+            Status
+          </p>
         </div>
-    )
+
+
+        {/* Shipments */}
+        <div className="divide-y divide-[#3F3F46]">
+          {shipments.map((shipment) => (
+            <div
+              key={shipment.shipmentId}
+              className="grid grid-cols-1 gap-4 p-5 transition hover:bg-[#202023] md:grid-cols-4 md:items-center"
+            >
+
+              {/* Shipment ID */}
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-[#71717A] md:hidden">
+                  Shipment
+                </p>
+
+                <p className="mt-1 font-semibold text-[#FAFAFA]">
+                  {shipment.shipmentId}
+                </p>
+              </div>
+
+
+              {/* Origin */}
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-[#71717A] md:hidden">
+                  Origin
+                </p>
+
+                <p className="mt-1 text-sm text-[#D4D4D8]">
+                  {shipment.origin}
+                </p>
+              </div>
+
+
+              {/* Destination */}
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-[#71717A] md:hidden">
+                  Destination
+                </p>
+
+                <p className="mt-1 text-sm text-[#D4D4D8]">
+                  {shipment.destination}
+                </p>
+              </div>
+
+
+              {/* Status */}
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-[#71717A] md:hidden">
+                  Status
+                </p>
+
+                <span
+                  className={`mt-1 inline-flex rounded-full px-3 py-1 text-xs font-medium ${
+                    shipment.status === "in_transit"
+                      ? "bg-blue-500/10 text-blue-400"
+                      : shipment.status === "arrived"
+                      ? "bg-green-500/10 text-green-400"
+                      : shipment.status === "alert"
+                      ? "bg-red-500/10 text-red-400"
+                      : "bg-zinc-500/10 text-zinc-400"
+                  }`}
+                >
+                  {shipment.status}
+                </span>
+              </div>
+
+            </div>
+          ))}
+           </div>
+
+          </div>
+         </div>
+
+         </div>
+         
+       </div>
+       )
 }
 
 function Summary({text , value}){

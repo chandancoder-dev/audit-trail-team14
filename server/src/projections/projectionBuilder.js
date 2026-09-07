@@ -26,14 +26,16 @@ const { generateAlertFromEvent } = require('../alerts/alertService');
  * Initialises a new ShipmentView document.
  */
 async function handleShipmentCreated(event) {
-  const { shipmentId, payload, recordedAt, version } = event;
+  const {userId, shipmentId, payload, recordedAt, version } = event;
+  console.log("inside handleShipmentCreated()");
+  console.log(event);
   const {
     origin = '',
     destination = '',
     location = '',
   } = payload || {};
 
-  await ShipmentView.upsert(shipmentId, {
+  await ShipmentView.upsert(userId,shipmentId, {
     shipmentId,
     status: 'created',
     origin,
@@ -50,6 +52,7 @@ async function handleShipmentCreated(event) {
   });
 
   await ShipmentView.recordEvent(
+    userId,
     shipmentId,
     event.eventType,
     recordedAt,
@@ -62,10 +65,10 @@ async function handleShipmentCreated(event) {
  * Updates location, vessel name, and sets status to in_transit.
  */
 async function handleLoadedOnShip(event) {
-  const { shipmentId, payload, recordedAt, version } = event;
+  const {userId, shipmentId, payload, recordedAt, version } = event;
   const { location = '', vessel = '' } = payload || {};
 
-  await ShipmentView.upsert(shipmentId, {
+  await ShipmentView.upsert(userId,shipmentId, {
     status: 'in_transit',
     currentLocation: location,
     vessel,
@@ -87,7 +90,7 @@ async function handleLoadedOnShip(event) {
  * Records the temperature reading, sets alert flag, and updates status to alert.
  */
 async function handleTemperatureSpike(event) {
-  const { shipmentId, payload, recordedAt, version } = event;
+  const { userId , shipmentId, payload, recordedAt, version } = event;
   const {
     temperature = null,
     threshold = null,
@@ -111,9 +114,10 @@ async function handleTemperatureSpike(event) {
     fields.currentLocation = location;
   }
 
-  await ShipmentView.upsert(shipmentId, fields);
+  await ShipmentView.upsert(userId,shipmentId, fields);
 
   await ShipmentView.recordEvent(
+    userId,
     shipmentId,
     event.eventType,
     recordedAt,
@@ -131,10 +135,10 @@ async function handleTemperatureSpike(event) {
  * Records port arrival, clears temperature alert flag, sets status to arrived.
  */
 async function handleArrivedAtPort(event) {
-  const { shipmentId, payload, recordedAt, version } = event;
+  const { userId, shipmentId, payload, recordedAt, version } = event;
   const { port = '', location = '' } = payload || {};
 
-  await ShipmentView.upsert(shipmentId, {
+  await ShipmentView.upsert(userId,shipmentId, {
     status: 'arrived',
     port,
     currentLocation: location || port,
@@ -145,6 +149,7 @@ async function handleArrivedAtPort(event) {
   });
 
   await ShipmentView.recordEvent(
+    userId,
     shipmentId,
     event.eventType,
     recordedAt,

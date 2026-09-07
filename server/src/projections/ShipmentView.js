@@ -18,6 +18,12 @@ const mongoose = require('mongoose');
  */
 const shipmentViewSchema = new mongoose.Schema(
   {
+    userId:{
+      type : mongoose.Schema.Types.ObjectId,
+      ref : "User",
+      required : true,
+      index : true,
+    },
     // ── Identity ──────────────────────────────────────────────────────────────
     shipmentId: {
       type: String,
@@ -118,15 +124,20 @@ shipmentViewSchema.index(
  * upsert()
  * Create or update a ShipmentView document by shipmentId.
  * Used by projection builder for all event types.
- *
+ *@param {string} userId
  * @param {string} shipmentId
  * @param {Object} fields - Fields to merge into the document
  * @returns {Promise<ShipmentView>}
  */
-shipmentViewSchema.statics.upsert = function (shipmentId, fields) {
+shipmentViewSchema.statics.upsert = function (userId,shipmentId, fields) {
   return this.findOneAndUpdate(
-    { shipmentId },
-    { $set: fields },
+    {userId, shipmentId},
+    { $set: {
+        userId,
+        shipmentId,
+        ...fields
+    } 
+  },
     { upsert: true, new: true, setDefaultsOnInsert: true }
   );
 };
@@ -135,16 +146,16 @@ shipmentViewSchema.statics.upsert = function (shipmentId, fields) {
  * recordEvent()
  * Atomically increment eventCount and update tracking fields.
  * Called on every new event processed by the projection builder.
- *
+ * @param {string} userId
  * @param {string} shipmentId
  * @param {string} eventType
  * @param {Date} recordedAt
  * @param {number} version
  * @returns {Promise<ShipmentView>}
  */
-shipmentViewSchema.statics.recordEvent = function (shipmentId, eventType, recordedAt, version) {
+shipmentViewSchema.statics.recordEvent = function (userId,shipmentId, eventType, recordedAt, version) {
   return this.findOneAndUpdate(
-    { shipmentId },
+    {userId, shipmentId },
     {
       $inc: { eventCount: 1 },
       $set: {
