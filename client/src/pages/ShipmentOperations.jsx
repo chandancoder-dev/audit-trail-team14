@@ -687,12 +687,14 @@ function ShipmentOperations() {
           </div>
 
           {moveVersion !== null && (
-            <p className="mb-5 text-sm text-text-secondary">
-              Expected shipment version:{" "}
-              <span className="font-semibold text-text-heading">
+            <div className="mb-5 flex items-center justify-between rounded-lg border border-border bg-bg-input px-4 py-3">
+              <span className="text-sm text-text-secondary">
+                Current shipment version
+              </span>
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
                 v{moveVersion}
               </span>
-            </p>
+            </div>
           )}
 
           <button
@@ -793,12 +795,14 @@ function ShipmentOperations() {
           </div>
 
           {temperatureVersion !== null && (
-            <p className="mb-5 text-sm text-text-secondary">
-              Expected shipment version:{" "}
-              <span className="font-semibold text-text-heading">
+            <div className="mb-5 flex items-center justify-between rounded-lg border border-border bg-bg-input px-4 py-3">
+              <span className="text-sm text-text-secondary">
+                Current shipment version
+              </span>
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
                 v{temperatureVersion}
               </span>
-            </p>
+            </div>
           )}
 
           <button
@@ -896,12 +900,14 @@ function ShipmentOperations() {
           </div>
 
           {arrivalVersion !== null && (
-            <p className="mb-5 text-sm text-text-secondary">
-              Expected shipment version:{" "}
-              <span className="font-semibold text-text-heading">
+            <div className="mb-5 flex items-center justify-between rounded-lg border border-border bg-bg-input px-4 py-3">
+              <span className="text-sm text-text-secondary">
+                Current shipment version
+              </span>
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
                 v{arrivalVersion}
               </span>
-            </p>
+            </div>
           )}
 
           <button
