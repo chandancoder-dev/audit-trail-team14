@@ -148,6 +148,7 @@ audit-trail-team14/
 | POST | `/api/auth/register` | Register a new user |
 | POST | `/api/auth/login` | Login and receive JWT token |
 | GET | `/api/auth/me` | Get current authenticated user |
+| POST | `/api/auth/reset-password` | Reset user password |
 
 ### Command Routes (Write Side) — JWT required
 
@@ -164,8 +165,8 @@ audit-trail-team14/
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/queries/shipments` | List all shipments (paginated) |
-| GET | `/api/queries/shipment/:id` | Get current shipment state |
+| GET | `/api/queries/shipments` | List all shipments (paginated) — JWT required |
+| GET | `/api/queries/shipment/:id` | Get current shipment state — JWT required |
 | GET | `/api/queries/shipment/:id/events` | Get raw event list |
 | GET | `/api/queries/shipment/:id/state?date=` | Reconstruct state at a point in time |
 | GET | `/api/queries/shipment/:id/analytics` | Temperature time-series, stats, event markers |
@@ -248,9 +249,9 @@ SECRET_KEY=your_jwt_secret_here
 | `npm run dev` | Run client & server concurrently |
 | `npm run client` | Run only the React app |
 | `npm run server` | Run only the Express server |
-| `npm test` | Run Jest integration tests (from server/) |
-| `node scripts/rebuildProjections.js` | Wipe and rebuild all ShipmentView projections |
-| `node scripts/benchmark.js` | Benchmark event-replay vs read-model query time |
+| `cd server && npm test` | Run Jest integration tests |
+| `cd server && node scripts/rebuildProjections.js` | Wipe and rebuild all ShipmentView projections |
+| `cd server && node scripts/benchmark.js` | Benchmark event-replay vs read-model query time |
 
 ## Testing
 
