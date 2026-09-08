@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { queryAPI } from "../../services/api";
 
 function formatDate(date) {
@@ -116,6 +116,7 @@ export default function ShipmentDetail() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
 
+  // Fetch shipment details and event history
   const fetchShipmentDetails = async (isRefresh = false) => {
     try {
       if (isRefresh) {
@@ -150,6 +151,7 @@ export default function ShipmentDetail() {
     }
   };
 
+  // Initial page load
   useEffect(() => {
     if (!shipmentId) {
       setError("Shipment ID is missing.");
@@ -160,6 +162,7 @@ export default function ShipmentDetail() {
     fetchShipmentDetails();
   }, [shipmentId]);
 
+  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-[#18181B] px-6 py-8 text-white">
@@ -167,6 +170,7 @@ export default function ShipmentDetail() {
           <div className="flex min-h-[60vh] items-center justify-center">
             <div className="text-center">
               <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-[#3B82F6] border-t-transparent" />
+
               <p className="text-sm text-[#A1A1AA]">
                 Loading shipment details...
               </p>
@@ -177,6 +181,7 @@ export default function ShipmentDetail() {
     );
   }
 
+  // Error state
   if (error || !shipment) {
     return (
       <div className="min-h-screen bg-[#18181B] px-6 py-8 text-white">
@@ -198,6 +203,7 @@ export default function ShipmentDetail() {
             </p>
 
             <button
+              type="button"
               onClick={() => fetchShipmentDetails()}
               className="rounded-lg border border-[#3F3F46] bg-[#18181B] px-4 py-2 text-sm font-medium text-white transition hover:border-[#52525B] hover:bg-[#27272A]"
             >
@@ -254,6 +260,7 @@ export default function ShipmentDetail() {
                   <span
                     className={`h-2 w-2 rounded-full ${statusStyles.dot}`}
                   />
+
                   {statusLabel}
                 </span>
               </div>
@@ -266,8 +273,9 @@ export default function ShipmentDetail() {
               </p>
             </div>
 
+            {/* Header Actions */}
             <div className="flex flex-wrap gap-3">
-              {/* Refresh Button */}
+              {/* Refresh */}
               <button
                 type="button"
                 onClick={() => fetchShipmentDetails(true)}
@@ -310,6 +318,7 @@ export default function ShipmentDetail() {
             <h2 className="text-lg font-semibold text-white">
               Current State
             </h2>
+
             <p className="mt-1 text-sm text-[#71717A]">
               Latest reconstructed state from the event-sourced ledger.
             </p>
@@ -475,7 +484,9 @@ export default function ShipmentDetail() {
                   {shipment.lastEventType
                     ? getEventTitle(shipment.lastEventType)
                     : events.length > 0
-                    ? getEventTitle(events[events.length - 1]?.eventType)
+                    ? getEventTitle(
+                        events[events.length - 1]?.eventType
+                      )
                     : "—"}
                 </p>
 
