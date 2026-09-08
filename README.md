@@ -8,7 +8,7 @@ In traditional MongoDB designs (CRUD), when you update a product's inventory fro
 
 ## Use Case
 
-A logistics manager views the Audit Trail dashboard for a specific shipping container. Instead of querying MongoDB for the current location of the container, the Node.js backend reconstructs the container's state by replaying an append-only log of events (CONTAINER_CREATED → LOADED_ON_SHIP → TEMPERATURE_SPIKE → ARRIVED_AT_PORT). If a dispute arises about when the temperature spiked, the manager can instantly view the immutable historical timeline, providing cryptographic proof of the event sequence.
+A logistics manager views the Audit Trail dashboard for a specific shipping container. Instead of querying MongoDB for the current location of the container, the Node.js backend reconstructs the container's state by replaying an append-only log of events (SHIPMENT_CREATED → LOADED_ON_SHIP → TEMPERATURE_SPIKE → ARRIVED_AT_PORT). If a dispute arises about when the temperature spiked, the manager can instantly view the immutable historical timeline, providing cryptographic proof of the event sequence.
 
 ## Tech Stack
 
@@ -27,70 +27,97 @@ A logistics manager views the Audit Trail dashboard for a specific shipping cont
 - JWT Authentication (jsonwebtoken + bcrypt)
 
 ### Database
-- MongoDB (Event Store + Read Models + Alerts)
+- MongoDB Atlas (Event Store + Read Models + Alerts)
 
 ### Dev Tools
 - Nodemon
 - Concurrently
 - Dotenv
+- Jest (testing)
 
 ## Project Structure
 
 ```
 audit-trail-team14/
 ├── client/                          # React frontend (Vite + Tailwind CSS)
-│   ├── public/
 │   ├── src/
-│   │   ├── components/              # Shared UI components
+│   │   ├── components/
 │   │   │   ├── AuditTimeline.jsx    # Vertical event timeline
-│   │   │   └── EventCard.jsx        # Single event display card
+│   │   │   ├── ConflictDialog.jsx   # OCC 409 conflict modal (M6)
+│   │   │   ├── EventCard.jsx
+│   │   │   ├── EventMetadataViewer.jsx
+│   │   │   ├── EventPayloadViewer.jsx
+│   │   │   ├── Footer.jsx
+│   │   │   └── Navbar.jsx
 │   │   ├── features/
-│   │   │   ├── analytics/           # Analytics feature module
-│   │   │   │   ├── AnalyticsPage.jsx
-│   │   │   │   ├── TemperatureChart.jsx
-│   │   │   │   └── index.js
-│   │   │   └── alerts/              # Alerts feature module
-│   │   │       ├── AlertsPage.jsx
-│   │   │       ├── AlertCard.jsx
-│   │   │       └── index.js
+│   │   │   ├── analytics/
+│   │   │   │   ├── AnalyticsPage.jsx     # Live temperature charts + stats (M6)
+│   │   │   │   └── TemperatureChart.jsx  # Recharts line chart + event markers (M6)
+│   │   │   ├── alerts/
+│   │   │   │   ├── AlertsPage.jsx        # Live alerts with severity filters (M6)
+│   │   │   │   └── AlertCard.jsx
+│   │   │   └── shipmentDetail/
+│   │   │       └── ShipmentDetail.jsx
 │   │   ├── pages/
-│   │   │   ├── HistoricalState.jsx  # Time travel with state reconstruction
-│   │   │   └── ShipmentOperations.jsx # Create/manage shipments
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── ForgotPassword.jsx
+│   │   │   ├── HistoricalState.jsx
+│   │   │   ├── Home.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── Register.jsx
+│   │   │   └── ShipmentOperations.jsx
 │   │   ├── services/
-│   │   │   └── api.js               # Axios instance + API methods
-│   │   ├── styles/
-│   │   │   └── historicalState.css
-│   │   ├── App.jsx                  # Route definitions
-│   │   ├── main.jsx
-│   │   └── index.css                # Tailwind + theme tokens
-│   ├── index.html
-│   ├── postcss.config.js
-│   ├── tailwind.config.js
-│   ├── vite.config.js
+│   │   │   └── api.js               # Axios instance + all API methods (M6)
+│   │   ├── App.jsx
+│   │   └── main.jsx
 │   └── package.json
-├── server/                          # Express backend
+├── server/
 │   ├── server.js                    # Entry point + MongoDB connection
+│   ├── scripts/
+│   │   ├── rebuildProjections.js    # Wipe + replay all projections (M6)
+│   │   └── benchmark.js             # Event-replay vs read-model benchmark (M6)
 │   ├── src/
-│   │   ├── app.js                   # Express app setup + route mounting
-│   │   ├── auth/
-│   │   │   ├── auth.controller.js   # Register/Login logic
-│   │   │   └── auth.route.js        # Auth routes
-│   │   ├── middleware/
-│   │   │   └── auth.middleware.js   # JWT verification middleware
-│   │   ├── models/
-│   │   │   └── User.js             # User model
-│   │   ├── projections/
-│   │   │   └── ShipmentView.js      # Read model schema
+│   │   ├── app.js                   # Express app + route mounting
 │   │   ├── analytics/
-│   │   │   └── analyticsService.js  # Analytics computation service
-│   │   └── alerts/
-│   │       └── Alert.js             # Alert model schema
-│   ├── .env
+│   │   │   ├── analyticsService.js  # Temperature analytics + event frequency (M6)
+│   │   │   ├── analytics.controller.js
+│   │   │   └── analytics.route.js
+│   │   ├── alerts/
+│   │   │   ├── Alert.js             # Alert Mongoose model (M6)
+│   │   │   ├── alertService.js      # Auto-generate alerts on TEMPERATURE_SPIKE (M6)
+│   │   │   ├── alerts.controller.js
+│   │   │   └── alerts.route.js
+│   │   ├── auth/
+│   │   │   ├── auth.controller.js
+│   │   │   └── auth.route.js
+│   │   ├── commands/
+│   │   │   ├── command.controller.js
+│   │   │   └── command.route.js
+│   │   ├── events/
+│   │   │   ├── event.controller.js
+│   │   │   ├── event.route.js
+│   │   │   └── eventStore.js
+│   │   ├── middleware/
+│   │   │   ├── auth.middleware.js
+│   │   │   └── occ.middleware.js    # Optimistic concurrency control (M6)
+│   │   ├── models/
+│   │   │   ├── Event.js
+│   │   │   └── User.js
+│   │   ├── projections/
+│   │   │   ├── ShipmentView.js      # CQRS read model (M6)
+│   │   │   ├── projectionBuilder.js # Event handlers → ShipmentView (M6)
+│   │   │   └── projectionWorker.js  # Background poll + catch-up + retry (M6)
+│   │   └── queries/
+│   │       ├── historicalState.service.js
+│   │       ├── shipmentQuery.controller.js
+│   │       └── shipmentQuery.route.js
+│   ├── tests/
+│   │   ├── historicalState.test.js
+│   │   └── m6.integration.test.js   # 23 tests: analytics, alerts, OCC, flow (M6)
 │   └── package.json
-├── package.json                     # Root scripts (runs both)
-├── WORKPLAN.md                      # Detailed 4-week project plan
-├── COMMIT_PLAN.md                   # Daily commit plan (M6)
-├── .gitignore
+├── package.json
+├── WORKPLAN.md
+├── COMMIT_PLAN.md
 └── README.md
 ```
 
@@ -98,11 +125,16 @@ audit-trail-team14/
 
 | Route | Page | Description |
 |-------|------|-------------|
-| `/` | ShipmentOperations | Create/manage shipments |
-| `/historicalstate` | HistoricalState | Time travel with state reconstruction |
-| `/audittimeline` | AuditTimeline | Vertical event timeline |
+| `/` | Home | Landing page |
+| `/shipment-operations` | ShipmentOperations | Create & manage shipment events |
+| `/shipment/:id` | ShipmentDetail | Shipment state + event timeline |
 | `/shipment/:id/analytics` | AnalyticsPage | Temperature charts & event analysis |
 | `/alerts` | AlertsPage | Alert monitoring with severity filters |
+| `/historicalstate` | HistoricalState | Time-travel state reconstruction |
+| `/audittimeline/:id` | AuditTimeline | Vertical event timeline |
+| `/login` | Login | Authentication |
+| `/register` | Register | Registration |
+| `/forgot-password` | ForgotPassword | Password reset |
 
 ## API Endpoints
 
@@ -112,15 +144,18 @@ audit-trail-team14/
 |--------|----------|-------------|
 | POST | `/api/auth/register` | Register a new user |
 | POST | `/api/auth/login` | Login and receive JWT token |
+| GET | `/api/auth/me` | Get current authenticated user |
 
-### Command Routes (Write Side)
+### Command Routes (Write Side) — JWT required
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/commands/shipment/create` | Create a new shipment/container |
-| POST | `/api/commands/shipment/:id/move` | Record shipment movement |
-| POST | `/api/commands/shipment/:id/temperature` | Record temperature event |
-| POST | `/api/commands/shipment/:id/arrive` | Record port arrival |
+| POST | `/api/commands/shipment/create` | Create a new shipment (SHIPMENT_CREATED event) |
+| POST | `/api/commands/shipment/:id/move` | Record movement (LOADED_ON_SHIP event) |
+| POST | `/api/commands/shipment/:id/temperature` | Record temperature (TEMPERATURE_SPIKE event) |
+| POST | `/api/commands/shipment/:id/arrive` | Record arrival (ARRIVED_AT_PORT event) |
+
+> All mutation commands accept an optional `expectedVersion` field in the request body for OCC (Optimistic Concurrency Control). Returns `409 Conflict` if the version is stale.
 
 ### Query Routes (Read Side)
 
@@ -129,11 +164,21 @@ audit-trail-team14/
 | GET | `/api/queries/shipments` | List all shipments (paginated) |
 | GET | `/api/queries/shipment/:id` | Get current shipment state |
 | GET | `/api/queries/shipment/:id/events` | Get raw event list |
-| GET | `/api/queries/shipment/:id/timeline` | Get formatted timeline |
-| GET | `/api/queries/shipment/:id/state?date=` | Get state at a point in time |
-| GET | `/api/queries/shipment/:id/analytics` | Get temperature & event analytics |
-| GET | `/api/queries/alerts` | Get all alerts (filterable) |
-| GET | `/api/queries/shipment/:id/alerts` | Get shipment-specific alerts |
+| GET | `/api/queries/shipment/:id/state?date=` | Reconstruct state at a point in time |
+| GET | `/api/queries/shipment/:id/analytics` | Temperature time-series, stats, event markers |
+| GET | `/api/queries/dashboard/summary` | Total shipments, events, alerts, avg temperature |
+| GET | `/api/queries/alerts` | All alerts (paginated, filterable by severity/shipment) |
+| GET | `/api/queries/shipment/:id/alerts` | Alerts for a specific shipment |
+
+### Query Parameters — `/api/queries/alerts`
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `severity` | string | Filter by `critical`, `warning`, or `info` |
+| `shipmentId` | string | Filter by shipment |
+| `acknowledged` | boolean | Filter by acknowledgement status |
+| `page` | number | Page number (default 1) |
+| `limit` | number | Results per page (default 20, max 100) |
 
 ## Architecture
 
@@ -142,7 +187,7 @@ audit-trail-team14/
 │                    Frontend (React)                   │
 │  Dashboard │ Timeline │ Analytics │ Alerts │ History  │
 └─────────────────────────┬───────────────────────────┘
-                          │ Axios
+                          │ Axios (JWT + OCC headers)
 ┌─────────────────────────┴───────────────────────────┐
 │                 Backend (Express + CQRS)              │
 │                                                       │
@@ -150,19 +195,21 @@ audit-trail-team14/
 │  │   Auth   │  │   Commands   │  │    Queries   │   │
 │  │  (JWT)   │  │ (Write Side) │  │ (Read Side)  │   │
 │  └──────────┘  └──────┬───────┘  └──────┬───────┘   │
-│                        │                  │           │
-│                 ┌──────▼───────┐  ┌──────▼────────┐  │
+│                   OCC │                  │           │
+│                 ┌─────▼────────┐  ┌──────▼────────┐  │
 │                 │  Event Store │  │  Read Models  │  │
 │                 │ (Append-Only)│  │(ShipmentView) │  │
 │                 └──────┬───────┘  └───────────────┘  │
 │                        │                             │
 │              ┌─────────▼──────────┐                  │
 │              │  Projection Builder │                  │
+│              │  (background worker)│                  │
 │              └─────────┬──────────┘                  │
 │                        │                             │
 │                 ┌──────▼───────┐                     │
 │                 │    Alerts    │                     │
-│                 │  (Generated) │                     │
+│                 │ (auto-generated│                   │
+│                 │  on spike)   │                     │
 │                 └──────────────┘                     │
 └─────────────────────────────────────────────────────┘
 ```
@@ -179,16 +226,16 @@ cd ../server && npm install
 npm run dev
 ```
 
-- Client runs on: http://localhost:5173
-- Server runs on: http://localhost:8000
+- Client: http://localhost:5173
+- Server: http://localhost:8000
 
 ## Environment Variables
 
 Create `server/.env`:
 ```
-MONGO_URI=mongodb://localhost:27017/audit-trail
-PORT=5000
-JWT_SECRET=your_jwt_secret_here
+MONGO_URI=mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/audit-trail
+PORT=8000
+SECRET_KEY=your_jwt_secret_here
 ```
 
 ## Scripts
@@ -198,6 +245,23 @@ JWT_SECRET=your_jwt_secret_here
 | `npm run dev` | Run client & server concurrently |
 | `npm run client` | Run only the React app |
 | `npm run server` | Run only the Express server |
+| `npm test` | Run Jest integration tests (from server/) |
+| `node scripts/rebuildProjections.js` | Wipe and rebuild all ShipmentView projections |
+| `node scripts/benchmark.js` | Benchmark event-replay vs read-model query time |
+
+## Testing
+
+```bash
+cd server
+npm test
+```
+
+23 tests across 5 suites covering:
+- Temperature analytics computation (timeSeries, stats, spikes, eventMarkers)
+- Event frequency grouping and sorting
+- Alert generation (critical/warning thresholds, idempotency, custom threshold)
+- OCC middleware (version match, 409 conflict, 400 invalid, 404 not found)
+- Full event flow pipeline
 
 ## Team
 
@@ -206,6 +270,6 @@ JWT_SECRET=your_jwt_secret_here
 | Member 1 | Backend Lead | CQRS architecture, command routes, validation |
 | Member 2 | Event Store Engineer | MongoDB event schema, append-only logic, immutability |
 | Member 3 | Projections & Queries | Read models, state reconstruction, query API |
-| Member 4 | Frontend Lead | Dashboard, layout, routing, Tailwind, search |
+| Member 4 | Frontend Lead | Dashboard, layout, routing, Tailwind |
 | Member 5 | Timeline & Visualization | Event timeline, Recharts, time slider |
-| Member 6 (Sumit) | Integration & Testing | Analytics, alerts, projections, OCC, integration testing |
+| Member 6 (Sumit) | Integration & Testing | Analytics, alerts, projections, OCC, integration tests |
