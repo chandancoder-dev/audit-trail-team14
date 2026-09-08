@@ -5,8 +5,9 @@ const { getHistoricalState } = require("./historicalState.service");
 const getShipment = async (req, res) => {
   try {
     const { id } = req.params;
-
+    console.log(id);
     const shipment = await ShipmentView.findOne({
+      userId : req.id,
       shipmentId: id,
     }).lean();
 
@@ -86,15 +87,9 @@ const getShipments = async (req, res) => {
   const limit = Number(req.query.limit) || 10;
 
   try {
-    const skip = (page - 1) * limit;
+    const shipments = await ShipmentView.paginate({userId : req.id}, page , limit);
 
-    const shipments = await Event.find({ userid: req.body.id })
-      .skip(skip)
-      .limit(limit);
-
-    return res.status(200).json({
-      shipments,
-    });
+    return res.status(200).json(shipments);
   } catch (e) {
     return res.status(500).json({
       message: e.message,
