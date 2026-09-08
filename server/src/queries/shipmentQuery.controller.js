@@ -5,8 +5,9 @@ const { getHistoricalState } = require("./historicalState.service");
 const getShipment = async (req, res) => {
   try {
     const { id } = req.params;
-
+    console.log(id);
     const shipment = await ShipmentView.findOne({
+      userId : req.id,
       shipmentId: id,
     }).lean();
 
