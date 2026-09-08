@@ -126,12 +126,15 @@ audit-trail-team14/
 | Route | Page | Description |
 |-------|------|-------------|
 | `/` | Home | Landing page |
+| `/dashboard` | Dashboard | Shipment list + summary stats |
 | `/shipment-operations` | ShipmentOperations | Create & manage shipment events |
 | `/shipment/:id` | ShipmentDetail | Shipment state + event timeline |
 | `/shipment/:id/analytics` | AnalyticsPage | Temperature charts & event analysis |
 | `/alerts` | AlertsPage | Alert monitoring with severity filters |
 | `/historicalstate` | HistoricalState | Time-travel state reconstruction |
 | `/audittimeline/:id` | AuditTimeline | Vertical event timeline |
+| `/About` | About | About page |
+| `/features` | Features | Features page |
 | `/login` | Login | Authentication |
 | `/register` | Register | Registration |
 | `/forgot-password` | ForgotPassword | Password reset |
