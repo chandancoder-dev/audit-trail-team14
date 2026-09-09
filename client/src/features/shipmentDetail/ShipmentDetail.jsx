@@ -231,6 +231,16 @@ export default function ShipmentDetail() {
     shipment.version ??
     "—";
 
+  const lastUpdated = shipment.lastEventAt
+    ? formatDate(shipment.lastEventAt)
+    : events.length > 0
+    ? formatDate(
+        events[events.length - 1]?.recordedAt ||
+          events[events.length - 1]?.createdAt ||
+          events[events.length - 1]?.timestamp
+      )
+    : "—";
+
   const statusLabel = status
     .replace(/_/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
@@ -376,6 +386,17 @@ export default function ShipmentDetail() {
 
               <p className="text-lg font-semibold text-white">
                 {version === "—" ? "—" : `v${version}`}
+              </p>
+            </div>
+
+            {/* Last Updated */}
+            <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-5">
+              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#71717A]">
+                Last Updated
+              </p>
+
+              <p className="text-sm font-semibold text-white">
+                {lastUpdated}
               </p>
             </div>
           </div>
