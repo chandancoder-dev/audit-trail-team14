@@ -123,7 +123,7 @@ export const authAPI = {
            }
         });
   }, 
-  forgotPassword: (data) => api.post("/auth/forgot-password", data),
+  forgotPassword: (data) => api.post("/auth/reset-password", data),
 };
 
 export default api;
