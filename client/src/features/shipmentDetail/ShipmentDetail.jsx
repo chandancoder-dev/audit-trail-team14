@@ -334,7 +334,8 @@ export default function ShipmentDetail() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Changed from lg:grid-cols-4 to lg:grid-cols-5 */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
             {/* Status */}
             <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-5">
               <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#71717A]">
