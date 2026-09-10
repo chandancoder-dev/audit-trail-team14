@@ -78,6 +78,7 @@ async function handleLoadedOnShip(event) {
   });
 
   await ShipmentView.recordEvent(
+    userId,
     shipmentId,
     event.eventType,
     recordedAt,
