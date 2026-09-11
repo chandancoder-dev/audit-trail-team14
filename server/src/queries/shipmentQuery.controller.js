@@ -32,6 +32,7 @@ const getShipmentEvents = async (req, res) => {
     const { id } = req.params;
 
     const events = await Event.find({
+      userId : req.id,
       shipmentId: id,
     })
       .sort({ recordedAt: 1 })
@@ -58,7 +59,7 @@ const getShipmentHistoricalState = async (req, res) => {
       });
     }
 
-    const state = await getHistoricalState(id, date);
+    const state = await getHistoricalState(req.id,id, date);
 
     if (!state) {
       return res.status(404).json({

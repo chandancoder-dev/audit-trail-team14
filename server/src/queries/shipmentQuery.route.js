@@ -12,9 +12,9 @@ const router = express.Router();
 
 router.get("/shipment/:id",tokenVerification, getShipment);
 
-router.get("/shipment/:id/events", getShipmentEvents);
+router.get("/shipment/:id/events",tokenVerification, getShipmentEvents);
 
-router.get("/shipment/:id/state", getShipmentHistoricalState);
+router.get("/shipment/:id/state",tokenVerification, getShipmentHistoricalState);
 
 router.get("/shipments",tokenVerification,getShipments);
 
