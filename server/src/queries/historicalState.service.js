@@ -40,12 +40,12 @@ function reconstructState(events) {
 
 /**
  * Reconstruct the shipment state at a specific point in time.
- *
+ * @param {string} userId
  * @param {string} shipmentId
  * @param {string|Date} date
  * @returns {Object|null}
  */
-async function getHistoricalState(shipmentId, date) {
+async function getHistoricalState(userId, shipmentId, date) {
   const selectedDate = new Date(date);
 
   if (Number.isNaN(selectedDate.getTime())) {
@@ -54,6 +54,7 @@ async function getHistoricalState(shipmentId, date) {
 
   // Get all events for this shipment up to the selected time.
   const events = await Event.find({
+    userId,
     shipmentId,
     recordedAt: { $lte: selectedDate },
   }).sort({ recordedAt: 1, version: 1 });

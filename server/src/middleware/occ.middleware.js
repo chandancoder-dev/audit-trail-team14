@@ -2,7 +2,8 @@ const Event = require("../models/Event");
 
 async function occCheck(req, res, next) {
   const { expectedVersion } = req.body;
-  const shipmentId = req.params.id;
+  // Coerce to string to prevent NoSQL operator injection via the route param
+  const shipmentId = String(req.params.id);
 
   // expectedVersion is optional
   if (expectedVersion === undefined || expectedVersion === null) {
@@ -20,7 +21,7 @@ async function occCheck(req, res, next) {
   }
 
   try {
-    const lastEvent = await Event.findOne({ shipmentId })
+    const lastEvent = await Event.findOne({ shipmentId: shipmentId })
       .sort({ version: -1 })
       .select("version")
       .lean();

@@ -9,8 +9,8 @@ const getShipmentAnalytics = async (req, res) => {
     const { id } = req.params;
 
     const [temperatureData, frequencyData] = await Promise.all([
-      getTemperatureAnalytics(id),
-      getEventFrequency(id),
+      getTemperatureAnalytics(req.id,id),
+      getEventFrequency(req.id,id),
     ]);
 
     if (

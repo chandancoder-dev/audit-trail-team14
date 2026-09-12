@@ -23,7 +23,7 @@ const getAlerts = async (req, res) => {
     } = req.query;
 
     const filter = {};
-
+    filter.userId = req.id;
     if (severity) {
       const validSeverities = ['critical', 'warning', 'info'];
       if (!validSeverities.includes(severity)) {
@@ -82,7 +82,7 @@ const getShipmentAlerts = async (req, res) => {
     const { id } = req.params;
     const { severity, acknowledged } = req.query;
 
-    const filter = { shipmentId: id };
+    const filter = {userId : req.id ,shipmentId: id };
 
     if (severity) {
       const validSeverities = ['critical', 'warning', 'info'];
