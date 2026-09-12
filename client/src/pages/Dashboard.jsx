@@ -8,14 +8,13 @@ function Dashboard() {
   const [total, setTotal] = useState(0);
   const [arrived, setArrived] = useState(0);
   const [alert, setAlert] = useState(0);
-
   const [shipments, setShipments] = useState([]);
-
-  const fetchShipments = async () => {
+  const [page , setpage] = useState(1);
+  const fetchShipments = async (page = 1 , limit = 10) => {
     try {
       const res = await queryAPI.getShipments({
-        page: 1,
-        limit: 10,
+        page: page,
+        limit: limit,
       });
 
       setShipments(res.shipments || []);
@@ -23,6 +22,30 @@ function Dashboard() {
       console.log(error);
     }
   };
+  async function fetchback(){
+      if(page === 1)
+        return;
+      const newPage = page-1;
+      try{
+         setpage(newPage);
+         await fetchShipments(newPage);
+      }
+      catch(e){
+        console.log(e);
+      }
+  }
+   
+  async function fetchfoward(){
+      
+      const newPage = page+1;
+      try{
+         setpage(newPage);
+         await fetchShipments(newPage);
+      }
+      catch(e){
+        console.log(e);
+      }
+  }
 
   const fetchUserDetails = async () => {
     try {
@@ -101,12 +124,20 @@ function Dashboard() {
               </p>
             </div>
 
-            <Link
-              to="/shipment-operations"
-              className="text-sm font-medium text-[#3B82F6] transition hover:text-[#60A5FA]"
+            
+            
+            <button
+              onClick={fetchback}
+              className="px-4 py-2 rounded-lg border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors"  
             >
-              View All
-            </Link>
+              &larr;
+            </button>
+            <button
+              onClick={fetchfoward} 
+              className="px-4 py-2 rounded-lg border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors"
+            >
+             &rarr;
+            </button>
           </div>
 
 
