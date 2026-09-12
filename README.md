@@ -240,7 +240,10 @@ Create `server/.env`:
 MONGO_URI=mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/audit-trail
 PORT=8000
 SECRET_KEY=your_jwt_secret_here
+JWT_SECRET=your_jwt_secret_here
 ```
+
+> Note: `SECRET_KEY` and `JWT_SECRET` must have the same value. Both are required — different parts of the codebase reference each.
 
 ## Scripts
 
