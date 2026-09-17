@@ -274,9 +274,20 @@ npm test
 
 | Member | Role | Responsibility |
 |--------|------|----------------|
-| Member 1 | Backend Lead | CQRS architecture, command routes, validation |
-| Member 2 | Event Store Engineer | MongoDB event schema, append-only logic, immutability |
-| Member 3 | Projections & Queries | Read models, state reconstruction, query API |
-| Member 4 | Frontend Lead | Dashboard, layout, routing, Tailwind |
-| Member 5 | Timeline & Visualization | Event timeline, Recharts, time slider |
+| Member 1 (Chandan) | Backend Lead | CQRS architecture, command routes, validation |
+| Member 2 (Deepan) | Event Store Engineer | MongoDB event schema, append-only logic, immutability |
+| Member 3 (Nilabha) | Projections & Queries | Read models, state reconstruction, query API |
+| Member 4 (Pratiksha) | Frontend Lead | Dashboard, layout, routing, Tailwind |
+| Member 5 (Sabeha) | Timeline & Visualization | Event timeline, Recharts, time slider |
 | Member 6 (Sumit) | Integration & Testing | Analytics, alerts, projections, OCC, integration tests |
+
+## Contributors
+
+Thanks to everyone who built this project together 🚀
+
+- **Chandan K R** — Backend architecture, CQRS, OCC, Dashboard UI
+- **Deepan** — Event Store, AuditTimeline, event routes
+- **Nilabha** — Projections, historical state, query API
+- **Pratiksha** — Frontend lead, ShipmentDetail, routing
+- **Sabeha** — Timeline, shipment operations, auth
+- **Sumit Verma** — Analytics, alerts, projection worker, integration tests
