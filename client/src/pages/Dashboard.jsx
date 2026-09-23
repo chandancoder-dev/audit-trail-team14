@@ -126,18 +126,21 @@ function Dashboard() {
 
             
             
-            <button
-              onClick={fetchback}
-              className="px-4 py-2 rounded-lg border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors"  
-            >
-              &larr;
-            </button>
-            <button
-              onClick={fetchfoward} 
-              className="px-4 py-2 rounded-lg border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors"
-            >
-             &rarr;
-            </button>
+            <div className="flex gap-2">
+              <button
+                 onClick={fetchback}
+                 className="px-4 py-2 rounded-lg border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors"
+               >
+                 &larr;
+               </button>
+             
+               <button
+    onClick={fetchfoward}
+    className="px-4 py-2 rounded-lg border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors"
+  >
+    &rarr;
+               </button>
+            </div>
           </div>
 
 
