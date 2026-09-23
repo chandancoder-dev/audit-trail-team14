@@ -285,25 +285,16 @@ export default function ShipmentDetail() {
 
             {/* Header Actions */}
             <div className="flex flex-wrap gap-3">
-              {/* Refresh */}
-              <button
-                type="button"
-                onClick={() => fetchShipmentDetails(true)}
-                disabled={refreshing}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#3F3F46] bg-[#27272A] px-4 py-2 text-sm font-medium text-[#D4D4D8] transition hover:border-[#52525B] hover:bg-[#3F3F46] disabled:cursor-not-allowed disabled:opacity-60"
+              {/* History */}
+              <Link
+                to={`/historicalstate?shipmentId=${encodeURIComponent(
+                  shipmentId
+                )}`}
+                className="inline-flex items-center gap-2 rounded-lg border border-[#3F3F46] bg-[#27272A] px-4 py-2 text-sm font-medium text-[#D4D4D8] transition hover:border-[#52525B] hover:bg-[#3F3F46]"
               >
-                {refreshing ? (
-                  <>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#A1A1AA] border-t-transparent" />
-                    Refreshing...
-                  </>
-                ) : (
-                  <>
-                    <span className="text-base">↻</span>
-                    Refresh
-                  </>
-                )}
-              </button>
+                <span className="text-base">↶</span>
+                History
+              </Link>
 
               <Link
                 to={`/shipment/${shipmentId}/analytics`}
@@ -334,7 +325,6 @@ export default function ShipmentDetail() {
             </p>
           </div>
 
-          {/* Changed from lg:grid-cols-4 to lg:grid-cols-5 */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
             {/* Status */}
             <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-5">

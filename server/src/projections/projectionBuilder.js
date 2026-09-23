@@ -26,16 +26,24 @@ const { generateAlertFromEvent } = require('../alerts/alertService');
  * Initialises a new ShipmentView document.
  */
 async function handleShipmentCreated(event) {
-  const {userId, shipmentId, payload, recordedAt, version } = event;
+  const {
+    userId,
+    shipmentId,
+    payload,
+    recordedAt,
+    version,
+  } = event;
+
   console.log("inside handleShipmentCreated()");
   console.log(event);
+
   const {
     origin = '',
     destination = '',
     location = '',
   } = payload || {};
 
-  await ShipmentView.upsert(userId,shipmentId, {
+  await ShipmentView.upsert(userId, shipmentId, {
     shipmentId,
     status: 'created',
     origin,
@@ -65,10 +73,20 @@ async function handleShipmentCreated(event) {
  * Updates location, vessel name, and sets status to in_transit.
  */
 async function handleLoadedOnShip(event) {
-  const {userId, shipmentId, payload, recordedAt, version } = event;
-  const { location = '', vessel = '' } = payload || {};
+  const {
+    userId,
+    shipmentId,
+    payload,
+    recordedAt,
+    version,
+  } = event;
 
-  await ShipmentView.upsert(userId,shipmentId, {
+  const {
+    location = '',
+    vessel = '',
+  } = payload || {};
+
+  await ShipmentView.upsert(userId, shipmentId, {
     status: 'in_transit',
     currentLocation: location,
     vessel,
@@ -77,6 +95,9 @@ async function handleLoadedOnShip(event) {
     lastVersion: version,
   });
 
+  // FIX:
+  // recordEvent() expects:
+  // userId, shipmentId, eventType, recordedAt, version
   await ShipmentView.recordEvent(
     userId,
     shipmentId,
@@ -91,7 +112,14 @@ async function handleLoadedOnShip(event) {
  * Records the temperature reading, sets alert flag, and updates status to alert.
  */
 async function handleTemperatureSpike(event) {
-  const { userId , shipmentId, payload, recordedAt, version } = event;
+  const {
+    userId,
+    shipmentId,
+    payload,
+    recordedAt,
+    version,
+  } = event;
+
   const {
     temperature = null,
     threshold = null,
@@ -115,7 +143,7 @@ async function handleTemperatureSpike(event) {
     fields.currentLocation = location;
   }
 
-  await ShipmentView.upsert(userId,shipmentId, fields);
+  await ShipmentView.upsert(userId, shipmentId, fields);
 
   await ShipmentView.recordEvent(
     userId,
@@ -127,7 +155,10 @@ async function handleTemperatureSpike(event) {
 
   // Generate an alert if the temperature exceeds or approaches the threshold
   await generateAlertFromEvent(event).catch((err) =>
-    console.error('[ProjectionBuilder] Alert generation failed:', err.message)
+    console.error(
+      '[ProjectionBuilder] Alert generation failed:',
+      err.message
+    )
   );
 }
 
@@ -136,10 +167,20 @@ async function handleTemperatureSpike(event) {
  * Records port arrival, clears temperature alert flag, sets status to arrived.
  */
 async function handleArrivedAtPort(event) {
-  const { userId, shipmentId, payload, recordedAt, version } = event;
-  const { port = '', location = '' } = payload || {};
+  const {
+    userId,
+    shipmentId,
+    payload,
+    recordedAt,
+    version,
+  } = event;
 
-  await ShipmentView.upsert(userId,shipmentId, {
+  const {
+    port = '',
+    location = '',
+  } = payload || {};
+
+  await ShipmentView.upsert(userId, shipmentId, {
     status: 'arrived',
     port,
     currentLocation: location || port,
@@ -193,9 +234,10 @@ async function project(event) {
   } catch (err) {
     console.error(
       `[ProjectionBuilder] Failed to process event ${event.eventType} ` +
-      `(v${event.version}) for ${event.shipmentId}:`,
+        `(v${event.version}) for ${event.shipmentId}:`,
       err.message
     );
+
     throw err;
   }
 }

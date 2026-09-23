@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { queryAPI } from "../services/api";
 
-const SHIPMENT_ID = "SHIP-001";
-
 function HistoricalState() {
+  const [searchParams] = useSearchParams();
+  const shipmentId = searchParams.get("shipmentId");
+
   const [events, setEvents] = useState([]);
   const [selectedEventIndex, setSelectedEventIndex] = useState(0);
   const [historicalState, setHistoricalState] = useState(null);
@@ -15,11 +17,18 @@ function HistoricalState() {
   // Fetch real shipment events
   useEffect(() => {
     const loadEvents = async () => {
+      if (!shipmentId) {
+        setEvents([]);
+        setError("Shipment ID is missing.");
+        setLoadingEvents(false);
+        return;
+      }
+
       try {
         setLoadingEvents(true);
         setError("");
 
-        const data = await queryAPI.getShipmentEvents(SHIPMENT_ID);
+        const data = await queryAPI.getShipmentEvents(shipmentId);
 
         const sortedEvents = Array.isArray(data)
           ? [...data].sort(
@@ -40,7 +49,7 @@ function HistoricalState() {
     };
 
     loadEvents();
-  }, []);
+  }, [shipmentId]);
 
   // Get the currently selected event
   const selectedEvent = useMemo(() => {
@@ -62,7 +71,7 @@ function HistoricalState() {
 
   // Fetch reconstructed state whenever selected event changes
   useEffect(() => {
-    if (!selectedDate) {
+    if (!shipmentId || !selectedDate) {
       return;
     }
 
@@ -72,7 +81,7 @@ function HistoricalState() {
         setError("");
 
         const state = await queryAPI.getShipmentState(
-          SHIPMENT_ID,
+          shipmentId,
           selectedDate.toISOString(),
         );
 
@@ -91,7 +100,7 @@ function HistoricalState() {
     };
 
     loadHistoricalState();
-  }, [selectedDate]);
+  }, [shipmentId, selectedDate]);
 
   const handleEventSelection = (index) => {
     if (index < 0 || index >= events.length) {
@@ -187,7 +196,7 @@ function HistoricalState() {
           </h1>
 
           <p className="text-text-secondary">
-            No audit events have been recorded for {SHIPMENT_ID}.
+            No audit events have been recorded for {shipmentId}.
           </p>
         </div>
       </div>
@@ -214,7 +223,7 @@ function HistoricalState() {
 
         <div className="w-full shrink-0 rounded-[10px] border border-border bg-bg-card px-4 py-3 text-[13px] text-text-secondary shadow-sm sm:w-auto sm:px-5">
           Shipment ID:{" "}
-          <strong className="text-text-heading">{SHIPMENT_ID}</strong>
+          <strong className="text-text-heading">{shipmentId}</strong>
         </div>
       </header>
 
