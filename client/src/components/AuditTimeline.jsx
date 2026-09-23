@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { queryAPI } from '../services/api';
 import EventCard from './EventCard';
 import EventPayloadViewer from './EventPayloadViewer';
 import EventMetadataViewer from './EventMetadataViewer';
@@ -38,11 +39,7 @@ export default function AuditTimeline() {
         setLoading(true);
         setError('');
 
-        const res = await fetch(`http://localhost:8000/api/events/shipments/${id}/timeline`);
-        if (!res.ok) {
-          throw new Error('Failed to load shipment events.');
-        }
-        const data = await res.json();
+        const data = await queryAPI.getShipmentTimeline(id);
 
         setEvents(Array.isArray(data) ? data : data.events || []);
       } catch (err) {

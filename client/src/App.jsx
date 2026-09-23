@@ -14,6 +14,7 @@ import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import NotFound from "./pages/NotFound";
 function App() {
   return (
     <BrowserRouter>
@@ -60,11 +61,15 @@ function App() {
 
           {/* Alerts */}
           <Route path="/alerts" element={<AlertsPage />} />
+          <Route path="/shipment/:id/alerts" element={<AlertsPage />} />
 
           {/* Authentication */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword/>}/>
+
+          {/* Catch-all 404 */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </BrowserRouter>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { authAPI } from "../services/api";
 function Register(){
 
@@ -9,18 +9,24 @@ function Register(){
     const [password, setpassword] = useState("");
     const [showpassword, setshowpassword] = useState(false);
 
+    const navigate = useNavigate();
+
     async function submitDetails(e){
         e.preventDefault();
-        
-        const res = await authAPI.register({
-            name : name,
-            username : username,
-            email : email,
-            password : password
-        });
 
-        alert(res.message);
+        try {
+            const res = await authAPI.register({
+                name : name,
+                username : username,
+                email : email,
+                password : password
+            });
 
+            alert(res.message || "User registered successfully");
+            navigate("/login");
+        } catch (err) {
+            alert(err?.message || "Registration failed");
+        }
     }
 
     return(
@@ -162,7 +168,7 @@ function Register(){
                             <input
                                 type="checkbox"
                                 id="showpassword"
-                                onChange={(e) =>
+                                onChange={() =>
                                     setshowpassword(!showpassword)
                                 }
                                 className="h-4 w-4 rounded border-[#3F3F46] bg-[#202023] accent-[#3B82F6]"

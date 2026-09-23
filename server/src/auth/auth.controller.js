@@ -9,7 +9,7 @@ const register = async(req ,res) =>{
         const userExist = await User.findOne({email : email});
 
        if(userExist){
-           return res.json({message : "user already exist."});
+           return res.status(409).json({message : "user already exist."});
        }
        const hashedPassword = await bcrypt.hash(password,10);
     
@@ -67,15 +67,26 @@ const login = async(req , res) =>{
     }
 }
 const resetPassword = async(req, res) =>{
-    const {email , password} = req.body;
-       
+    const {email , currentPassword, password} = req.body;
+
     try{
+        if(!email || !currentPassword || !password){
+            return res.status(400).json({message : "email, currentPassword and password are required"});
+        }
+
         const user = await User.findOne({email : email});
 
         if(!user){
             return res.status(404).json({message : "User does not exist"});
         }
-       
+
+        // Verify identity: the caller must know the current password.
+        const match = await bcrypt.compare(currentPassword, user.password);
+
+        if(!match){
+            return res.status(401).json({message : "Current password is incorrect"});
+        }
+
         const passwordHash = await bcrypt.hash(password,10);
 
         user.password = passwordHash;

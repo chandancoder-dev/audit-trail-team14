@@ -1,7 +1,6 @@
 const Event = require("../models/Event");
 const ShipmentView = require("../projections/ShipmentView");
 const { getHistoricalState } = require("./historicalState.service");
-
 const getShipment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -32,10 +31,9 @@ const getShipmentEvents = async (req, res) => {
     const { id } = req.params;
 
     const events = await Event.find({
-      userId : req.id,
       shipmentId: id,
     })
-      .sort({ recordedAt: 1 })
+      .sort({ version: 1 })
       .lean();
 
     res.status(200).json(events);
@@ -98,9 +96,29 @@ const getShipments = async (req, res) => {
   }
 };
 
+// Formatted timeline: events newest-first for the timeline UI.
+const getShipmentTimeline = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const events = await Event.find({ shipmentId: id })
+      .sort({ version: -1 })
+      .lean();
+
+    return res.status(200).json(events);
+  } catch (error) {
+    console.error("Error fetching shipment timeline:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch shipment timeline",
+    });
+  }
+};
+
 module.exports = {
   getShipment,
   getShipmentEvents,
   getShipmentHistoricalState,
   getShipments,
+  getShipmentTimeline,
 };
