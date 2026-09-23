@@ -16,6 +16,7 @@ function Login() {
 
               const token = res.token;
               localStorage.setItem("token" , token);
+              window.dispatchEvent(new Event("auth-changed"));
               navigate("/dashboard");
 
 

@@ -102,7 +102,7 @@ export const queryAPI = {
   getShipment: (id) => api.get(`/queries/shipment/${id}`),
   getShipmentEvents: (id, params) =>
     api.get(`/queries/shipment/${id}/events`, { params }),
-  getShipmentTimeline: (id) => api.get(`/queries/shipment/${id}/timeline`),
+  getShipmentTimeline: (id) => api.get(`/events/shipments/${id}/timeline`),
   getShipmentState: (id, date) =>
     api.get(`/queries/shipment/${id}/state`, { params: { date } }),
   getShipmentAnalytics: (id) => api.get(`/queries/shipment/${id}/analytics`),

@@ -84,16 +84,23 @@ async function handleLoadedOnShip(event) {
   const {
     location = '',
     vessel = '',
+    temperature = null,
   } = payload || {};
 
-  await ShipmentView.upsert(userId, shipmentId, {
+  const fields = {
     status: 'in_transit',
     currentLocation: location,
     vessel,
     lastEventType: event.eventType,
     lastEventAt: recordedAt,
     lastVersion: version,
-  });
+  };
+
+  if (temperature !== null && temperature !== undefined) {
+    fields.lastTemperature = temperature;
+  }
+
+  await ShipmentView.upsert(userId, shipmentId, fields);
 
   // FIX:
   // recordEvent() expects:

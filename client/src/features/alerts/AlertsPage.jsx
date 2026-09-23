@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import { queryAPI } from '../../services/api';
 import AlertCard from './AlertCard';
 
@@ -59,6 +60,8 @@ function ErrorState({ message, onRetry }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 function AlertsPage() {
+  const { id: shipmentId } = useParams();
+
   const [allAlerts, setAllAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -68,9 +71,11 @@ function AlertsPage() {
     setLoading(true);
     setError(null);
     try {
-      // Fetch all alerts (no severity filter on the request — we filter client-side
-      // so the filter badge counts are always accurate without extra requests)
-      const data = await queryAPI.getAlerts({ limit: 100 });
+      // Per-shipment view when a shipmentId is in the URL; otherwise all alerts.
+      // We filter by severity client-side so the filter badge counts stay accurate.
+      const data = shipmentId
+        ? await queryAPI.getShipmentAlerts(shipmentId)
+        : await queryAPI.getAlerts({ limit: 100 });
       const fetched = data.alerts || [];
       setAllAlerts(fetched);
     } catch (err) {
@@ -78,7 +83,7 @@ function AlertsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [shipmentId]);
 
   useEffect(() => {
     fetchAlerts();
@@ -106,7 +111,9 @@ function AlertsPage() {
         <div>
           <h1 className="text-2xl font-bold text-text-heading">Alerts</h1>
           <p className="text-text-secondary mt-1 text-sm">
-            Monitor temperature spikes, threshold violations, and shipment events.
+            {shipmentId
+              ? `Alerts for shipment ${shipmentId}.`
+              : 'Monitor temperature spikes, threshold violations, and shipment events.'}
           </p>
         </div>
         {!loading && (

@@ -5,7 +5,7 @@ const TEMPERATURE_THRESHOLD = -15;
 
 async function getTemperatureAnalytics(userId, shipmentId) {
   // Fetch all events for this shipment sorted by version
-  const events = await Event.find({userId, shipmentId })
+  const events = await Event.find({ shipmentId })
     .sort({ version: 1 })
     .lean();
 
@@ -73,7 +73,7 @@ async function getTemperatureAnalytics(userId, shipmentId) {
 }
 
 async function getEventFrequency(userId, shipmentId) {
-  const events = await Event.find({userId, shipmentId })
+  const events = await Event.find({ shipmentId })
     .sort({ recordedAt: 1 })
     .lean();
 

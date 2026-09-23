@@ -6,7 +6,7 @@ const WARNING_BUFFER = 2;
 async function generateAlertFromEvent(event) {
   if (event.eventType !== 'TEMPERATURE_SPIKE') return null;
 
-  const { shipmentId, payload = {}, version, recordedAt } = event;
+  const { userId, shipmentId, payload = {}, version, recordedAt } = event;
   const temperature = payload.temperature;
 
   if (temperature === undefined || temperature === null) return null;
@@ -36,6 +36,7 @@ async function generateAlertFromEvent(event) {
     : `Temperature approaching threshold: ${temp}°C is within ${WARNING_BUFFER}°C of threshold (${threshold}°C) for shipment ${shipmentId} at ${location}.`;
 
   const alert = await Alert.create({
+    userId,
     shipmentId,
     type: 'TEMPERATURE_SPIKE',
     message,

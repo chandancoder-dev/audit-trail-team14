@@ -113,17 +113,12 @@ export default function ShipmentDetail() {
   const [shipment, setShipment] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
 
   // Fetch shipment details and event history
-  const fetchShipmentDetails = async (isRefresh = false) => {
+  const fetchShipmentDetails = async () => {
     try {
-      if (isRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
+      setLoading(true);
 
       setError("");
 
@@ -143,11 +138,7 @@ export default function ShipmentDetail() {
           "Failed to load shipment details."
       );
     } finally {
-      if (isRefresh) {
-        setRefreshing(false);
-      } else {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
@@ -301,6 +292,13 @@ export default function ShipmentDetail() {
                 className="rounded-lg border border-[#3F3F46] bg-[#27272A] px-4 py-2 text-sm font-medium text-[#D4D4D8] transition hover:border-[#52525B] hover:bg-[#3F3F46]"
               >
                 Analytics
+              </Link>
+
+              <Link
+                to={`/audittimeline/${shipmentId}`}
+                className="rounded-lg border border-[#3F3F46] bg-[#27272A] px-4 py-2 text-sm font-medium text-[#D4D4D8] transition hover:border-[#52525B] hover:bg-[#3F3F46]"
+              >
+                Timeline
               </Link>
 
               <Link
