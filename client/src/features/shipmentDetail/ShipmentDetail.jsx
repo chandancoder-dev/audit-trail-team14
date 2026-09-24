@@ -119,7 +119,6 @@ export default function ShipmentDetail() {
   const fetchShipmentDetails = async () => {
     try {
       setLoading(true);
-
       setError("");
 
       const [shipmentData, eventData] = await Promise.all([
@@ -235,6 +234,63 @@ export default function ShipmentDetail() {
   const statusLabel = status
     .replace(/_/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
+
+  // Sort events by version for consistent lifecycle ordering
+  const sortedEvents = [...events].sort((a, b) => {
+    const versionA = Number(a.version ?? 0);
+    const versionB = Number(b.version ?? 0);
+
+    return versionA - versionB;
+  });
+
+  // Shipment lifecycle stages
+  const lifecycleSteps = [
+    {
+      eventType: "SHIPMENT_CREATED",
+      label: "Created",
+      description: "Shipment created",
+    },
+    {
+      eventType: "LOADED_ON_SHIP",
+      label: "In Transit",
+      description: "Loaded on ship",
+    },
+    {
+      eventType: "TEMPERATURE_SPIKE",
+      label: "Temperature Alert",
+      description: "Temperature event",
+    },
+    {
+      eventType: "ARRIVED_AT_PORT",
+      label: "Arrived",
+      description: "Arrived at port",
+    },
+  ];
+
+  const completedEventTypes = new Set(
+    sortedEvents.map((event) => event.eventType)
+  );
+
+  const lastEventType =
+    sortedEvents.length > 0
+      ? sortedEvents[sortedEvents.length - 1]?.eventType
+      : null;
+
+  let currentLifecycleIndex = lifecycleSteps.findIndex(
+    (step) => step.eventType === lastEventType
+  );
+
+  if (currentLifecycleIndex === -1) {
+    if (status === "arrived") {
+      currentLifecycleIndex = 3;
+    } else if (status === "alert") {
+      currentLifecycleIndex = 2;
+    } else if (status === "in_transit") {
+      currentLifecycleIndex = 1;
+    } else {
+      currentLifecycleIndex = 0;
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#18181B] px-6 py-8 text-white">
@@ -361,9 +417,7 @@ export default function ShipmentDetail() {
               </p>
 
               <p className="text-lg font-semibold text-white">
-                {temperature === "—"
-                  ? "—"
-                  : `${temperature}°C`}
+                {temperature === "—" ? "—" : `${temperature}°C`}
               </p>
             </div>
 
@@ -387,6 +441,83 @@ export default function ShipmentDetail() {
               <p className="text-sm font-semibold text-white">
                 {lastUpdated}
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Shipment Lifecycle */}
+        <section className="mb-8">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-white">
+              Shipment Lifecycle
+            </h2>
+
+            <p className="mt-1 text-sm text-[#71717A]">
+              Current progress of the shipment through its recorded lifecycle.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+              {lifecycleSteps.map((step, index) => {
+                const isCompleted = completedEventTypes.has(
+                  step.eventType
+                );
+
+                const isCurrent = index === currentLifecycleIndex;
+
+                return (
+                  <div
+                    key={step.eventType}
+                    className="relative"
+                  >
+                    {/* Connector */}
+                    {index < lifecycleSteps.length - 1 && (
+                      <div
+                        className={`absolute left-[22px] top-11 hidden h-px w-[calc(100%-10px)] md:block ${
+                          index < currentLifecycleIndex
+                            ? "bg-[#3B82F6]"
+                            : "bg-[#3F3F46]"
+                        }`}
+                      />
+                    )}
+
+                    <div className="relative z-10 flex items-start gap-3">
+                      <div
+                        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border ${
+                          isCompleted || isCurrent
+                            ? "border-[#3B82F6] bg-[#3B82F6]/10 text-[#60A5FA]"
+                            : "border-[#3F3F46] bg-[#18181B] text-[#71717A]"
+                        }`}
+                      >
+                        {isCompleted ? "✓" : index + 1}
+                      </div>
+
+                      <div className="min-w-0">
+                        <p
+                          className={`text-sm font-semibold ${
+                            isCompleted || isCurrent
+                              ? "text-white"
+                              : "text-[#71717A]"
+                          }`}
+                        >
+                          {step.label}
+                        </p>
+
+                        <p className="mt-1 text-xs text-[#71717A]">
+                          {step.description}
+                        </p>
+
+                        {isCurrent && (
+                          <span className="mt-2 inline-flex rounded-full border border-[#3B82F6]/30 bg-[#3B82F6]/10 px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-[#60A5FA]">
+                            Current Stage
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -493,9 +624,9 @@ export default function ShipmentDetail() {
                 <p className="text-sm font-medium text-[#E4E4E7]">
                   {shipment.lastEventType
                     ? getEventTitle(shipment.lastEventType)
-                    : events.length > 0
+                    : sortedEvents.length > 0
                     ? getEventTitle(
-                        events[events.length - 1]?.eventType
+                        sortedEvents[sortedEvents.length - 1]?.eventType
                       )
                     : "—"}
                 </p>
@@ -523,7 +654,7 @@ export default function ShipmentDetail() {
           </div>
 
           <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-6">
-            {events.length === 0 ? (
+            {sortedEvents.length === 0 ? (
               <div className="py-10 text-center">
                 <p className="text-sm text-[#71717A]">
                   No events found for this shipment.
@@ -532,10 +663,10 @@ export default function ShipmentDetail() {
             ) : (
               <div className="relative">
                 {/* Timeline vertical line */}
-                <div className="absolute left-[9px] top-3 bottom-3 w-px bg-[#3F3F46]" />
+                <div className="absolute bottom-3 left-[9px] top-3 w-px bg-[#3F3F46]" />
 
                 <div className="space-y-8">
-                  {events.map((event, index) => {
+                  {sortedEvents.map((event, index) => {
                     const eventPayload = event.payload || {};
 
                     const eventLocation =
