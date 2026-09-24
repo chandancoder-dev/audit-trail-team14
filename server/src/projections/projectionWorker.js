@@ -34,23 +34,26 @@ async function projectWithRetry(event, attempt = 1) {
   }
 }
 
-// ── Catch-up: replay missed events on startup ─────────────────────────────────
-
-async function catchUp() {
-  console.log('[ProjectionWorker] Starting catch-up...');
-
+// ── Per-shipment sync: replay events beyond each view's lastVersion ───────────
+// This is the authoritative catch-up mechanism. It compares each shipment's
+// ShipmentView.lastVersion against the event log and replays only the gap, in
+// version order. It is idempotent and safe to run repeatedly (used by both
+// startup catch-up and the periodic poll), and — unlike a global timestamp
+// watermark — it cannot skip events that share the same recordedAt millisecond.
+async function syncPendingEvents(label) {
   const shipmentIds = await Event.distinct('shipmentId');
 
   if (shipmentIds.length === 0) {
-    console.log('[ProjectionWorker] No events to catch up on.');
-    return;
+    return { processed: 0, upToDate: 0 };
   }
 
   let processed = 0;
-  let upToDate  = 0;
+  let upToDate = 0;
 
   for (const shipmentId of shipmentIds) {
-    const view = await ShipmentView.findOne({ shipmentId }).select('lastVersion').lean();
+    const view = await ShipmentView.findOne({ shipmentId })
+      .select('lastVersion')
+      .lean();
     const lastVersion = view ? view.lastVersion : 0;
 
     const pendingEvents = await Event.find({
@@ -75,11 +78,25 @@ async function catchUp() {
     }
   }
 
+  return { processed, upToDate };
+}
+
+// ── Catch-up: replay missed events on startup ─────────────────────────────────
+
+async function catchUp() {
+  console.log('[ProjectionWorker] Starting catch-up...');
+
+  const { processed, upToDate } = await syncPendingEvents('catch-up');
+
   lastCaughtUpAt = new Date();
-  console.log(`[ProjectionWorker] Catch-up done — processed: ${processed}, already up-to-date: ${upToDate}`);
+  console.log(
+    `[ProjectionWorker] Catch-up done — processed: ${processed}, already up-to-date: ${upToDate}`
+  );
 }
 
 // ── Poll: pick up new events every N seconds ──────────────────────────────────
+// Uses per-shipment lastVersion gap detection (not a global timestamp), so
+// concurrent or same-millisecond events are never skipped.
 
 async function poll() {
   if (!lastCaughtUpAt) {
@@ -87,21 +104,12 @@ async function poll() {
     return;
   }
 
-  const newEvents = await Event.find({
-    recordedAt: { $gt: lastCaughtUpAt },
-  })
-    .sort({ recordedAt: 1, version: 1 })
-    .lean();
+  const { processed } = await syncPendingEvents('poll');
 
-  if (newEvents.length === 0) return;
-
-  console.log(`[ProjectionWorker] Poll: ${newEvents.length} new event(s)`);
-
-  for (const event of newEvents) {
-    await projectWithRetry(event);
+  if (processed > 0) {
+    console.log(`[ProjectionWorker] Poll: projected ${processed} new event(s)`);
+    lastCaughtUpAt = new Date();
   }
-
-  lastCaughtUpAt = newEvents[newEvents.length - 1].recordedAt;
 }
 
 // ── Lifecycle ─────────────────────────────────────────────────────────────────

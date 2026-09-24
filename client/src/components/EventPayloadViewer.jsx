@@ -10,6 +10,12 @@ function formatKey(key) {
     .trim();
 }
 
+function formatValue(value) {
+  if (value === null || value === undefined) return '—';
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+}
+
 export default function EventPayloadViewer({ payload }) {
   const entries = payload ? Object.entries(payload) : [];
 
@@ -25,7 +31,7 @@ export default function EventPayloadViewer({ payload }) {
           {entries.map(([key, value]) => (
             <div key={key} className="flex justify-between items-center px-3 py-2 text-xs">
               <span className="text-slate-400">{formatKey(key)}</span>
-              <span className="text-white font-medium">{String(value)}</span>
+              <span className="text-white font-medium">{formatValue(value)}</span>
             </div>
           ))}
         </div>

@@ -34,9 +34,6 @@ async function handleShipmentCreated(event) {
     version,
   } = event;
 
-  console.log("inside handleShipmentCreated()");
-  console.log(event);
-
   const {
     origin = '',
     destination = '',

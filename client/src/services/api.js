@@ -116,7 +116,6 @@ export const authAPI = {
   login: (data) => api.post("/auth/login", data),
   getMe: () =>{
         const token = localStorage.getItem("token");
-        console.log("getme");
         return api.get("/auth/me",{
            headers:{
              Authorization : `Bearer ${token}`
