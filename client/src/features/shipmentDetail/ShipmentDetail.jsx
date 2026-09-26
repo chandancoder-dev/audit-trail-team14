@@ -194,7 +194,7 @@ export default function ShipmentDetail() {
 
             <button
               type="button"
-              onClick={() => fetchShipmentDetails()}
+              onClick={fetchShipmentDetails}
               className="rounded-lg border border-[#3F3F46] bg-[#18181B] px-4 py-2 text-sm font-medium text-white transition hover:border-[#52525B] hover:bg-[#27272A]"
             >
               Try Again
@@ -243,6 +243,25 @@ export default function ShipmentDetail() {
     return versionA - versionB;
   });
 
+  // Latest recorded event
+  const latestEvent =
+    sortedEvents.length > 0
+      ? sortedEvents[sortedEvents.length - 1]
+      : null;
+
+  const latestEventPayload = latestEvent?.payload || {};
+
+  const latestEventLocation =
+    latestEventPayload.location ||
+    latestEventPayload.port ||
+    latestEventPayload.currentLocation ||
+    currentLocation;
+
+  const latestEventTemperature =
+    latestEventPayload.temperature ??
+    latestEventPayload.temp ??
+    temperature;
+
   // Shipment lifecycle stages
   const lifecycleSteps = [
     {
@@ -271,10 +290,7 @@ export default function ShipmentDetail() {
     sortedEvents.map((event) => event.eventType)
   );
 
-  const lastEventType =
-    sortedEvents.length > 0
-      ? sortedEvents[sortedEvents.length - 1]?.eventType
-      : null;
+  const lastEventType = latestEvent?.eventType || null;
 
   let currentLifecycleIndex = lifecycleSteps.findIndex(
     (step) => step.eventType === lastEventType
@@ -295,6 +311,7 @@ export default function ShipmentDetail() {
   return (
     <div className="min-h-screen bg-[#18181B] px-6 py-8 text-white">
       <div className="mx-auto max-w-7xl">
+
         {/* Header */}
         <div className="mb-8">
           <Link
@@ -332,7 +349,6 @@ export default function ShipmentDetail() {
 
             {/* Header Actions */}
             <div className="flex flex-wrap gap-3">
-              {/* History */}
               <Link
                 to={`/historicalstate?shipmentId=${encodeURIComponent(
                   shipmentId
@@ -380,7 +396,6 @@ export default function ShipmentDetail() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
-            {/* Status */}
             <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-5">
               <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#71717A]">
                 Status
@@ -399,7 +414,6 @@ export default function ShipmentDetail() {
               </div>
             </div>
 
-            {/* Current Location */}
             <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-5">
               <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#71717A]">
                 Current Location
@@ -410,7 +424,6 @@ export default function ShipmentDetail() {
               </p>
             </div>
 
-            {/* Temperature */}
             <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-5">
               <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#71717A]">
                 Temperature
@@ -421,7 +434,6 @@ export default function ShipmentDetail() {
               </p>
             </div>
 
-            {/* Event Version */}
             <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-5">
               <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#71717A]">
                 Event Version
@@ -432,7 +444,6 @@ export default function ShipmentDetail() {
               </p>
             </div>
 
-            {/* Last Updated */}
             <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-5">
               <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#71717A]">
                 Last Updated
@@ -471,7 +482,6 @@ export default function ShipmentDetail() {
                     key={step.eventType}
                     className="relative"
                   >
-                    {/* Connector */}
                     {index < lifecycleSteps.length - 1 && (
                       <div
                         className={`absolute left-[22px] top-11 hidden h-px w-[calc(100%-10px)] md:block ${
@@ -536,6 +546,7 @@ export default function ShipmentDetail() {
 
           <div className="overflow-hidden rounded-xl border border-[#3F3F46] bg-[#27272A]">
             <div className="grid grid-cols-1 md:grid-cols-2">
+
               {/* Shipment ID */}
               <div className="border-b border-[#3F3F46] p-5 md:border-r">
                 <p className="mb-1 text-xs font-medium uppercase tracking-wide text-[#71717A]">
@@ -622,18 +633,76 @@ export default function ShipmentDetail() {
                 </p>
 
                 <p className="text-sm font-medium text-[#E4E4E7]">
-                  {shipment.lastEventType
-                    ? getEventTitle(shipment.lastEventType)
-                    : sortedEvents.length > 0
-                    ? getEventTitle(
-                        sortedEvents[sortedEvents.length - 1]?.eventType
-                      )
+                  {latestEvent
+                    ? getEventTitle(latestEvent.eventType)
                     : "—"}
                 </p>
 
-                {shipment.lastEventAt && (
+                {latestEvent && (
                   <p className="mt-1 text-xs text-[#71717A]">
-                    {formatDate(shipment.lastEventAt)}
+                    {formatDate(
+                      latestEvent.recordedAt ||
+                        latestEvent.createdAt ||
+                        latestEvent.timestamp
+                    )}
+                  </p>
+                )}
+              </div>
+
+              {/* Latest Event Summary */}
+              <div className="border-b border-[#3F3F46] p-5 md:col-span-2">
+                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[#71717A]">
+                  Latest Event Summary
+                </p>
+
+                {latestEvent ? (
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-white">
+                        {getEventTitle(latestEvent.eventType)}
+                      </p>
+
+                      <p className="mt-1 text-sm text-[#A1A1AA]">
+                        {getEventDescription(latestEvent)}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {latestEventLocation &&
+                        latestEventLocation !== "—" && (
+                          <span className="rounded-md border border-[#3F3F46] bg-[#18181B] px-2.5 py-1 text-xs text-[#A1A1AA]">
+                            Location:{" "}
+                            <span className="text-[#D4D4D8]">
+                              {latestEventLocation}
+                            </span>
+                          </span>
+                        )}
+
+                      {latestEventTemperature !== undefined &&
+                        latestEventTemperature !== null &&
+                        latestEventTemperature !== "—" && (
+                          <span className="rounded-md border border-[#3F3F46] bg-[#18181B] px-2.5 py-1 text-xs text-[#A1A1AA]">
+                            Temperature:{" "}
+                            <span className="text-[#D4D4D8]">
+                              {latestEventTemperature}°C
+                            </span>
+                          </span>
+                        )}
+
+                      {latestEvent.version !== undefined &&
+                        latestEvent.version !== null && (
+                          <span className="rounded-md border border-[#3F3F46] bg-[#18181B] px-2.5 py-1 text-xs text-[#A1A1AA]">
+                            Version:{" "}
+                            <span className="text-[#D4D4D8]">
+                              v{latestEvent.version}
+                            </span>
+                          </span>
+                        )}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-[#71717A]">
+                    No events have been recorded for this shipment yet.
                   </p>
                 )}
               </div>
@@ -662,7 +731,6 @@ export default function ShipmentDetail() {
               </div>
             ) : (
               <div className="relative">
-                {/* Timeline vertical line */}
                 <div className="absolute bottom-3 left-[9px] top-3 w-px bg-[#3F3F46]" />
 
                 <div className="space-y-8">
@@ -688,10 +756,8 @@ export default function ShipmentDetail() {
                         }
                         className="relative flex gap-5"
                       >
-                        {/* Timeline Dot */}
                         <div className="relative z-10 mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-4 border-[#27272A] bg-[#3B82F6]" />
 
-                        {/* Event Content */}
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                             <div>
