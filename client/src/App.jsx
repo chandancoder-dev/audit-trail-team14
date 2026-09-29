@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Features from "./pages/Features";
 import NavBar from "./components/Navbar";
+import DashboardNavBar from "./components/DashboardNavbar";
 import AnalyticsPage from "./features/analytics/AnalyticsPage";
 import AlertsPage from "./features/alerts/AlertsPage";
 import AuditTimeline from "./components/AuditTimeline";
@@ -26,7 +27,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-normal">
-      {location.pathname !== "/shipment-operations" && <NavBar />}
+      {location.pathname !== "/shipment-operations" && location.pathname === "/dashboard" ? <DashboardNavBar/> : <NavBar/>}
 
       <Routes>
         {/* Main/Home */}
