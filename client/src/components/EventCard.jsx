@@ -26,13 +26,13 @@ export default function EventCard({ event, onClick }) {
   const { eventType, version, recordedAt } = event;
 
   return (
-    <div className="bg-gray-900 rounded-xl shadow-sm hover:shadow-md border border-gray-700 pt-3 pb-5 pl-3 pr-14 transition-all duration-200 w-full max-w-[340px] h-48 mb-6 flex flex-col gap-1.5 hover:-translate-y-0.5">
+    <div className="bg-[#262628] rounded-2xl border border-[#3a3a3d] hover:border-[#4a4a4e] p-5 transition-all duration-200 w-full min-h-[13rem] flex flex-col gap-2 hover:-translate-y-0.5">
       {/* Top row: version badge + arrow */}
       <div className="flex items-center justify-between">
         <span className="text-[10px] font-semibold bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded-full">
           v{version}
         </span>
-        <span className="text-gray-500 text-sm leading-none">›</span>
+        <span className="text-[#a0a0a5] text-sm leading-none">›</span>
       </div>
 
       {/* Title */}
@@ -44,8 +44,8 @@ export default function EventCard({ event, onClick }) {
       <div className="flex-1" />
 
       {/* Date + time */}
-      <div className="flex flex-col gap-0.5 text-[14px] text-gray-400 pt-1.5 border-t border-gray-700">
-        <span className="font-medium text-gray-300">
+      <div className="flex flex-col gap-0.5 text-[14px] text-[#a0a0a5] pt-2 border-t border-[#3a3a3d]">
+        <span className="font-medium text-white">
           {formatTimestamp(recordedAt)}
         </span>
         <span>{formatTime(recordedAt)}</span>

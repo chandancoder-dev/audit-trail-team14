@@ -421,8 +421,15 @@ function ShipmentOperations() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-primary px-5 py-10 font-sans">
-      <div className="mx-auto max-w-4xl">
+  <div className="min-h-screen bg-bg-primary px-5 py-10 font-sans">
+    <div className="mx-auto max-w-4xl">
+      <button
+        type="button"
+        onClick={() => (window.location.href = "/dashboard")}
+        className="mb-6 text-sm text-text-secondary transition hover:text-text-heading"
+      >
+        ← Back to Dashboard
+      </button>
 
         {/* =====================================================
             PAGE HEADER
