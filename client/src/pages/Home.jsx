@@ -38,7 +38,7 @@ function Home() {
             <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
 
               <Link
-                to="/register"
+                to={(localStorage.getItem("token") ? "/dashboard" : "/register")}
                 className="rounded-lg bg-[#3B82F6] px-6 py-3 font-semibold text-[#FAFAFA] transition duration-200 hover:bg-[#2563EB]"
               >
                 Get Started

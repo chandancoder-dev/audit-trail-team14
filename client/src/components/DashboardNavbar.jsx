@@ -1,21 +1,14 @@
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 
-function NavBar() {
+function DashboardNavBar() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Track auth state reactively. Reading localStorage directly during render
-    // does not re-render on login/logout, so mirror it into state and refresh it
-    // whenever the route changes or an auth event fires.
-    const [isLoggedIn, setIsLoggedIn] = useState(
-      () => localStorage.getItem("token") !== null
-    );
+    
 
     useEffect(() => {
-      console.log(location.pathname);
       const syncAuth = () =>
-        setIsLoggedIn(localStorage.getItem("token") !== null);
 
       // Re-check on route change (covers login -> /dashboard navigation)
       syncAuth();
@@ -34,7 +27,6 @@ function NavBar() {
    function logout(){
       localStorage.removeItem("token");
       window.dispatchEvent(new Event("auth-changed"));
-      setIsLoggedIn(false);
       navigate("/login");
    }
   return (
@@ -61,7 +53,7 @@ function NavBar() {
         </NavLink>
 
         <NavLink
-          to="/about"
+          to="/shipment-operations"
           className={({ isActive }) =>
             `transition-colors ${
               isActive
@@ -70,11 +62,11 @@ function NavBar() {
             }`
           }
         >
-          About
+          Shipment Operations
         </NavLink>
 
         <NavLink
-          to="/features"
+          to="/alerts"
           className={({ isActive }) =>
             `transition-colors ${
               isActive
@@ -83,45 +75,20 @@ function NavBar() {
             }`
           }
         >
-          Features
+          Alerts
         </NavLink>
-
-        {isLoggedIn && (
-          <NavLink
-            to="/dashboard"
-            className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition-colors"
-          >
-            Dashboard
-          </NavLink>
-        )}
-
-        {isLoggedIn ? (
+        
+        
           <button
             onClick={logout}
             className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition-colors"
           >
             Logout
           </button>
-        ) : (
-          <>
-            <NavLink
-              to="/login"
-              className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition-colors"
-            >
-              Login
-            </NavLink>
-
-            <NavLink
-              to="/register"
-              className="px-4 py-2 rounded-lg border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors"
-            >
-              Register
-            </NavLink>
-          </>
-        )}
+          
       </div>
     </nav>
   );
 }
 
-export default NavBar;
+export default DashboardNavBar;

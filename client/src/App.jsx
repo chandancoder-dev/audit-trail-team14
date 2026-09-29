@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Features from "./pages/Features";
 import NavBar from "./components/Navbar";
+import DashboardNavBar from "./components/DashboardNavbar";
 import AnalyticsPage from "./features/analytics/AnalyticsPage";
 import AnalyticsOverview from "./features/analytics/AnalyticsOverview";
 import AlertsPage from "./features/alerts/AlertsPage";
@@ -37,7 +38,11 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-normal">
-      {!hideNavbar && <NavBar />}
+      {hideNavbar ? null : location.pathname === "/dashboard" ? (
+        <DashboardNavBar />
+      ) : (
+        <NavBar />
+      )}
 
       <Routes>
         {/* Main/Home */}
