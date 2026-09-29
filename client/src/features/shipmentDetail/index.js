@@ -1,1 +1,0 @@
-export { default as ShipmentDetail } from "./ShipmentDetail";
