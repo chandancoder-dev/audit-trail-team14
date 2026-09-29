@@ -3,20 +3,27 @@ function About(){
      
     return <div className="min-h-screen bg-[#18181B] text-[#D4D4D8]">
         {/* About Audit Trail */}
-        <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6 py-20 bg-[#18181B] border-y border-[#3F3F46]">
-            <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6 py-20 bg-[#18181B]">
+       <div className="min-h-[60vh] flex items-center justify-center px-6 py-20 bg-[#18181B] border-y border-[#3F3F46]">
+        <div className="w-full max-w-4xl rounded-2xl border border-[#3F3F46] bg-[#202023] px-8 py-14 md:px-12 md:py-16 text-center shadow-xl">
+
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#FAFAFA]">
-                ABOUT AUDIT TRAIL
+              ABOUT <span className="text-[#3B82F6]">AUDIT TRAIL</span>
             </h1>
+
             <p className="mt-6 text-xl md:text-2xl font-medium text-[#3B82F6]">
-                Making shipment history transparent and reliable
+               Making shipment history transparent and reliable
             </p>
-            <p className="mt-5 max-w-2xl text-base md:text-lg leading-8 text-[#A1A1AA]">
-                Audit Trail is an event-driven shipment tracking system 
-            that records every important change in a shipment's lifecycle.
+
+            <p className="mx-auto mt-5 max-w-2xl text-base md:text-lg leading-8 text-[#A1A1AA]">
+                   Audit Trail is an event-driven shipment tracking system
+                   that records every important change in a shipment's lifecycle.
             </p>
-           </div>
-        </div>
+        
+            {/* Small accent */}
+            <div className="mx-auto mt-8 h-1 w-16 rounded-full bg-[#3B82F6]" />
+
+         </div>
+      </div>
         
          
        {/* Why use Audit Taril*/}
