@@ -1,7 +1,10 @@
 const express = require('express');
-const { getShipmentAnalytics, getDashboard } = require('./analytics.controller');
+const { getShipmentAnalytics, getDashboard, getOverview } = require('./analytics.controller');
 const tokenVerification = require("../middleware/auth.middleware");
 const router = express.Router();
+
+// GET /api/queries/analytics/overview — fleet-wide analytics
+router.get('/analytics/overview', tokenVerification, getOverview);
 
 // GET /api/queries/shipment/:id/analytics
 router.get('/shipment/:id/analytics',tokenVerification, getShipmentAnalytics);

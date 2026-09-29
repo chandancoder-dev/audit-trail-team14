@@ -5,6 +5,7 @@ require('dotenv').config({ path: __dirname + '/../.env' });
 const mongoose = require('mongoose');
 const Event = require('../src/models/Event');
 const ShipmentView = require('../src/projections/ShipmentView');
+const { reconstructState } = require('../src/queries/historicalState.service');
 
 const RUNS = 5; // number of timed iterations per approach
 
@@ -37,10 +38,12 @@ async function main() {
 
   console.log(`\nBenchmarking ${shipmentIds.length} shipment(s), ${RUNS} runs each:\n`);
 
-  // Approach 1: Event Replay — fetch all events and fold into state manually
+  // Approach 1: Event Replay — fetch all events AND fold them into current state
   const replayAvg = await timeIt('Event replay (all shipments)', async () => {
     for (const id of shipmentIds) {
-      await Event.find({ shipmentId: id }).sort({ version: 1 }).lean();
+      const events = await Event.find({ shipmentId: id }).sort({ version: 1 }).lean();
+      // Reconstruct state — this is the real cost the read model avoids.
+      reconstructState(events);
     }
   });
 

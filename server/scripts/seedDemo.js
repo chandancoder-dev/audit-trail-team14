@@ -33,17 +33,35 @@ const WIPE = process.argv.includes("--wipe");
 
 const DEMO_PASSWORD = "password123";
 
-const ACCOUNTS = [
-  { name: "Sumit Verma", username: "sumit", email: "sumit@gmail.com" },
-  { name: "Chandan K R", username: "chandan", email: "chandan@gmail.com" },
+const DEFAULT_ACCOUNTS = [
+  { name: "Sumit Verma", username: "sumit", email: "sumit@gmail.com", prefix: "SHIP" },
+  { name: "Chandan K R", username: "chandan", email: "chandan@gmail.com", prefix: "CTNR" },
 ];
 
-// Helper: build a date N days/hours ago from a base, so timelines look real.
-function daysAgo(days, hoursOffset = 0) {
+// Optionally seed a single account via env: SEED_EMAIL=... [SEED_PREFIX=...]
+// Falls back to the default two demo accounts.
+const ACCOUNTS = process.env.SEED_EMAIL
+  ? [
+      {
+        name: process.env.SEED_NAME || "Sumit Verma",
+        username: process.env.SEED_USERNAME || "sumit_aiml",
+        email: process.env.SEED_EMAIL,
+        prefix: process.env.SEED_PREFIX || "SHPX",
+      },
+    ]
+  : DEFAULT_ACCOUNTS;
+
+// Helper: a Date `days` before now (used as each shipment's creation time).
+function daysAgo(days) {
   const d = new Date();
   d.setDate(d.getDate() - days);
-  d.setHours(d.getHours() + hoursOffset, 0, 0, 0);
+  d.setHours(9, 0, 0, 0); // normalise to 09:00 for tidy timelines
   return d;
+}
+
+// Helper: `hours` after a base date — used to space a shipment's events apart.
+function hoursAfter(base, hours) {
+  return new Date(base.getTime() + hours * 60 * 60 * 1000);
 }
 
 /**
@@ -52,7 +70,6 @@ function daysAgo(days, hoursOffset = 0) {
  */
 function buildShipmentEvents(prefix, idx, scenario) {
   const shipmentId = `${prefix}-${String(idx).padStart(3, "0")}`;
-  const startDay = 12 - idx; // spread creation dates out
   const events = [];
   let version = 0;
 
@@ -76,56 +93,60 @@ function buildShipmentEvents(prefix, idx, scenario) {
   ];
   const r = routes[idx % routes.length];
 
+  // Each shipment is created on a distinct day; its events are then spaced
+  // realistically (hours→days apart) so transit/milestone durations are meaningful.
+  const createdAt = daysAgo(12 - idx);
+
   // 1) Created
   push(
     "SHIPMENT_CREATED",
     { origin: r.origin, destination: r.destination, location: r.origin, temperature: -20 },
-    daysAgo(startDay, 0)
+    createdAt
   );
 
   if (scenario === "created") return { shipmentId, events };
 
-  // 2) Loaded on ship (in transit) with a healthy cold-chain temperature
+  // 2) Loaded on ship ~8 hours after creation
   push(
     "LOADED_ON_SHIP",
     { location: `${r.origin} Port`, vessel: r.vessel, temperature: -19 },
-    daysAgo(startDay, 4)
+    hoursAfter(createdAt, 8)
   );
 
   if (scenario === "in_transit") return { shipmentId, events };
 
-  // 3) A couple of normal temperature readings to make charts rich
+  // 3) A normal reading ~1 day into transit
   push(
     "TEMPERATURE_SPIKE",
     { location: "Open Sea", temperature: -18, threshold: -15 },
-    daysAgo(startDay - 1, 2)
+    hoursAfter(createdAt, 30)
   );
 
   if (scenario === "warning" || scenario === "critical") {
-    // WARNING alert: within 2C of threshold but still below it (-16 > -17, <= -15)
+    // WARNING: within 2C of threshold but still below it — ~2 days in
     push(
       "TEMPERATURE_SPIKE",
       { location: "Red Sea", temperature: -16, threshold: -15 },
-      daysAgo(startDay - 2, 6)
+      hoursAfter(createdAt, 54)
     );
   }
 
   if (scenario === "critical" || scenario === "alert") {
-    // CRITICAL alert: warmer than threshold (-8 > -15)
+    // CRITICAL: warmer than threshold — ~3 days in
     push(
       "TEMPERATURE_SPIKE",
       { location: "Suez Canal", temperature: -8, threshold: -15 },
-      daysAgo(startDay - 3, 3)
+      hoursAfter(createdAt, 78)
     );
   }
 
   if (scenario === "alert") return { shipmentId, events }; // stays in alert state
 
-  // 4) Arrived at destination port
+  // 4) Arrived at destination port ~5 days after creation
   push(
     "ARRIVED_AT_PORT",
     { port: r.destination, location: r.destination },
-    daysAgo(startDay - 4, 5)
+    hoursAfter(createdAt, 120)
   );
 
   return { shipmentId, events };
@@ -154,7 +175,7 @@ async function seedAccount(account) {
   }
 
   const userId = user._id;
-  const prefix = account.username === "sumit" ? "SHIP" : "CTNR";
+  const prefix = account.prefix || "SHIP";
 
   // A varied set of scenarios so every status/alert type is represented.
   const scenarios = [

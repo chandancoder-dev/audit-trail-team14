@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { queryAPI } from "../services/api";
 
 function HistoricalState() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const shipmentId = searchParams.get("shipmentId");
 
   const [events, setEvents] = useState([]);
@@ -205,6 +206,15 @@ function HistoricalState() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-bg-primary px-4 py-6 font-sans text-text-heading sm:px-6 sm:py-8 md:px-10">
+      <button
+        type="button"
+        onClick={() => navigate(shipmentId ? `/shipment/${shipmentId}` : "/dashboard")}
+        className="mx-auto mb-5 flex max-w-275 items-center gap-1.5 text-sm text-text-secondary transition hover:text-text-heading"
+      >
+        <span aria-hidden="true">←</span>{" "}
+        {shipmentId ? "Back to Shipment" : "Back to Dashboard"}
+      </button>
+
       {/* Header */}
       <header className="mx-auto mb-8 flex max-w-275 flex-col items-start justify-between gap-5 md:flex-row md:items-center md:gap-8">
         <div className="min-w-0">

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { queryAPI } from '../../services/api';
 import AlertCard from './AlertCard';
 
@@ -61,6 +61,7 @@ function ErrorState({ message, onRetry }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 function AlertsPage() {
   const { id: shipmentId } = useParams();
+  const navigate = useNavigate();
 
   const [allAlerts, setAllAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -105,6 +106,15 @@ function AlertsPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
+
+      <button
+        type="button"
+        onClick={() => navigate(shipmentId ? `/shipment/${shipmentId}` : "/dashboard")}
+        className="mb-5 inline-flex items-center gap-1.5 text-sm text-text-secondary transition hover:text-text-heading"
+      >
+        <span aria-hidden="true">←</span>{" "}
+        {shipmentId ? "Back to Shipment" : "Back to Dashboard"}
+      </button>
 
       {/* Page Header */}
       <div className="mb-6 flex items-start justify-between flex-wrap gap-3">

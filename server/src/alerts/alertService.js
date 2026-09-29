@@ -25,6 +25,7 @@ async function generateAlertFromEvent(event) {
   }
 
   const existing = await Alert.findOne({
+    userId,
     shipmentId,
     'metadata.eventVersion': version,
   }).lean();

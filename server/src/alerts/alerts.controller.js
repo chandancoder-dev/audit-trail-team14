@@ -1,17 +1,7 @@
 const Alert = require('./Alert');
 
-/**
- * GET /api/queries/alerts
- *
- * Returns a paginated, filterable list of all alerts.
- *
- * Query params:
- *   severity   — filter by 'critical' | 'warning' | 'info'
- *   shipmentId — filter by a specific shipment
- *   acknowledged — 'true' | 'false'
- *   page       — page number (default 1)
- *   limit      — results per page (default 20)
- */
+// GET /api/queries/alerts — paginated, filterable alerts for the current user.
+// Query params: severity, shipmentId, acknowledged, page, limit.
 const getAlerts = async (req, res) => {
   try {
     const {
@@ -68,15 +58,8 @@ const getAlerts = async (req, res) => {
   }
 };
 
-/**
- * GET /api/queries/shipment/:id/alerts
- *
- * Returns all alerts for a specific shipment, sorted newest first.
- *
- * Query params:
- *   severity     — filter by severity
- *   acknowledged — 'true' | 'false'
- */
+// GET /api/queries/shipment/:id/alerts — a shipment's alerts, newest first.
+// Query params: severity, acknowledged.
 const getShipmentAlerts = async (req, res) => {
   try {
     const { id } = req.params;

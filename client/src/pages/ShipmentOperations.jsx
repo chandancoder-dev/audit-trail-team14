@@ -1,7 +1,14 @@
 import { commandAPI, queryAPI } from "../services/api";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import ConflictDialog from "../components/ConflictDialog";
 
 function ShipmentOperations() {
+  const navigate = useNavigate();
+
+  // OCC conflict dialog (shown when a command returns 409)
+  const [conflict, setConflict] = useState(null);
+
   // -----------------------------
   // Create Shipment State
   // -----------------------------
@@ -240,6 +247,10 @@ function ShipmentOperations() {
 
         if (error.currentVersion !== undefined) {
           setMoveVersion(error.currentVersion);
+          setConflict({
+            expectedVersion: error.expectedVersion,
+            currentVersion: error.currentVersion,
+          });
         }
 
         return;
@@ -322,6 +333,10 @@ function ShipmentOperations() {
 
         if (error.currentVersion !== undefined) {
           setTemperatureVersion(error.currentVersion);
+          setConflict({
+            expectedVersion: error.expectedVersion,
+            currentVersion: error.currentVersion,
+          });
         }
 
         return;
@@ -405,6 +420,10 @@ function ShipmentOperations() {
 
         if (error.currentVersion !== undefined) {
           setArrivalVersion(error.currentVersion);
+          setConflict({
+            expectedVersion: error.expectedVersion,
+            currentVersion: error.currentVersion,
+          });
         }
 
         return;
@@ -422,10 +441,15 @@ function ShipmentOperations() {
 
   return (
   <div className="min-h-screen bg-bg-primary px-5 py-10 font-sans">
+    <ConflictDialog
+      conflict={conflict}
+      onRefresh={() => window.location.reload()}
+      onClose={() => setConflict(null)}
+    />
     <div className="mx-auto max-w-4xl">
       <button
         type="button"
-        onClick={() => (window.location.href = "/dashboard")}
+        onClick={() => navigate("/dashboard")}
         className="mb-6 text-sm text-text-secondary transition hover:text-text-heading"
       >
         ← Back to Dashboard
