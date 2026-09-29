@@ -42,8 +42,9 @@ audit-trail-team14/
 ├── client/                          # React frontend (Vite + Tailwind CSS)
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── AuditTimeline.jsx    # Vertical event timeline
-│   │   │   ├── ConflictDialog.jsx   # OCC 409 conflict modal (M6)
+│   │   │   ├── AuditTimeline.jsx    # Vertical event timeline + details modal
+│   │   │   ├── ConflictDialog.jsx   # OCC 409 conflict modal
+│   │   │   ├── DashboardNavbar.jsx  # Navbar shown on the dashboard
 │   │   │   ├── EventCard.jsx
 │   │   │   ├── EventMetadataViewer.jsx
 │   │   │   ├── EventPayloadViewer.jsx
@@ -51,10 +52,11 @@ audit-trail-team14/
 │   │   │   └── Navbar.jsx
 │   │   ├── features/
 │   │   │   ├── analytics/
-│   │   │   │   ├── AnalyticsPage.jsx     # Live temperature charts + stats (M6)
-│   │   │   │   └── TemperatureChart.jsx  # Recharts line chart + event markers (M6)
+│   │   │   │   ├── AnalyticsOverview.jsx # Fleet-wide analytics (status, KPIs, events)
+│   │   │   │   ├── AnalyticsPage.jsx     # Per-shipment temperature + lifecycle analytics
+│   │   │   │   └── TemperatureChart.jsx  # Recharts line chart + event markers
 │   │   │   ├── alerts/
-│   │   │   │   ├── AlertsPage.jsx        # Live alerts with severity filters (M6)
+│   │   │   │   ├── AlertsPage.jsx        # Live alerts with severity filters
 │   │   │   │   └── AlertCard.jsx
 │   │   │   └── shipmentDetail/
 │   │   │       └── ShipmentDetail.jsx
@@ -64,6 +66,7 @@ audit-trail-team14/
 │   │   │   ├── HistoricalState.jsx
 │   │   │   ├── Home.jsx
 │   │   │   ├── Login.jsx
+│   │   │   ├── NotFound.jsx         # 404 catch-all page
 │   │   │   ├── Register.jsx
 │   │   │   └── ShipmentOperations.jsx
 │   │   ├── services/
@@ -74,17 +77,20 @@ audit-trail-team14/
 ├── server/
 │   ├── server.js                    # Entry point + MongoDB connection
 │   ├── scripts/
-│   │   ├── rebuildProjections.js    # Wipe + replay all projections (M6)
-│   │   └── benchmark.js             # Event-replay vs read-model benchmark (M6)
+│   │   ├── rebuildProjections.js    # Wipe + replay all projections
+│   │   ├── benchmark.js             # Event-replay vs read-model benchmark
+│   │   ├── seedDemo.js              # Seed demo accounts with realistic data
+│   │   ├── proveImmutability.js     # Live proof the event store rejects mutations
+│   │   └── setupAppendOnlyRole.js   # DB least-privilege role (append-only)
 │   ├── src/
-│   │   ├── app.js                   # Express app + route mounting
+│   │   ├── app.js                   # Express app + route mounting + CORS
 │   │   ├── analytics/
-│   │   │   ├── analyticsService.js  # Temperature analytics + event frequency (M6)
+│   │   │   ├── analyticsService.js  # Temperature, fleet overview, insights
 │   │   │   ├── analytics.controller.js
 │   │   │   └── analytics.route.js
 │   │   ├── alerts/
-│   │   │   ├── Alert.js             # Alert Mongoose model (M6)
-│   │   │   ├── alertService.js      # Auto-generate alerts on TEMPERATURE_SPIKE (M6)
+│   │   │   ├── Alert.js             # Alert Mongoose model
+│   │   │   ├── alertService.js      # Auto-generate alerts on TEMPERATURE_SPIKE
 │   │   │   ├── alerts.controller.js
 │   │   │   └── alerts.route.js
 │   │   ├── auth/
@@ -99,21 +105,25 @@ audit-trail-team14/
 │   │   │   └── eventStore.js
 │   │   ├── middleware/
 │   │   │   ├── auth.middleware.js
-│   │   │   └── occ.middleware.js    # Optimistic concurrency control (M6)
+│   │   │   └── occ.middleware.js    # Optimistic concurrency control
 │   │   ├── models/
-│   │   │   ├── Event.js
-│   │   │   └── User.js
+│   │   │   ├── Event.js             # Append-only event schema
+│   │   │   ├── User.js
+│   │   │   └── plugins/
+│   │   │       └── appendOnly.js    # Rejects update/delete/replace on events
 │   │   ├── projections/
-│   │   │   ├── ShipmentView.js      # CQRS read model (M6)
-│   │   │   ├── projectionBuilder.js # Event handlers → ShipmentView (M6)
-│   │   │   └── projectionWorker.js  # Background poll + catch-up + retry (M6)
+│   │   │   ├── ShipmentView.js      # CQRS read model
+│   │   │   ├── projectionBuilder.js # Event handlers → ShipmentView
+│   │   │   └── projectionWorker.js  # Background poll + catch-up + retry
 │   │   └── queries/
 │   │       ├── historicalState.service.js
+│   │       ├── eventReducers.js
 │   │       ├── shipmentQuery.controller.js
 │   │       └── shipmentQuery.route.js
 │   ├── tests/
 │   │   ├── historicalState.test.js
-│   │   └── m6.integration.test.js   # 23 tests: analytics, alerts, OCC, flow (M6)
+│   │   ├── appendOnly.test.js       # Immutability guard unit tests
+│   │   └── m6.integration.test.js   # Analytics, alerts, OCC, insights, overview
 │   └── package.json
 ├── package.json
 ├── WORKPLAN.md
@@ -126,18 +136,21 @@ audit-trail-team14/
 | Route | Page | Description |
 |-------|------|-------------|
 | `/` | Home | Landing page |
-| `/dashboard` | Dashboard | Shipment list + summary stats |
+| `/dashboard` | Dashboard | Shipment list, search, summary stats |
 | `/shipment-operations` | ShipmentOperations | Create & manage shipment events |
-| `/shipment/:id` | ShipmentDetail | Shipment state + event timeline |
-| `/shipment/:id/analytics` | AnalyticsPage | Temperature charts & event analysis |
-| `/alerts` | AlertsPage | Alert monitoring with severity filters |
-| `/historicalstate` | HistoricalState | Time-travel state reconstruction |
+| `/shipment/:id` | ShipmentDetail | Shipment state + lifecycle + event timeline |
+| `/shipment/:id/analytics` | AnalyticsPage | Per-shipment temperature & lifecycle analytics |
+| `/shipment/:id/alerts` | AlertsPage | Alerts for a specific shipment |
+| `/analytics` | AnalyticsOverview | Fleet-wide analytics (status, KPIs, events) |
+| `/alerts` | AlertsPage | Fleet-wide alert monitoring with severity filters |
+| `/historicalstate?shipmentId=` | HistoricalState | Time-travel state reconstruction |
 | `/audittimeline/:id` | AuditTimeline | Vertical event timeline |
 | `/About` | About | About page |
 | `/features` | Features | Features page |
 | `/login` | Login | Authentication |
 | `/register` | Register | Registration |
 | `/forgot-password` | ForgotPassword | Password reset |
+| `*` | NotFound | 404 catch-all |
 
 ## API Endpoints
 
@@ -147,8 +160,8 @@ audit-trail-team14/
 |--------|----------|-------------|
 | POST | `/api/auth/register` | Register a new user |
 | POST | `/api/auth/login` | Login and receive JWT token |
-| GET | `/api/auth/me` | Get current authenticated user |
-| POST | `/api/auth/reset-password` | Reset user password |
+| GET | `/api/auth/me` | Get current authenticated user (password excluded) |
+| POST | `/api/auth/reset-password` | Change password (requires `email`, `currentPassword`, `password`) |
 
 ### Command Routes (Write Side) — JWT required
 
@@ -168,11 +181,13 @@ audit-trail-team14/
 | GET | `/api/queries/shipments` | List all shipments (paginated) — JWT required |
 | GET | `/api/queries/shipment/:id` | Get current shipment state — JWT required |
 | GET | `/api/queries/shipment/:id/events` | Get raw event list |
+| GET | `/api/queries/shipment/:id/timeline` | Get event timeline (newest first) |
 | GET | `/api/queries/shipment/:id/state?date=` | Reconstruct state at a point in time |
-| GET | `/api/queries/shipment/:id/analytics` | Temperature time-series, stats, event markers |
+| GET | `/api/queries/shipment/:id/analytics` | Temperature time-series, stats, lifecycle insights, event markers |
+| GET | `/api/queries/shipment/:id/alerts` | Alerts for a specific shipment |
+| GET | `/api/queries/analytics/overview` | Fleet-wide overview: status distribution, totals, events by type |
 | GET | `/api/queries/dashboard/summary` | Total shipments, events, alerts, avg temperature |
 | GET | `/api/queries/alerts` | All alerts (paginated, filterable by severity/shipment) |
-| GET | `/api/queries/shipment/:id/alerts` | Alerts for a specific shipment |
 
 ### Query Parameters — `/api/queries/alerts`
 
@@ -253,6 +268,8 @@ JWT_SECRET=your_jwt_secret_here
 | `npm run client` | Run only the React app |
 | `npm run server` | Run only the Express server |
 | `cd server && npm test` | Run Jest integration tests |
+| `cd server && npm run seed:demo` | Seed demo accounts with realistic data |
+| `cd server && npm run audit:immutability` | Prove the event store rejects update/delete |
 | `cd server && node scripts/rebuildProjections.js` | Wipe and rebuild all ShipmentView projections |
 | `cd server && node scripts/benchmark.js` | Benchmark event-replay vs read-model query time |
 
@@ -263,12 +280,16 @@ cd server
 npm test
 ```
 
-23 tests across 5 suites covering:
+60 tests across 3 suites covering:
 - Temperature analytics computation (timeSeries, stats, spikes, eventMarkers)
-- Event frequency grouping and sorting
-- Alert generation (critical/warning thresholds, idempotency, custom threshold)
+- Event frequency + event-type breakdown grouping and ordering
+- Shipment insights (lifecycle milestones, transit durations, cold-chain compliance)
+- Fleet overview aggregation (status distribution, totals, events by type)
+- Dashboard summary (user-scoped counts)
+- Alert generation (critical/warning thresholds, idempotency, userId)
 - OCC middleware (version match, 409 conflict, 400 invalid, 404 not found)
-- Full event flow pipeline
+- Append-only immutability guard (rejects update/delete/replace/bulkWrite)
+- Historical state reconstruction
 
 ## Team
 
