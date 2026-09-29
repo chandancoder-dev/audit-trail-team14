@@ -263,6 +263,9 @@ export default function ShipmentDetail() {
     temperature;
 
   // Shipment lifecycle stages
+  // The linear lifecycle is Created → In Transit → Arrived.
+  // TEMPERATURE_SPIKE is an alert condition, not a lifecycle stage — it's shown
+  // via the status badge, not as a step here.
   const lifecycleSteps = [
     {
       eventType: "SHIPMENT_CREATED",
@@ -275,11 +278,6 @@ export default function ShipmentDetail() {
       description: "Loaded on ship",
     },
     {
-      eventType: "TEMPERATURE_SPIKE",
-      label: "Temperature Alert",
-      description: "Temperature event",
-    },
-    {
       eventType: "ARRIVED_AT_PORT",
       label: "Arrived",
       description: "Arrived at port",
@@ -290,22 +288,15 @@ export default function ShipmentDetail() {
     sortedEvents.map((event) => event.eventType)
   );
 
-  const lastEventType = latestEvent?.eventType || null;
-
-  let currentLifecycleIndex = lifecycleSteps.findIndex(
-    (step) => step.eventType === lastEventType
-  );
-
-  if (currentLifecycleIndex === -1) {
-    if (status === "arrived") {
-      currentLifecycleIndex = 3;
-    } else if (status === "alert") {
-      currentLifecycleIndex = 2;
-    } else if (status === "in_transit") {
-      currentLifecycleIndex = 1;
-    } else {
-      currentLifecycleIndex = 0;
-    }
+  // Progress is driven by the furthest lifecycle stage reached, regardless of
+  // any temperature spikes in between (a spike doesn't advance or reset stage).
+  let currentLifecycleIndex = 0;
+  if (completedEventTypes.has("ARRIVED_AT_PORT")) {
+    currentLifecycleIndex = 2;
+  } else if (completedEventTypes.has("LOADED_ON_SHIP")) {
+    currentLifecycleIndex = 1;
+  } else {
+    currentLifecycleIndex = 0;
   }
 
   return (
@@ -469,7 +460,7 @@ export default function ShipmentDetail() {
           </div>
 
           <div className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {lifecycleSteps.map((step, index) => {
                 const isCompleted = completedEventTypes.has(
                   step.eventType

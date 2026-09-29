@@ -1,21 +1,7 @@
 const mongoose = require('mongoose');
 
-/**
- * ShipmentView — Read Model (Projection)
- *
- * Denormalized read model built by replaying events from the Event Store.
- * Provides fast query access without replaying all events on every read.
- *
- * CQRS rule: only the projection builder writes to this collection.
- * Command handlers and query handlers must never write directly.
- *
- * Aligned with Event schema fields:
- *   shipmentId   → event.shipmentId
- *   lastVersion  → event.version
- *   lastEventAt  → event.recordedAt
- *   currentLocation, vessel, port → event.payload.*
- *   lastTemperature, temperatureThreshold → event.payload.temperature / threshold
- */
+// ShipmentView — denormalized read model built by replaying events.
+// CQRS rule: only the projection builder writes here; commands/queries never do.
 const shipmentViewSchema = new mongoose.Schema(
   {
     userId:{
@@ -120,15 +106,7 @@ shipmentViewSchema.index(
 
 // ── Static Methods ────────────────────────────────────────────────────────────
 
-/**
- * upsert()
- * Create or update a ShipmentView document by shipmentId.
- * Used by projection builder for all event types.
- *@param {string} userId
- * @param {string} shipmentId
- * @param {Object} fields - Fields to merge into the document
- * @returns {Promise<ShipmentView>}
- */
+// upsert() — create or update a ShipmentView by (userId, shipmentId).
 shipmentViewSchema.statics.upsert = function (userId,shipmentId, fields) {
   return this.findOneAndUpdate(
     {userId, shipmentId},
@@ -142,17 +120,7 @@ shipmentViewSchema.statics.upsert = function (userId,shipmentId, fields) {
   );
 };
 
-/**
- * recordEvent()
- * Atomically increment eventCount and update tracking fields.
- * Called on every new event processed by the projection builder.
- * @param {string} userId
- * @param {string} shipmentId
- * @param {string} eventType
- * @param {Date} recordedAt
- * @param {number} version
- * @returns {Promise<ShipmentView>}
- */
+// recordEvent() — atomically increment eventCount and update tracking fields.
 shipmentViewSchema.statics.recordEvent = function (userId,shipmentId, eventType, recordedAt, version) {
   return this.findOneAndUpdate(
     {userId, shipmentId },
@@ -168,16 +136,7 @@ shipmentViewSchema.statics.recordEvent = function (userId,shipmentId, eventType,
   );
 };
 
-/**
- * paginate()
- * Get a paginated, filtered list of shipments sorted by most recent activity.
- * Used by GET /api/queries/shipments for the dashboard list.
- *
- * @param {Object} filter - Mongoose filter (e.g. { status: 'alert' })
- * @param {number} page
- * @param {number} limit
- * @returns {Promise<{ shipments, total, page, limit, pages }>}
- */
+// paginate() — filtered, paginated list sorted by most recent activity.
 shipmentViewSchema.statics.paginate = async function (filter = {}, page = 1, limit = 10) {
   const skip = (page - 1) * limit;
   const [shipments, total] = await Promise.all([

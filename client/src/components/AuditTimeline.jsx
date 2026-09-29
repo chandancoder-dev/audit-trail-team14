@@ -90,10 +90,10 @@ export default function AuditTimeline() {
     <div className="min-h-screen w-full bg-[#1c1c1e]">
       <div className="max-w-6xl mx-auto p-6">
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate(`/shipment/${id}`)}
           className="inline-flex items-center gap-2 text-sm font-medium text-white bg-[#262628] hover:bg-[#333336] border border-[#3a3a3d] rounded-lg px-4 py-2 mb-5 transition-colors"
         >
-          <span aria-hidden="true">←</span> Back to Dashboard
+          <span aria-hidden="true">←</span> Back to Shipment
         </button>
 
         <h1 className="text-3xl font-bold text-white mb-1">

@@ -1,30 +1,11 @@
 const ShipmentView = require('../projections/ShipmentView');
 const { generateAlertFromEvent } = require('../alerts/alertService');
 
-/**
- * Projection Builder
- *
- * Handles each event type from the Event Store and updates the ShipmentView
- * read model accordingly. Called by the projection worker after every new event.
- *
- * Each handler:
- *   1. Extracts relevant fields from event.payload
- *   2. Calls ShipmentView.upsert() to write the updated state
- *   3. Calls ShipmentView.recordEvent() to increment eventCount + update tracking
- *
- * Event types handled:
- *   SHIPMENT_CREATED   → creates the ShipmentView document
- *   LOADED_ON_SHIP     → updates location, vessel, status → in_transit
- *   TEMPERATURE_SPIKE  → updates temperature, flags alert, status → alert
- *   ARRIVED_AT_PORT    → updates port, clears alert flag, status → arrived
- */
+// Projection Builder — maps each event type to a ShipmentView read-model update.
+// Called by the projection worker per event: upsert() writes state, recordEvent()
+// bumps eventCount and tracking fields.
 
-// ── Handlers ──────────────────────────────────────────────────────────────────
-
-/**
- * SHIPMENT_CREATED
- * Initialises a new ShipmentView document.
- */
+// SHIPMENT_CREATED — initialise a new ShipmentView document.
 async function handleShipmentCreated(event) {
   const {
     userId,
@@ -33,9 +14,6 @@ async function handleShipmentCreated(event) {
     recordedAt,
     version,
   } = event;
-
-  console.log("inside handleShipmentCreated()");
-  console.log(event);
 
   const {
     origin = '',
@@ -68,10 +46,7 @@ async function handleShipmentCreated(event) {
   );
 }
 
-/**
- * LOADED_ON_SHIP
- * Updates location, vessel name, and sets status to in_transit.
- */
+// LOADED_ON_SHIP — update location + vessel, status → in_transit.
 async function handleLoadedOnShip(event) {
   const {
     userId,
@@ -114,10 +89,7 @@ async function handleLoadedOnShip(event) {
   );
 }
 
-/**
- * TEMPERATURE_SPIKE
- * Records the temperature reading, sets alert flag, and updates status to alert.
- */
+// TEMPERATURE_SPIKE — record temperature, flag alert, status → alert.
 async function handleTemperatureSpike(event) {
   const {
     userId,
@@ -169,10 +141,7 @@ async function handleTemperatureSpike(event) {
   );
 }
 
-/**
- * ARRIVED_AT_PORT
- * Records port arrival, clears temperature alert flag, sets status to arrived.
- */
+// ARRIVED_AT_PORT — record port, clear alert flag, status → arrived.
 async function handleArrivedAtPort(event) {
   const {
     userId,
@@ -217,15 +186,7 @@ const HANDLERS = {
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
-/**
- * project(event)
- *
- * Main entry point. Dispatches an event to its handler.
- * Skips unknown event types with a warning instead of throwing.
- *
- * @param {Object} event - Mongoose Event document or plain object
- * @returns {Promise<void>}
- */
+// project(event) — dispatch one event to its handler; unknown types are skipped.
 async function project(event) {
   const handler = HANDLERS[event.eventType];
 
@@ -249,14 +210,7 @@ async function project(event) {
   }
 }
 
-/**
- * projectMany(events)
- *
- * Process an ordered array of events sequentially.
- *
- * @param {Object[]} events - Array of events sorted by version ascending
- * @returns {Promise<void>}
- */
+// projectMany(events) — process an ordered (by version asc) array sequentially.
 async function projectMany(events) {
   for (const event of events) {
     await project(event);

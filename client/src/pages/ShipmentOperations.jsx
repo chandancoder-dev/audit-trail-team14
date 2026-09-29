@@ -1,7 +1,14 @@
 import { commandAPI, queryAPI } from "../services/api";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import ConflictDialog from "../components/ConflictDialog";
 
 function ShipmentOperations() {
+  const navigate = useNavigate();
+
+  // OCC conflict dialog (shown when a command returns 409)
+  const [conflict, setConflict] = useState(null);
+
   // -----------------------------
   // Create Shipment State
   // -----------------------------
@@ -18,7 +25,7 @@ function ShipmentOperations() {
   // -----------------------------
   const [moveShipmentId, setMoveShipmentId] = useState("");
   const [currentLocation, setCurrentLocation] = useState("");
-  const [moveDestination, setMoveDestination] = useState("");
+  const [moveVessel, setMoveVessel] = useState("");
 
   const [moveErrors, setMoveErrors] = useState({});
   const [moveSuccessMessage, setMoveSuccessMessage] = useState("");
@@ -65,7 +72,7 @@ function ShipmentOperations() {
 
         // ShipmentView uses lastVersion
         setMoveVersion(shipment.lastVersion ?? null);
-      } catch (error) {
+      } catch {
         setMoveVersion(null);
       }
     };
@@ -90,7 +97,7 @@ function ShipmentOperations() {
 
         // ShipmentView uses lastVersion
         setTemperatureVersion(shipment.lastVersion ?? null);
-      } catch (error) {
+      } catch {
         setTemperatureVersion(null);
       }
     };
@@ -115,7 +122,7 @@ function ShipmentOperations() {
 
         // ShipmentView uses lastVersion
         setArrivalVersion(shipment.lastVersion ?? null);
-      } catch (error) {
+      } catch {
         setArrivalVersion(null);
       }
     };
@@ -193,10 +200,6 @@ function ShipmentOperations() {
       newErrors.currentLocation = "Current location is required";
     }
 
-    if (moveDestination.trim() === "") {
-      newErrors.moveDestination = "Destination is required";
-    }
-
     if (Object.keys(newErrors).length > 0) {
       setMoveErrors(newErrors);
       return;
@@ -216,7 +219,8 @@ function ShipmentOperations() {
       const response = await commandAPI.moveShipment(
         moveShipmentId.trim(),
         {
-          location: moveDestination.trim(),
+          location: currentLocation.trim(),
+          ...(moveVessel.trim() !== "" && { vessel: moveVessel.trim() }),
           expectedVersion: moveVersion,
         }
       );
@@ -231,7 +235,8 @@ function ShipmentOperations() {
 
       setMoveVersion(updatedShipment.lastVersion ?? null);
 
-      setCurrentLocation(moveDestination);
+      setCurrentLocation("");
+      setMoveVessel("");
     } catch (error) {
       if (error.status === 409) {
         setMoveErrors({
@@ -242,6 +247,10 @@ function ShipmentOperations() {
 
         if (error.currentVersion !== undefined) {
           setMoveVersion(error.currentVersion);
+          setConflict({
+            expectedVersion: error.expectedVersion,
+            currentVersion: error.currentVersion,
+          });
         }
 
         return;
@@ -324,6 +333,10 @@ function ShipmentOperations() {
 
         if (error.currentVersion !== undefined) {
           setTemperatureVersion(error.currentVersion);
+          setConflict({
+            expectedVersion: error.expectedVersion,
+            currentVersion: error.currentVersion,
+          });
         }
 
         return;
@@ -407,6 +420,10 @@ function ShipmentOperations() {
 
         if (error.currentVersion !== undefined) {
           setArrivalVersion(error.currentVersion);
+          setConflict({
+            expectedVersion: error.expectedVersion,
+            currentVersion: error.currentVersion,
+          });
         }
 
         return;
@@ -424,10 +441,15 @@ function ShipmentOperations() {
 
   return (
   <div className="min-h-screen bg-bg-primary px-5 py-10 font-sans">
+    <ConflictDialog
+      conflict={conflict}
+      onRefresh={() => window.location.reload()}
+      onClose={() => setConflict(null)}
+    />
     <div className="mx-auto max-w-4xl">
       <button
         type="button"
-        onClick={() => (window.location.href = "/dashboard")}
+        onClick={() => navigate("/dashboard")}
         className="mb-6 text-sm text-text-secondary transition hover:text-text-heading"
       >
         ← Back to Dashboard
@@ -662,33 +684,33 @@ function ShipmentOperations() {
 
           <div className="mb-7">
             <label className="mb-2 block text-sm font-semibold text-text-normal">
-              Destination
+              Vessel (optional)
             </label>
 
             <input
               type="text"
-              placeholder="Enter destination"
-              value={moveDestination}
+              placeholder="Enter vessel name"
+              value={moveVessel}
               onChange={(e) => {
-                setMoveDestination(e.target.value);
+                setMoveVessel(e.target.value);
 
-                if (moveErrors.moveDestination) {
+                if (moveErrors.moveVessel) {
                   setMoveErrors((previous) => ({
                     ...previous,
-                    moveDestination: "",
+                    moveVessel: "",
                   }));
                 }
               }}
               className={`w-full rounded-lg border bg-bg-input px-4 py-3 text-sm text-text-heading outline-none placeholder:text-text-placeholder focus:ring-2 focus:ring-primary/20 ${
-                moveErrors.moveDestination
+                moveErrors.moveVessel
                   ? "border-border-error focus:border-border-error"
                   : "border-border focus:border-ring"
               }`}
             />
 
-            {moveErrors.moveDestination && (
+            {moveErrors.moveVessel && (
               <p className="mt-2 text-sm text-error">
-                {moveErrors.moveDestination}
+                {moveErrors.moveVessel}
               </p>
             )}
           </div>

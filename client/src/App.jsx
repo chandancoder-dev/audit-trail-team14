@@ -13,6 +13,7 @@ import Features from "./pages/Features";
 import NavBar from "./components/Navbar";
 import DashboardNavBar from "./components/DashboardNavbar";
 import AnalyticsPage from "./features/analytics/AnalyticsPage";
+import AnalyticsOverview from "./features/analytics/AnalyticsOverview";
 import AlertsPage from "./features/alerts/AlertsPage";
 import AuditTimeline from "./components/AuditTimeline";
 import ShipmentDetail from "./features/shipmentDetail/ShipmentDetail";
@@ -25,9 +26,23 @@ import NotFound from "./pages/NotFound";
 function AppContent() {
   const location = useLocation();
 
+  // Pages that provide their own in-page "Back to Dashboard" navigation and
+  // should render without the global Navbar.
+  const hideNavbar =
+    location.pathname === "/shipment-operations" ||
+    location.pathname === "/analytics" ||
+    location.pathname === "/alerts" ||
+    location.pathname === "/historicalstate" ||
+    location.pathname.startsWith("/shipment/") ||
+    location.pathname.startsWith("/audittimeline/");
+
   return (
     <div className="min-h-screen bg-bg-primary text-text-normal">
-      {location.pathname !== "/shipment-operations" && location.pathname === "/dashboard" ? <DashboardNavBar/> : <NavBar/>}
+      {hideNavbar ? null : location.pathname === "/dashboard" ? (
+        <DashboardNavBar />
+      ) : (
+        <NavBar />
+      )}
 
       <Routes>
         {/* Main/Home */}
@@ -68,6 +83,9 @@ function AppContent() {
           path="/shipment/:id/analytics"
           element={<AnalyticsPage />}
         />
+
+        {/* Fleet Analytics Overview */}
+        <Route path="/analytics" element={<AnalyticsOverview />} />
 
         {/* Alerts */}
         <Route path="/alerts" element={<AlertsPage />} />

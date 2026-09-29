@@ -36,7 +36,7 @@ function applyTemperatureSpike(state, payload) {
 }
 
 function applyArrivedAtPort(state, payload) {
-  state.status = payload.status || "arrived";
+  state.status = payload.status || "Arrived";
   state.currentLocation =
     payload.location || state.currentLocation;
 

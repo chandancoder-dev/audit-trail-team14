@@ -160,7 +160,7 @@ function Dashboard() {
 
             
             
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <button
                  onClick={fetchback}
                  disabled={page === 1}
@@ -168,7 +168,11 @@ function Dashboard() {
                >
                  &larr;
                </button>
-             
+
+               <span className="px-2 text-sm text-[#A1A1AA] whitespace-nowrap">
+                 Page {page} of {totalPages}
+               </span>
+
                <button
     onClick={fetchfoward}
     disabled={page >= totalPages}
@@ -350,34 +354,19 @@ function Dashboard() {
             </Link>
 
 
-            {/* Analytics */}
-            {shipments.length > 0 ? (
-              <Link
-                to={`/shipment/${shipments[0].shipmentId}/analytics`}
-                className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-6 transition hover:-translate-y-1 hover:border-[#3B82F6]"
-              >
-                <h3 className="text-base font-semibold text-[#FAFAFA]">
-                  Analytics
-                </h3>
+            {/* Analytics — fleet overview */}
+            <Link
+              to="/analytics"
+              className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-6 transition hover:-translate-y-1 hover:border-[#3B82F6]"
+            >
+              <h3 className="text-base font-semibold text-[#FAFAFA]">
+                Analytics
+              </h3>
 
-                <p className="mt-2 text-sm leading-6 text-[#A1A1AA]">
-                  View shipment analytics and insights.
-                </p>
-              </Link>
-            ) : (
-              <div
-                aria-disabled="true"
-                className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-6 opacity-50 cursor-not-allowed"
-              >
-                <h3 className="text-base font-semibold text-[#FAFAFA]">
-                  Analytics
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-[#A1A1AA]">
-                  Create a shipment to view analytics and insights.
-                </p>
-              </div>
-            )}
+              <p className="mt-2 text-sm leading-6 text-[#A1A1AA]">
+                Fleet overview — status, activity and events across all shipments.
+              </p>
+            </Link>
 
           </div>
 

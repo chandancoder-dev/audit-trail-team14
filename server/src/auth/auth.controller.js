@@ -4,8 +4,16 @@ const jwt = require("jsonwebtoken")
 
 const register = async(req ,res) =>{
     const {name , username , email , password} = req.body;
-    console.log(req.body);
     try{
+        // Input validation
+        if(!name || !username || !email || !password){
+            return res.status(400).json({message : "name, username, email and password are required"});
+        }
+
+        if(password.length < 6){
+            return res.status(400).json({message : "password must be at least 6 characters"});
+        }
+
         const userExist = await User.findOne({email : email});
 
        if(userExist){
@@ -27,6 +35,10 @@ const register = async(req ,res) =>{
         });
     }
     catch(e){
+      // Unique-index race: duplicate email
+      if(e && e.code === 11000){
+        return res.status(409).json({message : "user already exist."});
+      }
       res.status(500).json({message : e.message});
 
     }
@@ -76,15 +88,17 @@ const resetPassword = async(req, res) =>{
 
         const user = await User.findOne({email : email});
 
+        // Generic message for both unknown email and wrong password to avoid
+        // leaking which emails are registered (user enumeration).
         if(!user){
-            return res.status(404).json({message : "User does not exist"});
+            return res.status(401).json({message : "Invalid email or current password"});
         }
 
         // Verify identity: the caller must know the current password.
         const match = await bcrypt.compare(currentPassword, user.password);
 
         if(!match){
-            return res.status(401).json({message : "Current password is incorrect"});
+            return res.status(401).json({message : "Invalid email or current password"});
         }
 
         const passwordHash = await bcrypt.hash(password,10);
@@ -104,7 +118,7 @@ const getCurrentUser = async(req , res) =>{
        
     try{
         const id = req.id;
-        const user = await User.findById(id);
+        const user = await User.findById(id).select("-password");
         if (!user) {
            return res.status(404).json({
            message: "User not found",

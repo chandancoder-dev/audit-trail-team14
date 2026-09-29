@@ -6,22 +6,6 @@ function formatLabel(key) {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-// Small icon per field name (falls back to a dot)
-const ICONS = {
-  origin: '📍',
-  destination: '🏁',
-  status: '🚚',
-  location: '📌',
-  carrier: '🚢',
-  weight: '⚖️',
-  vessel: '🚢',
-  port: '⚓',
-};
-
-function iconFor(key) {
-  return ICONS[key.toLowerCase()] || '🔹';
-}
-
 function renderValue(value) {
   if (value === null || value === undefined || value === '') {
     return <span className="text-[#6b6b70] italic text-base">Not provided</span>;
@@ -57,7 +41,6 @@ export default function EventPayloadViewer({ payload }) {
   return (
     <section>
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-base">📋</span>
         <h4 className="text-sm font-bold text-white">Payload</h4>
         <span className="text-[11px] font-semibold text-[#a0a0a5] bg-[#333336] px-2 py-0.5 rounded-full">
           {entries.length} {entries.length === 1 ? 'field' : 'fields'}
@@ -75,14 +58,9 @@ export default function EventPayloadViewer({ payload }) {
               key={key}
               className="bg-[#1c1c1e] border border-[#3a3a3d] rounded-xl p-4 hover:border-indigo-500/50 transition-colors"
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="w-7 h-7 rounded-lg bg-[#262628] border border-[#3a3a3d] flex items-center justify-center text-sm">
-                  {iconFor(key)}
-                </span>
-                <span className="text-[11px] font-semibold tracking-wider uppercase text-[#a0a0a5]">
-                  {formatLabel(key)}
-                </span>
-              </div>
+              <span className="block text-[11px] font-semibold tracking-wider uppercase text-[#a0a0a5] mb-2">
+                {formatLabel(key)}
+              </span>
               {renderValue(value)}
             </div>
           ))}

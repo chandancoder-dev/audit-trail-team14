@@ -17,12 +17,8 @@ async function appendEvent({ shipmentId, eventType, userId, payload, metadata })
   return event.save();
 }
 
-async function getEvents(shipmentId) {
-  return Event.find({ shipmentId }).sort({ version: 1 });
-}
-
 async function getTimeline(shipmentId) {
   return Event.find({ shipmentId }).sort({ version: -1 });
 }
 
-module.exports = { appendEvent, getEvents, getTimeline };
+module.exports = { appendEvent, getTimeline };

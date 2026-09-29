@@ -11,7 +11,7 @@ const Event = require('../src/models/Event');
 const ShipmentView = require('../src/projections/ShipmentView');
 const Alert = require('../src/alerts/Alert');
 
-const { getTemperatureAnalytics, getEventFrequency } = require('../src/analytics/analyticsService');
+const { getTemperatureAnalytics, getEventFrequency, getDashboardSummary, getEventTypeBreakdown, getShipmentInsights, getFleetOverview } = require('../src/analytics/analyticsService');
 const { generateAlertFromEvent } = require('../src/alerts/alertService');
 
 // ── Shared test events ────────────────────────────────────────────────────────
@@ -124,6 +124,210 @@ describe('analyticsService.getEventFrequency', () => {
   });
 });
 
+// ── Analytics: getDashboardSummary ───────────────────────────────────────────
+
+describe('analyticsService.getDashboardSummary', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  test('scopes all counts by userId', async () => {
+    ShipmentView.countDocuments = jest.fn().mockResolvedValue(3);
+    Event.countDocuments = jest.fn().mockResolvedValue(12);
+    ShipmentView.aggregate = jest.fn().mockResolvedValue([{ _id: null, avg: -17.5 }]);
+
+    const result = await getDashboardSummary('user-123');
+
+    // Every count must be filtered by the user
+    expect(ShipmentView.countDocuments).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'user-123' })
+    );
+    expect(Event.countDocuments).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'user-123' })
+    );
+    expect(result.totalShipments).toBe(3);
+    expect(result.totalEvents).toBe(12);
+    expect(result.avgTemperature).toBe(-17.5);
+  });
+
+  test('active-alerts count filters by userId AND hasTemperatureAlert', async () => {
+    ShipmentView.countDocuments = jest.fn().mockResolvedValue(1);
+    Event.countDocuments = jest.fn().mockResolvedValue(1);
+    ShipmentView.aggregate = jest.fn().mockResolvedValue([]);
+
+    await getDashboardSummary('user-abc');
+
+    expect(ShipmentView.countDocuments).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'user-abc', hasTemperatureAlert: true })
+    );
+  });
+
+  test('returns null avgTemperature when no readings', async () => {
+    ShipmentView.countDocuments = jest.fn().mockResolvedValue(0);
+    Event.countDocuments = jest.fn().mockResolvedValue(0);
+    ShipmentView.aggregate = jest.fn().mockResolvedValue([]);
+
+    const result = await getDashboardSummary('user-123');
+    expect(result.avgTemperature).toBeNull();
+  });
+});
+
+// ── Analytics: getEventTypeBreakdown ─────────────────────────────────────────
+
+describe('analyticsService.getEventTypeBreakdown', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  test('returns empty array when no events', async () => {
+    Event.find.mockReturnValue({ sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }) });
+    const result = await getEventTypeBreakdown('u1', 'SHIP-TEST');
+    expect(result).toEqual([]);
+  });
+
+  test('counts events grouped by type', async () => {
+    const events = [
+      makeEvent({ eventType: 'SHIPMENT_CREATED', version: 1 }),
+      makeEvent({ eventType: 'LOADED_ON_SHIP', version: 2 }),
+      makeEvent({ eventType: 'TEMPERATURE_SPIKE', version: 3 }),
+      makeEvent({ eventType: 'TEMPERATURE_SPIKE', version: 4 }),
+      makeEvent({ eventType: 'ARRIVED_AT_PORT', version: 5 }),
+    ];
+    Event.find.mockReturnValue({ sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(events) }) });
+
+    const result = await getEventTypeBreakdown('u1', 'SHIP-TEST');
+    const byType = Object.fromEntries(result.map((r) => [r.eventType, r.count]));
+    expect(byType.TEMPERATURE_SPIKE).toBe(2);
+    expect(byType.SHIPMENT_CREATED).toBe(1);
+    expect(byType.ARRIVED_AT_PORT).toBe(1);
+  });
+
+  test('orders results by lifecycle (created → loaded → spike → arrived)', async () => {
+    const events = [
+      makeEvent({ eventType: 'ARRIVED_AT_PORT', version: 4 }),
+      makeEvent({ eventType: 'SHIPMENT_CREATED', version: 1 }),
+      makeEvent({ eventType: 'LOADED_ON_SHIP', version: 2 }),
+    ];
+    Event.find.mockReturnValue({ sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(events) }) });
+
+    const result = await getEventTypeBreakdown('u1', 'SHIP-TEST');
+    expect(result.map((r) => r.eventType)).toEqual([
+      'SHIPMENT_CREATED',
+      'LOADED_ON_SHIP',
+      'ARRIVED_AT_PORT',
+    ]);
+  });
+});
+
+// ── Analytics: getShipmentInsights ───────────────────────────────────────────
+
+describe('analyticsService.getShipmentInsights', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  test('returns null when no events', async () => {
+    Event.find.mockReturnValue({ sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }) });
+    const result = await getShipmentInsights('u1', 'SHIP-TEST');
+    expect(result).toBeNull();
+  });
+
+  test('computes transit time between loaded and arrived', async () => {
+    const events = [
+      makeEvent({ eventType: 'SHIPMENT_CREATED', version: 1, recordedAt: new Date('2026-09-01T00:00:00Z') }),
+      makeEvent({ eventType: 'LOADED_ON_SHIP', version: 2, recordedAt: new Date('2026-09-01T04:00:00Z'), payload: { temperature: -18 } }),
+      makeEvent({ eventType: 'ARRIVED_AT_PORT', version: 3, recordedAt: new Date('2026-09-03T04:00:00Z'), payload: {} }),
+    ];
+    Event.find.mockReturnValue({ sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(events) }) });
+
+    const result = await getShipmentInsights('u1', 'SHIP-TEST');
+    // loaded -> arrived = 2 days = 172800000 ms
+    expect(result.durations.transitMs).toBe(2 * 24 * 60 * 60 * 1000);
+    // created -> loaded = 4 hours
+    expect(result.durations.timeToLoadMs).toBe(4 * 60 * 60 * 1000);
+    expect(result.milestones.arrivedAt).toBeTruthy();
+  });
+
+  test('cold chain maintained when all readings within threshold', async () => {
+    const events = [
+      makeEvent({ eventType: 'LOADED_ON_SHIP', version: 1, payload: { temperature: -18 } }),
+      makeEvent({ eventType: 'TEMPERATURE_SPIKE', version: 2, payload: { temperature: -16 } }),
+    ];
+    Event.find.mockReturnValue({ sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(events) }) });
+
+    const result = await getShipmentInsights('u1', 'SHIP-TEST');
+    expect(result.compliance.maintained).toBe(true);
+    expect(result.compliance.breachCount).toBe(0);
+  });
+
+  test('cold chain breached when a reading exceeds threshold', async () => {
+    const events = [
+      makeEvent({ eventType: 'LOADED_ON_SHIP', version: 1, payload: { temperature: -18 } }),
+      makeEvent({ eventType: 'TEMPERATURE_SPIKE', version: 2, payload: { temperature: -8 } }),
+    ];
+    Event.find.mockReturnValue({ sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(events) }) });
+
+    const result = await getShipmentInsights('u1', 'SHIP-TEST');
+    expect(result.compliance.maintained).toBe(false);
+    expect(result.compliance.breachCount).toBe(1);
+    expect(result.compliance.worstTemperature).toBe(-8);
+  });
+
+  test('maintained is null when there are no temperature readings', async () => {
+    const events = [
+      makeEvent({ eventType: 'SHIPMENT_CREATED', version: 1, payload: { origin: 'X' } }),
+    ];
+    Event.find.mockReturnValue({ sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(events) }) });
+
+    const result = await getShipmentInsights('u1', 'SHIP-TEST');
+    expect(result.compliance.maintained).toBeNull();
+  });
+});
+
+// ── Analytics: getFleetOverview ──────────────────────────────────────────────
+
+describe('analyticsService.getFleetOverview', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  test('aggregates status counts, totals and event types', async () => {
+    const views = [
+      { shipmentId: 'S1', status: 'arrived', hasTemperatureAlert: false, lastEventAt: new Date(), eventCount: 4 },
+      { shipmentId: 'S2', status: 'in_transit', hasTemperatureAlert: false, lastEventAt: new Date(), eventCount: 2 },
+      { shipmentId: 'S3', status: 'alert', hasTemperatureAlert: true, lastEventAt: new Date(), eventCount: 4 },
+      { shipmentId: 'S4', status: 'created', hasTemperatureAlert: false, lastEventAt: new Date(), eventCount: 1 },
+    ];
+    ShipmentView.find.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(views) }),
+      }),
+    });
+    Event.aggregate = jest.fn().mockResolvedValue([
+      { _id: 'SHIPMENT_CREATED', count: 4 },
+      { _id: 'ARRIVED_AT_PORT', count: 1 },
+    ]);
+    Event.countDocuments = jest.fn().mockResolvedValue(11);
+
+    const result = await getFleetOverview('u1');
+
+    expect(result.totals.shipments).toBe(4);
+    expect(result.totals.events).toBe(11);
+    expect(result.totals.activeAlerts).toBe(1);
+    expect(result.statusCounts).toEqual({ created: 1, in_transit: 1, arrived: 1, alert: 1 });
+    // event types ordered by lifecycle
+    expect(result.eventsByType[0].eventType).toBe('SHIPMENT_CREATED');
+    expect(result.shipments).toHaveLength(4);
+  });
+
+  test('handles an empty fleet', async () => {
+    ShipmentView.find.mockReturnValue({
+      select: jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
+      }),
+    });
+    Event.aggregate = jest.fn().mockResolvedValue([]);
+    Event.countDocuments = jest.fn().mockResolvedValue(0);
+
+    const result = await getFleetOverview('u1');
+    expect(result.totals.shipments).toBe(0);
+    expect(result.statusCounts).toEqual({ created: 0, in_transit: 0, arrived: 0, alert: 0 });
+    expect(result.shipments).toEqual([]);
+  });
+});
+
 // ── alertService: generateAlertFromEvent ─────────────────────────────────────
 
 describe('alertService.generateAlertFromEvent', () => {
@@ -144,9 +348,17 @@ describe('alertService.generateAlertFromEvent', () => {
   });
 
   test('creates critical alert when temperature exceeds threshold', async () => {
-    const event = makeEvent({ eventType: 'TEMPERATURE_SPIKE', payload: { temperature: -9, location: 'Red Sea' } });
+    const event = makeEvent({ eventType: 'TEMPERATURE_SPIKE', userId: 'user-123', payload: { temperature: -9, location: 'Red Sea' } });
     await generateAlertFromEvent(event);
     expect(Alert.create).toHaveBeenCalledWith(expect.objectContaining({ severity: 'critical' }));
+  });
+
+  test('includes userId on the created alert (schema requires it)', async () => {
+    const event = makeEvent({ eventType: 'TEMPERATURE_SPIKE', userId: 'user-123', payload: { temperature: -9, location: 'Red Sea' } });
+    await generateAlertFromEvent(event);
+    expect(Alert.create).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'user-123', shipmentId: 'SHIP-TEST' })
+    );
   });
 
   test('creates warning alert when temperature is within 2°C of threshold', async () => {

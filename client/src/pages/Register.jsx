@@ -14,11 +14,21 @@ function Register(){
     async function submitDetails(e){
         e.preventDefault();
 
+        if (!name.trim() || !username.trim() || !email.trim() || !password) {
+            alert("All fields are required");
+            return;
+        }
+
+        if (password.length < 6) {
+            alert("Password must be at least 6 characters");
+            return;
+        }
+
         try {
             const res = await authAPI.register({
-                name : name,
-                username : username,
-                email : email,
+                name : name.trim(),
+                username : username.trim(),
+                email : email.trim(),
                 password : password
             });
 
