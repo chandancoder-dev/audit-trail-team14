@@ -206,14 +206,16 @@ function HistoricalState() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-bg-primary px-4 py-6 font-sans text-text-heading sm:px-6 sm:py-8 md:px-10">
-      <button
-        type="button"
-        onClick={() => navigate(shipmentId ? `/shipment/${shipmentId}` : "/dashboard")}
-        className="mx-auto mb-5 flex max-w-275 items-center gap-1.5 text-sm text-text-secondary transition hover:text-text-heading"
-      >
-        <span aria-hidden="true">←</span>{" "}
-        {shipmentId ? "Back to Shipment" : "Back to Dashboard"}
-      </button>
+      <div className="mx-auto max-w-275">
+        <button
+          type="button"
+          onClick={() => navigate(shipmentId ? `/shipment/${shipmentId}` : "/dashboard")}
+          className="mb-5 inline-flex items-center gap-1.5 text-sm text-text-secondary transition hover:text-text-heading"
+        >
+          <span aria-hidden="true">←</span>{" "}
+          {shipmentId ? "Back to Shipment" : "Back to Dashboard"}
+        </button>
+      </div>
 
       {/* Header */}
       <header className="mx-auto mb-8 flex max-w-275 flex-col items-start justify-between gap-5 md:flex-row md:items-center md:gap-8">

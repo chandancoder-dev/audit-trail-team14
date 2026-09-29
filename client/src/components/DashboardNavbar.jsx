@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 
 function DashboardNavBar() {
