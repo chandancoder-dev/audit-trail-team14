@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const appendOnly = require("./plugins/appendOnly");
 
 const eventSchema = new mongoose.Schema(
   {
@@ -49,6 +50,12 @@ const eventSchema = new mongoose.Schema(
 
 eventSchema.index({ shipmentId: 1, recordedAt: 1 });
 eventSchema.index({ shipmentId: 1, version: 1 }, { unique: true });
+
+// ── Immutability Guard (application layer) ─────────────────────────────────────
+// The event store is append-only. This plugin rejects every update/replace/delete
+// path at the Mongoose layer. For DB-layer enforcement (native driver / mongosh),
+// pair with the least-privilege role from scripts/setupAppendOnlyRole.js.
+eventSchema.plugin(appendOnly);
 
 const Event = mongoose.model("Event", eventSchema);
 

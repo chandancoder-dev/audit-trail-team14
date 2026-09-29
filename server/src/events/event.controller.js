@@ -1,4 +1,4 @@
-const { appendEvent, getTimeline } = require("./eventStore");
+const { getTimeline } = require("./eventStore");
 
 async function getShipmentTimeline(req, res) {
   try {
@@ -9,16 +9,4 @@ async function getShipmentTimeline(req, res) {
   }
 }
 
-async function createEvent(req, res) {
-  try {
-    const event = await appendEvent({
-      shipmentId: req.params.id,
-      ...req.body,
-    });
-    res.status(201).json(event);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}
-
-module.exports = { getShipmentTimeline, createEvent };
+module.exports = { getShipmentTimeline };

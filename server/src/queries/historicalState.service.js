@@ -54,10 +54,9 @@ async function getHistoricalState(userId, shipmentId, date) {
 
   // Get all events for this shipment up to the selected time.
   const events = await Event.find({
-    userId,
     shipmentId,
     recordedAt: { $lte: selectedDate },
-  }).sort({ recordedAt: 1, version: 1 });
+  }).sort({ version: 1 });
 
   // Reconstruct state from the filtered events.
   return reconstructState(events);

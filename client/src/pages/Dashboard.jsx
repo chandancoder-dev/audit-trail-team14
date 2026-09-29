@@ -1,8 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { queryAPI, authAPI } from "../services/api.js";
 
 function Dashboard() {
+  const navigate = useNavigate();
+  const [searchId, setSearchId] = useState("");
   const [name, setName] = useState("");
   const [inTransit, setInTransit] = useState(0);
   const [total, setTotal] = useState(0);
@@ -10,6 +12,7 @@ function Dashboard() {
   const [alert, setAlert] = useState(0);
   const [shipments, setShipments] = useState([]);
   const [page , setpage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const fetchShipments = async (page = 1 , limit = 10) => {
     try {
       const res = await queryAPI.getShipments({
@@ -18,6 +21,7 @@ function Dashboard() {
       });
 
       setShipments(res.shipments || []);
+      setTotalPages(res.pages || 1);
     } catch (error) {
       console.log(error);
     }
@@ -36,7 +40,8 @@ function Dashboard() {
   }
    
   async function fetchfoward(){
-      
+      if(page >= totalPages)
+        return;
       const newPage = page+1;
       try{
          setpage(newPage);
@@ -66,6 +71,13 @@ function Dashboard() {
     fetchShipments();
   }, []);
 
+  function handleSearch(e) {
+    e.preventDefault();
+    const id = searchId.trim();
+    if (!id) return;
+    navigate(`/shipment/${encodeURIComponent(id)}`);
+  }
+
   return (
     <div className="min-h-screen bg-[#18181B] px-6 py-10">
       <div className="mx-auto max-w-6xl">
@@ -79,6 +91,28 @@ function Dashboard() {
           <p className="mt-3 text-base leading-7 text-[#A1A1AA] md:text-lg">
             Here's what's happening with your shipments.
           </p>
+
+          {/* Shipment ID search — Week 1 requirement */}
+          <form
+            onSubmit={handleSearch}
+            className="mt-6 flex flex-col gap-3 sm:flex-row"
+          >
+            <input
+              type="text"
+              value={searchId}
+              onChange={(e) => setSearchId(e.target.value)}
+              placeholder="Search by Shipment ID (e.g. SHIP-001)"
+              aria-label="Search by shipment ID"
+              className="w-full rounded-lg border border-[#3F3F46] bg-[#202023] px-4 py-3 text-[#FAFAFA] placeholder:text-[#71717A] outline-none transition focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 sm:max-w-md"
+            />
+
+            <button
+              type="submit"
+              className="rounded-lg bg-[#3B82F6] px-6 py-3 font-semibold text-white transition hover:bg-[#2563EB]"
+            >
+              Search
+            </button>
+          </form>
         </div>
 
 
@@ -126,18 +160,23 @@ function Dashboard() {
 
             
             
-            <button
-              onClick={fetchback}
-              className="px-4 py-2 rounded-lg border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors"  
-            >
-              &larr;
-            </button>
-            <button
-              onClick={fetchfoward} 
-              className="px-4 py-2 rounded-lg border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors"
-            >
-             &rarr;
-            </button>
+            <div className="flex gap-2">
+              <button
+                 onClick={fetchback}
+                 disabled={page === 1}
+                 className="px-4 py-2 rounded-lg border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-blue-400"
+               >
+                 &larr;
+               </button>
+             
+               <button
+    onClick={fetchfoward}
+    disabled={page >= totalPages}
+    className="px-4 py-2 rounded-lg border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-blue-400"
+  >
+    &rarr;
+               </button>
+            </div>
           </div>
 
 
@@ -312,18 +351,33 @@ function Dashboard() {
 
 
             {/* Analytics */}
-            <Link
-              to="/shipment/analytics"
-              className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-6 transition hover:-translate-y-1 hover:border-[#3B82F6]"
-            >
-              <h3 className="text-base font-semibold text-[#FAFAFA]">
-                Analytics
-              </h3>
+            {shipments.length > 0 ? (
+              <Link
+                to={`/shipment/${shipments[0].shipmentId}/analytics`}
+                className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-6 transition hover:-translate-y-1 hover:border-[#3B82F6]"
+              >
+                <h3 className="text-base font-semibold text-[#FAFAFA]">
+                  Analytics
+                </h3>
 
-              <p className="mt-2 text-sm leading-6 text-[#A1A1AA]">
-                View shipment analytics and insights.
-              </p>
-            </Link>
+                <p className="mt-2 text-sm leading-6 text-[#A1A1AA]">
+                  View shipment analytics and insights.
+                </p>
+              </Link>
+            ) : (
+              <div
+                aria-disabled="true"
+                className="rounded-xl border border-[#3F3F46] bg-[#27272A] p-6 opacity-50 cursor-not-allowed"
+              >
+                <h3 className="text-base font-semibold text-[#FAFAFA]">
+                  Analytics
+                </h3>
+
+                <p className="mt-2 text-sm leading-6 text-[#A1A1AA]">
+                  Create a shipment to view analytics and insights.
+                </p>
+              </div>
+            )}
 
           </div>
 

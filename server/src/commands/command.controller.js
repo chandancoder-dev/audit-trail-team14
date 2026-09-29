@@ -88,6 +88,14 @@ const createShipment = async (req, res) => {
   } catch (error) {
     console.error("Error creating shipment:", error);
 
+    if (error && error.code === 11000) {
+      return res.status(409).json({
+        status: "conflict",
+        message:
+          "Version conflict: shipment was modified concurrently. Please retry.",
+      });
+    }
+
     return res.status(500).json({
       status: "error",
       message: "Failed to create shipment",
@@ -99,7 +107,7 @@ const createShipment = async (req, res) => {
 const moveShipment = async (req, res) => {
   try {
     const { id } = req.params;
-    const { location, temperature } = req.body;
+    const { location, temperature, vessel } = req.body;
 
     // Shipment ID validation
     if (!id || id.trim() === "") {
@@ -174,6 +182,11 @@ const moveShipment = async (req, res) => {
       payload: {
         status: "In Transit",
         location: cleanLocation,
+        ...(vessel !== undefined &&
+          vessel !== null &&
+          String(vessel).trim() !== "" && {
+            vessel: String(vessel).trim(),
+          }),
         ...(temperature !== undefined && {
           temperature: Number(temperature),
         }),
@@ -196,6 +209,14 @@ const moveShipment = async (req, res) => {
   } catch (error) {
     console.error("Error moving shipment:", error);
 
+    if (error && error.code === 11000) {
+      return res.status(409).json({
+        status: "conflict",
+        message:
+          "Version conflict: shipment was modified concurrently. Please retry.",
+      });
+    }
+
     return res.status(500).json({
       status: "error",
       message: "Failed to move shipment",
@@ -207,7 +228,7 @@ const moveShipment = async (req, res) => {
 const recordTemperature = async (req, res) => {
   try {
     const { id } = req.params;
-    const { temperature, location } = req.body;
+    const { temperature, location, threshold } = req.body;
 
     // Shipment ID validation
     if (!id || id.trim() === "") {
@@ -233,6 +254,19 @@ const recordTemperature = async (req, res) => {
       return res.status(400).json({
         status: "error",
         message: "temperature must be a valid number",
+      });
+    }
+
+    // Optional threshold validation
+    if (
+      threshold !== undefined &&
+      threshold !== null &&
+      threshold !== "" &&
+      Number.isNaN(Number(threshold))
+    ) {
+      return res.status(400).json({
+        status: "error",
+        message: "threshold must be a valid number",
       });
     }
 
@@ -275,6 +309,11 @@ const recordTemperature = async (req, res) => {
             ? location.trim()
             : "At Sea",
         temperature: Number(temperature),
+        ...(threshold !== undefined &&
+          threshold !== null &&
+          threshold !== "" && {
+            threshold: Number(threshold),
+          }),
       },
       metadata: {
         source: "command-api",
@@ -293,6 +332,14 @@ const recordTemperature = async (req, res) => {
     });
   } catch (error) {
     console.error("Error recording temperature:", error);
+
+    if (error && error.code === 11000) {
+      return res.status(409).json({
+        status: "conflict",
+        message:
+          "Version conflict: shipment was modified concurrently. Please retry.",
+      });
+    }
 
     return res.status(500).json({
       status: "error",
@@ -388,6 +435,14 @@ const arriveShipment = async (req, res) => {
     });
   } catch (error) {
     console.error("Error recording shipment arrival:", error);
+
+    if (error && error.code === 11000) {
+      return res.status(409).json({
+        status: "conflict",
+        message:
+          "Version conflict: shipment was modified concurrently. Please retry.",
+      });
+    }
 
     return res.status(500).json({
       status: "error",

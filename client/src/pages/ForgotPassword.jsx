@@ -4,9 +4,11 @@ import axios from "axios";
 function ForgotPassword() {
 
     const [email, setemail] = useState("");
+    const [currentpassword, setcurrentpassword] = useState("");
     const [newpassword, setnewpassword] = useState("");
     const [confirmpassword, setconfirmpassword] = useState("");
 
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -20,11 +22,12 @@ function ForgotPassword() {
          
          await axios.post("http://localhost:8000/api/auth/reset-password",{
             email : email,
+            currentPassword: currentpassword,
             password: newpassword
         }).then((res)=>{
            alert(res.data.message);
         }).catch((err)=>{
-            alert(err.message);
+            alert(err.response?.data?.message || err.message);
         })
     }
 
@@ -100,6 +103,72 @@ function ForgotPassword() {
                                     focus:ring-[#3B82F6]/20
                                 "
                             />
+
+                        </div>
+
+
+                        {/* Current Password */}
+                        <div>
+
+                            <label
+                                htmlFor="currentpassword"
+                                className="block mb-2 text-sm font-medium text-[#D4D4D8]"
+                            >
+                                Current Password
+                            </label>
+
+                            <div className="relative">
+
+                                <input
+                                    type={
+                                        showCurrentPassword
+                                            ? "text"
+                                            : "password"
+                                    }
+                                    id="currentpassword"
+                                    placeholder="Enter current password"
+                                    value={currentpassword}
+                                    onChange={(e) =>
+                                        setcurrentpassword(e.target.value)
+                                    }
+                                    required
+                                    className="
+                                        w-full
+                                        rounded-lg
+                                        border border-[#3F3F46]
+                                        bg-[#202023]
+                                        px-4 py-3
+                                        pr-16
+                                        text-[#FAFAFA]
+                                        placeholder:text-[#71717A]
+                                        outline-none
+                                        transition
+                                        focus:border-[#3B82F6]
+                                        focus:ring-2
+                                        focus:ring-[#3B82F6]/20
+                                    "
+                                />
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowCurrentPassword(!showCurrentPassword)
+                                    }
+                                    className="
+                                        absolute
+                                        right-3
+                                        top-1/2
+                                        -translate-y-1/2
+                                        text-sm
+                                        text-[#71717A]
+                                        hover:text-[#D4D4D8]
+                                        transition
+                                    "
+                                >
+                                    {showCurrentPassword ? "Hide" : "Show"}
+                                </button>
+
+                            </div>
 
                         </div>
 
